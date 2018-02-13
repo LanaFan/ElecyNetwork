@@ -6,3 +6,10 @@ D:\DataBase\ElecyServer\ElecyServer\ElecyServer\bin\Debug\Bindings.pdb
 D:\DataBase\ElecyServer\ElecyServer\ElecyServer\obj\Debug\ElecyServer.pdb
 D:\DataBase\ElecyServer\ElecyServer\ElecyServer\bin\Debug\ElecyServer.exe
 D:\DataBase\ElecyServer\ElecyServer\ElecyServer\obj\Debug\ElecyServer.exe
+D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.exe
+D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.pdb
+D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\ElecyServer.exe
+D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\ElecyServer.pdb
+D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\Bindings.dll
+D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\Bindings.pdb
+D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csprojResolveAssemblyReference.cache

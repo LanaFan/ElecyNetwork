@@ -37,12 +37,10 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             string name = buffer.ReadString();
-            string password = buffer.ReadString();
+            //string password = buffer.ReadString();
             buffer.Dispose();
 
-            Console.WriteLine("Login: " + name + ", password : " + password + "(Register)");
-
-
+            Console.WriteLine("Login: " + name + ", password :  /*password*/  (Register)");
         }
 
         private static void HandleLoginTry(int index, byte[] data)
@@ -51,10 +49,10 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             string name = buffer.ReadString();
-            string password = buffer.ReadString();
+            //string password = buffer.ReadString();
             buffer.Dispose();
 
-            Console.WriteLine("Login: " + name + ", password : " + password + "(Login)");
+            Console.WriteLine("Login: " + name + ", password :  /*password*/  (Login)");
         }
 
         public static void HandleNetworkInformation(int index, byte[] data)

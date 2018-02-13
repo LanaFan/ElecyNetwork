@@ -14,7 +14,7 @@ public class MySQL
             DB_RS = new Recordset();
             DB_CONN = new Connection();
 
-            DB_CONN.ConnectionString = "Driver={MySQL ODBC 3.51 Driver}; Server=localhost; Port=24985;Database=elecyproject;User=root;Password=;Option=3;";
+            DB_CONN.ConnectionString = "Driver={MySQL ODBC 3.51 Driver}; Server=localhost; Port=3306;Database=elecyproject;User=root;Password=;Option=3;";
             DB_CONN.CursorLocation = CursorLocationEnum.adUseServer;
             DB_CONN.Open();
             Console.WriteLine("Connection to MySQL server completed!");
