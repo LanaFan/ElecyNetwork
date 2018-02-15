@@ -69,6 +69,9 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SConnectionOK);
             buffer.WriteString("Connection to server with IP '" + GetLocalIPAddress() + "' succesfull.");
+            buffer.WriteString("CYKA");
+            buffer.WriteString("EBAT");
+            buffer.WriteFloat((Single)2.44);
             SendDataTo(index, buffer.ToArray());
             buffer.Dispose();
         }
@@ -110,6 +113,7 @@ namespace ElecyServer
             try
             {
                 int received = socket.EndReceive(ar);
+
                 if(received <= 0)
                 {
                     CloseClient(index);
@@ -124,6 +128,7 @@ namespace ElecyServer
             }
             catch
             {
+                Console.WriteLine("catch");
                 CloseClient(index);
             }
         }
