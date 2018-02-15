@@ -13,3 +13,12 @@ D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\Bindings.dll
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\Bindings.pdb
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csprojResolveAssemblyReference.cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\ElecyServer.exe
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\ElecyServer.pdb
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\Bindings.dll
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\Bindings.pdb
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csprojResolveAssemblyReference.cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csproj.CoreCompileInputs.cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.exe
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.pdb
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\adodb.dll

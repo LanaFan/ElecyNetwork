@@ -11,7 +11,6 @@ namespace ElecyServer
 
         public static void InitializeNetworkPackages()
         {
-            Console.WriteLine("Инициализация пакетов сети.");
             Packets = new Dictionary<int, Packet_>
             {
                 {(int)ClientPackets.CConnectcomplite, HandleConnect },
@@ -36,11 +35,11 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
-            string name = buffer.ReadString();
+            string username = buffer.ReadString();
             string password = buffer.ReadString();
+            Global.data.AddAccount(username, password);
             buffer.Dispose();
-
-            Console.WriteLine("Login: " + name + ", password : " + password +  "(Register)");
+            ServerSendData.SendRegisterOk(index);
         }
 
         private static void HandleLoginTry(int index, byte[] data)
@@ -48,11 +47,19 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
-            string name = buffer.ReadString();
+            string username = buffer.ReadString();
             string password = buffer.ReadString();
+            if(!Global.data.AccountExist(index, username))
+            {
+                return;
+            }
+            if(!Global.data.PasswordIsOkay(index, username, password))
+            {
+                return;
+            }
             buffer.Dispose();
-
-            Console.WriteLine("Login: " + name + ", password : " + password + "(Login)");
+            Console.WriteLine("Player: " + username + " logged in succesfully");
+            ServerSendData.SendLoginOk(index, username);
         }
 
         public static void HandleNetworkInformation(int index, byte[] data)
