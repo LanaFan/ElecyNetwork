@@ -37,8 +37,15 @@ namespace ElecyServer
             buffer.ReadInteger();
             string username = buffer.ReadString();
             string password = buffer.ReadString();
+            if(Global.data.AccountExist(index,username))
+            {
+                ServerSendData.SendAlert(index, "Account already exist.");
+                Console.WriteLine("1");
+                return;
+            }
             Global.data.AddAccount(username, password);
             buffer.Dispose();
+            Console.WriteLine("Player: " + username + " succesfully registered.");
             ServerSendData.SendRegisterOk(index);
         }
 
@@ -51,10 +58,12 @@ namespace ElecyServer
             string password = buffer.ReadString();
             if(!Global.data.AccountExist(index, username))
             {
+                ServerSendData.SendAlert(index, "Invalid account name.");
                 return;
             }
             if(!Global.data.PasswordIsOkay(index, username, password))
             {
+                ServerSendData.SendAlert(index, "Invalid password.");
                 return;
             }
             buffer.Dispose();

@@ -6,9 +6,6 @@ namespace ElecyServer
 {
     class ServerSendData
     {
-        private delegate void Packet_(int index, byte[] data);
-        private static Dictionary<int, Packet_> Packets;
-
         public static void SendAlert(int index, string message)
         {
             PacketBuffer buffer = new PacketBuffer();
@@ -30,6 +27,7 @@ namespace ElecyServer
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRegisterOK);
+            buffer.WriteString("Registration complite.");
             ServerTCP.SendDataTo(index, buffer.ToArray());
             buffer.Dispose();
         }
