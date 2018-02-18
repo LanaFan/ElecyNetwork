@@ -38,8 +38,9 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
             buffer.WriteString(username);
-            Console.WriteLine(buffer.ReadInteger() + " || " + buffer.ReadString());
+
             ServerTCP.SendDataTo(index, buffer.ToArray());
+            Console.WriteLine(buffer.ReadInteger() + " || " + buffer.ReadString());
             buffer.Dispose();
         }
     }
