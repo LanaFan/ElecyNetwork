@@ -34,9 +34,11 @@ namespace ElecyServer
 
         public static void SendLoginOk(int index, string username)
         {
+            Console.WriteLine("I'm sending LogOk");
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
             buffer.WriteString(username);
+            Console.WriteLine(buffer.ReadInteger() + " || " + buffer.ReadString());
             ServerTCP.SendDataTo(index, buffer.ToArray());
             buffer.Dispose();
         }

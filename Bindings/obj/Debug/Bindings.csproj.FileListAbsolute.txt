@@ -9,3 +9,9 @@ D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\Bindings\bin\Debug\Bin
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\Bindings\obj\Debug\Bindings.csprojResolveAssemblyReference.cache
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\Bindings\obj\Debug\Bindings.dll
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\Bindings\obj\Debug\Bindings.pdb
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\bin\Debug\Bindings.dll
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\bin\Debug\Bindings.pdb
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\obj\Debug\Bindings.csprojResolveAssemblyReference.cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\obj\Debug\Bindings.csproj.CoreCompileInputs.cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\obj\Debug\Bindings.dll
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\obj\Debug\Bindings.pdb
