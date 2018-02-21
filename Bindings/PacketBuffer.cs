@@ -91,7 +91,7 @@ namespace Bindings
             }
             else
             {
-                throw new Exception("Буффкр достиг своего лимита!");
+                throw new Exception("Буффер достиг своего лимита!");
             }
         }
         public float ReadFloat(bool peek = true)

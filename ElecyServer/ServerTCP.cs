@@ -125,7 +125,6 @@ namespace ElecyServer
             }
             catch
             {
-                Console.WriteLine("catch");
                 CloseClient(index);
             }
         }

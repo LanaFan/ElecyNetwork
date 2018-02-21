@@ -32,15 +32,12 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendLoginOk(int index, string username)
+        public static void SendLoginOk(int index)
         {
-            Console.WriteLine("I'm sending LogOk");
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
-            buffer.WriteString(username);
-
+            buffer.WriteString("Name");
             ServerTCP.SendDataTo(index, buffer.ToArray());
-            Console.WriteLine(buffer.ReadInteger() + " || " + buffer.ReadString());
             buffer.Dispose();
         }
     }
