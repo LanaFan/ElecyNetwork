@@ -15,9 +15,8 @@ namespace ElecyServer
             var DB_RS = Global.mysql.DB_RS;
             {
                 DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                if(DB_RS.EOF)
+                if (DB_RS.EOF)
                 {
-                    ServerSendData.SendAlert(index, "Username does not exist");
                     DB_RS.Close();
                     return false;
                 }
@@ -37,7 +36,6 @@ namespace ElecyServer
                 DB_RS.Open("SELECT'" + username + "' FROM accounts WHERE Password='" + password + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
                 if (DB_RS.EOF)
                 {
-                    ServerSendData.SendAlert(index, "Incorrect password");
                     DB_RS.Close();
                     return false;
                 }

@@ -11,16 +11,9 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SAlert);
             buffer.WriteString(message);
-            ServerTCP.SendDataTo(index, buffer.ToArray());
+            ServerTCP.SendData(index, buffer.ToArray());
             buffer.Dispose();
-        }
-
-        public static void SendConnectionOk(int index)
-        {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteInteger((int)ServerPackets.SConnectionOK);
-            ServerTCP.SendDataTo(index, buffer.ToArray());
-            buffer.Dispose();
+            Console.WriteLine("Send alert!");
         }
 
         public static void SendRegisterOk(int index)
@@ -28,7 +21,8 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRegisterOK);
             buffer.WriteString("Registration complite.");
-            ServerTCP.SendDataTo(index, buffer.ToArray());
+            ServerTCP.SendData(index, buffer.ToArray());
+            Console.WriteLine("RegisterOK sended");
             buffer.Dispose();
         }
 
@@ -37,7 +31,8 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
             buffer.WriteString("Name");
-            ServerTCP.SendDataTo(index, buffer.ToArray());
+            ServerTCP.SendData(index, buffer.ToArray());
+            Console.WriteLine("LoginOK sended");
             buffer.Dispose();
         }
     }

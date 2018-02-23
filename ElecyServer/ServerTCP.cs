@@ -51,7 +51,6 @@ namespace ElecyServer
             }
         } 
 
-        //Method to avoid packages drop
         public static void SendDataTo(int index, byte[] data)
         {
             byte[] sizeinfo = new byte[4];
@@ -61,6 +60,11 @@ namespace ElecyServer
             sizeinfo[3] = (byte)(data.Length >> 24);
 
             _clients[index].socket.Send(sizeinfo);
+            _clients[index].socket.Send(data);
+        }
+
+        public static void SendData(int index, byte[] data)
+        {
             _clients[index].socket.Send(data);
         }
 
