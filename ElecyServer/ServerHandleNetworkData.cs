@@ -37,13 +37,18 @@ namespace ElecyServer
             buffer.ReadInteger();
             string username = buffer.ReadString();
             string password = buffer.ReadString();
+            string nickname = buffer.ReadString();
             if(Global.data.AccountExist(index,username))
             {
-                ServerSendData.SendAlert(index, "Username already exists");
-                Console.WriteLine("Invalid password!");
+                ServerSendData.SendAlert(index, "Username already exist");
                 return;
             }
-            Global.data.AddAccount(username, password);
+            if(Global.data.NicknameExist(index, nickname))
+            {
+                ServerSendData.SendAlert(index, "Nickname already exist");
+                return;
+            }
+            Global.data.AddAccount(username, password, nickname);
             buffer.Dispose();
             Console.WriteLine("Player: " + username + " succesfully registered.");
             ServerSendData.SendRegisterOk(index);
@@ -59,18 +64,16 @@ namespace ElecyServer
             if (!Global.data.AccountExist(index, username))
             {
                 ServerSendData.SendAlert(index, "Username does not exist.");
-                Console.WriteLine("Invalid username!");
                 return;
             }
             if (!Global.data.PasswordIsOkay(index, username, password))
             {
                 ServerSendData.SendAlert(index, "Invalid password.");
-                Console.WriteLine("Invalid password!");
                 return;
             }
             buffer.Dispose();
             Console.WriteLine("Player: " + username + " logged in succesfully");
-            ServerSendData.SendLoginOk(index);
+            ///ServerTCP.PlayerLogin(index,nickname,levels,ranks);
         }
 
         public static void HandleNetworkInformation(int index, byte[] data)

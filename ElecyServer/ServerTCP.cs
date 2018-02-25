@@ -14,19 +14,21 @@ namespace ElecyServer
 
         //Creating clients array
         public static Client[] _clients = new Client[Constants.MAX_PLAYERS];
+        public static Player[] _players = new Player[Constants.MAX_PLAYERS];
 
         //Server Setup
         public static void SetupServer()
         {
-            Console.WriteLine("Сервер запущен на Ip адресе {0} и порте {1}.", GetLocalIPAddress(), 24985);
+
             for (int i = 0; i < Constants.MAX_PLAYERS; i++)
             {
                 _clients[i] = new Client();
+                _players[i] = new Player();
             }
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, 24985));
             _serverSocket.Listen(10);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-            
+            Console.WriteLine("Сервер запущен на Ip адресе {0} и порте {1}.", GetLocalIPAddress(), 24985);            
         }
 
         //Get the info about connetcion
@@ -49,7 +51,26 @@ namespace ElecyServer
                     return;
                 }
             }
-        } 
+        }
+
+        public static void PlayerLogin(int index, string nickname, int[]levels, int[]ranks)
+        {
+            for(int i = 0; i < Constants.MAX_PLAYERS; i++)
+            {
+                if (_players[i].playerSocket == null)
+                {
+                    _players[i].playerSocket = _clients[index].socket;
+                    _players[i].index = i;
+                    _players[i].ip = _clients[index].ip;
+                    _players[i].nickname = nickname;
+                    for (int leveli = 0; leveli < 5; leveli++)
+                        _players[i].level[leveli] = levels[leveli];
+                    for (int ranki = 0; ranki < 5; ranki++)
+                        _players[i].Rank[ranki] = ranks[ranki];
+                    _players[i].StartPlayer();
+                }
+            }
+        }
 
         public static void SendDataTo(int index, byte[] data)
         {
@@ -139,6 +160,68 @@ namespace ElecyServer
             Console.WriteLine("Соединение от {0} было разорвано.", ip);
             //PlayerLeft();
             socket.Close();
+        }
+    }
+
+     public class Player
+    {
+        public int index;
+        public string ip;
+        public string nickname;
+        public bool playerClosing = false;
+        public int[] level = new int[5];
+        public int[] Rank = new int[5];
+        public byte[] _buffer = new byte[1024];
+        public playerState state;
+        public Socket playerSocket = null;
+
+        public enum playerState
+        {
+            InMainLobby = 1,
+            SearchingForMatch = 2,
+            Playing = 3,
+            EndPlaying = 4
+        }
+
+        public void StartPlayer()
+        {
+            state = playerState.InMainLobby;
+            playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
+            playerClosing = false;
+        }
+
+        public void PlayerReceiveCallback(IAsyncResult ar)
+        {
+            Socket socket = (Socket)ar.AsyncState;
+
+            try
+            {
+                int received = socket.EndReceive(ar);
+
+                if (received <= 0)
+                {
+                    ClosePlayer(index);
+                }
+                else
+                {
+                    byte[] dataBuffer = new byte[received];
+                    Array.Copy(_buffer, dataBuffer, received);
+                    ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer);
+                    playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
+                }
+            }
+            catch
+            {
+                ClosePlayer(index);
+            }
+        }
+
+        private void ClosePlayer(int index)
+        {
+            playerClosing = true;
+            Console.WriteLine("Соединение от {0} было разорвано.", ip);
+            //PlayerLeft();
+            playerSocket.Close();
         }
     }
 }

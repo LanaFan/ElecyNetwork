@@ -13,7 +13,6 @@ namespace ElecyServer
             buffer.WriteString(message);
             ServerTCP.SendData(index, buffer.ToArray());
             buffer.Dispose();
-            Console.WriteLine("Send alert!");
         }
 
         public static void SendRegisterOk(int index)
@@ -22,7 +21,6 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SRegisterOK);
             buffer.WriteString("Registration complite.");
             ServerTCP.SendData(index, buffer.ToArray());
-            Console.WriteLine("RegisterOK sended");
             buffer.Dispose();
         }
 
@@ -32,7 +30,6 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
             buffer.WriteString("Name");
             ServerTCP.SendData(index, buffer.ToArray());
-            Console.WriteLine("LoginOK sended");
             buffer.Dispose();
         }
     }
