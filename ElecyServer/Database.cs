@@ -101,5 +101,15 @@ namespace ElecyServer
                 return nickname;
             }
         }
+
+        public int[] GetAccountLevels(string username)
+        {
+            int[] levels = new int[5];
+            var DB_RS = Global.mysql.DB_RS;
+            {
+                DB_RS.Open("SELECT'" + username + "'FROM accounts WHERE 0=1", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                levels[0] = 
+            }
+        }
     }
 }
