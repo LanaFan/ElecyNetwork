@@ -93,23 +93,24 @@ namespace ElecyServer
 
         public string GetAccountNickname(string username)
         {
+            string nickname;
             var DB_RS = Global.mysql.DB_RS;
             {
-                DB_RS.Open("SELECT'" + username + "'FROM accounts WHERE 0=1", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                string nickname = (string)DB_RS.Fields["Nickname"].Value;
+                DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username+ "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                nickname = DB_RS.Fields["Nickname"].Value.ToString();
                 DB_RS.Close();
                 return nickname;
             }
         }
 
-        public int[] GetAccountLevels(string username)
-        {
-            int[] levels = new int[5];
-            var DB_RS = Global.mysql.DB_RS;
-            {
-                DB_RS.Open("SELECT'" + username + "'FROM accounts WHERE 0=1", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                levels[0] = 
-            }
-        }
+        //public int[] GetAccountLevels(string username)
+        //{
+        //    int[] levels = new int[5];
+        //    var DB_RS = Global.mysql.DB_RS;
+        //    {
+        //        DB_RS.Open("SELECT'" + username + "'FROM accounts WHERE 0=1", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+        //        levels[0] = 
+        //    }
+        //}
     }
 }
