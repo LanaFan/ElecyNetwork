@@ -72,8 +72,11 @@ namespace ElecyServer
                 return;
             }
             buffer.Dispose();
+            string nickname = Global.data.GetAccountNickname(username);
+            int[][] accountdata = Global.data.GetAccountLevels(username);
+            ServerTCP.PlayerLogin(index, nickname, accountdata);
+            //SendLoginOk();
             Console.WriteLine("Player: " + username + " logged in succesfully");
-            ///ServerTCP.PlayerLogin(index,nickname,levels,ranks);
         }
 
         public static void HandleNetworkInformation(int index, byte[] data)

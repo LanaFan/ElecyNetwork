@@ -103,14 +103,30 @@ namespace ElecyServer
             }
         }
 
-        //public int[] GetAccountLevels(string username)
-        //{
-        //    int[] levels = new int[5];
-        //    var DB_RS = Global.mysql.DB_RS;
-        //    {
-        //        DB_RS.Open("SELECT'" + username + "'FROM accounts WHERE 0=1", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-        //        levels[0] = 
-        //    }
-        //}
+        public int[][] GetAccountLevels(string username)
+        {
+            int[][] _return = new int[2][];
+            int[] levels = new int[5];
+            int[] ranks = new int[5];
+            var DB_RS = Global.mysql.DB_RS;
+            {
+                DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                levels[0] = Convert.ToInt32(DB_RS.Fields["IgnisLevel"].Value);
+                levels[1] = Convert.ToInt32(DB_RS.Fields["TerraLevel"].Value);
+                levels[2] = Convert.ToInt32(DB_RS.Fields["CaeliLevel"].Value);
+                levels[3] = Convert.ToInt32(DB_RS.Fields["AquaLevel"].Value);
+                levels[4] = Convert.ToInt32(DB_RS.Fields["PrimusLevel"].Value);
+                ranks[0] = Convert.ToInt32(DB_RS.Fields["IgnisRank"].Value);
+                ranks[1] = Convert.ToInt32(DB_RS.Fields["TerraRank"].Value);
+                ranks[2] = Convert.ToInt32(DB_RS.Fields["CaeliRank"].Value);
+                ranks[3] = Convert.ToInt32(DB_RS.Fields["AquaRank"].Value);
+                ranks[4] = Convert.ToInt32(DB_RS.Fields["PrimusRank"].Value);
+                DB_RS.Close();
+            }
+            _return[0] = levels;
+            _return[1] = ranks;
+
+            return _return;
+        }
     }
 }

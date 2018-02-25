@@ -53,7 +53,7 @@ namespace ElecyServer
             }
         }
 
-        public static void PlayerLogin(int index, string nickname, int[]levels, int[]ranks)
+        public static void PlayerLogin(int index, string nickname, int[][]accountdata)
         {
             for(int i = 0; i < Constants.MAX_PLAYERS; i++)
             {
@@ -64,10 +64,11 @@ namespace ElecyServer
                     _players[i].ip = _clients[index].ip;
                     _players[i].nickname = nickname;
                     for (int leveli = 0; leveli < 5; leveli++)
-                        _players[i].level[leveli] = levels[leveli];
+                        _players[i].level[leveli] = accountdata[0][leveli];
                     for (int ranki = 0; ranki < 5; ranki++)
-                        _players[i].Rank[ranki] = ranks[ranki];
+                        _players[i].Rank[ranki] = accountdata[1][ranki];
                     _players[i].StartPlayer();
+                    _clients[index].socket = null;
                 }
             }
         }
