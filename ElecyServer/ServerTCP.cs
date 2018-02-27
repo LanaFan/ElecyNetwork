@@ -68,6 +68,7 @@ namespace ElecyServer
                     for (int ranki = 0; ranki < 5; ranki++)
                         _players[i].Rank[ranki] = accountdata[1][ranki];
                     _players[i].StartPlayer(index);
+                    return;
                 }
             }
         }
@@ -161,7 +162,7 @@ namespace ElecyServer
             }
         }
 
-        private void CloseClient(int index)
+        public void CloseClient(int index)
         {
             closing = true;
             Console.WriteLine("Соединение от {0} было разорвано.", ip);
@@ -195,7 +196,6 @@ namespace ElecyServer
             state = playerState.InMainLobby;
             playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
             playerClosing = false;
-            ServerTCP._clients[index].socket.Close(); 
         }
 
         public void PlayerReceiveCallback(IAsyncResult ar)
