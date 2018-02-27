@@ -24,11 +24,21 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendLoginOk(int index)
+        public static void SendLoginOk(int index, string nickname, int[][]accountdata)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
-            buffer.WriteString("Name");
+            buffer.WriteString(nickname);
+            buffer.WriteInteger(accountdata[0][0]);
+            buffer.WriteInteger(accountdata[0][1]);
+            buffer.WriteInteger(accountdata[0][2]);
+            buffer.WriteInteger(accountdata[0][3]);
+            buffer.WriteInteger(accountdata[0][4]);
+            buffer.WriteInteger(accountdata[1][0]);
+            buffer.WriteInteger(accountdata[1][1]);
+            buffer.WriteInteger(accountdata[1][2]);
+            buffer.WriteInteger(accountdata[1][3]);
+            buffer.WriteInteger(accountdata[1][4]);
             ServerTCP.SendData(index, buffer.ToArray());
             buffer.Dispose();
         }

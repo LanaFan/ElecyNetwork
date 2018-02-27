@@ -67,8 +67,7 @@ namespace ElecyServer
                         _players[i].level[leveli] = accountdata[0][leveli];
                     for (int ranki = 0; ranki < 5; ranki++)
                         _players[i].Rank[ranki] = accountdata[1][ranki];
-                    _players[i].StartPlayer();
-                    _clients[index].socket = null;
+                    _players[i].StartPlayer(index);
                 }
             }
         }
@@ -131,26 +130,33 @@ namespace ElecyServer
         //Get the callback from client
         private void ReceiveCallback(IAsyncResult ar)
         {
+            Console.WriteLine(_buffer.Length);
             Socket socket = (Socket)ar.AsyncState;
 
             try
             {
                 int received = socket.EndReceive(ar);
-
+                Console.WriteLine("1");
                 if(received <= 0)
                 {
+                    Console.WriteLine("rec = 0");
                     CloseClient(index);
                 }
                 else
                 {
+                    Console.WriteLine("2");
                     byte[] dataBuffer = new byte[received];
+                    Console.WriteLine("3");
                     Array.Copy(_buffer, dataBuffer, received);
+                    Console.WriteLine("4");
                     ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer);
+                    Console.WriteLine("5");
                     socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
                 }
             }
             catch
             {
+                Console.WriteLine("else");
                 CloseClient(index);
             }
         }
@@ -184,11 +190,12 @@ namespace ElecyServer
             EndPlaying = 4
         }
 
-        public void StartPlayer()
+        public void StartPlayer(int index)
         {
             state = playerState.InMainLobby;
             playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
             playerClosing = false;
+            ServerTCP._clients[index].socket.Close(); 
         }
 
         public void PlayerReceiveCallback(IAsyncResult ar)
