@@ -15,8 +15,24 @@ namespace ElecyServer
             {
                 {(int)ClientPackets.CConnectcomplite, HandleConnect },
                 {(int)ClientPackets.CRegisterTry, HandleRegisterTry },
-                {(int)ClientPackets.CLoginTry, HandleLoginTry }
+                {(int)ClientPackets.CLoginTry, HandleLoginTry },
+                {(int)ClientPackets.CAlert, HandleAlert },
+                {(int)ClientPackets.CClose, HandleClientClose }
             };
+        }
+
+        public static void HandleNetworkInformation(int index, byte[] data)
+        {
+            int packetnum;
+            PacketBuffer buffer = new PacketBuffer();
+            Packet_ Packet;
+            buffer.WriteBytes(data);
+            packetnum = buffer.ReadInteger();
+            buffer.Dispose();
+            if (Packets.TryGetValue(packetnum, out Packet))
+            {
+                Packet.Invoke(index, data);
+            }
         }
 
         private static void HandleConnect(int index, byte[] data)
@@ -75,31 +91,21 @@ namespace ElecyServer
             string nickname = Global.data.GetAccountNickname(username);
             int[][] accountdata = Global.data.GetAccountLevels(username);
             ServerTCP.PlayerLogin(index, nickname, accountdata);
-            //try
-            //{
-            //    ServerSendData.SendLoginOk(index, nickname, accountdata);
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.WriteLine(ex);
-            //}
             ServerSendData.SendLoginOk(index, nickname, accountdata);
-            ServerTCP._clients[index].CloseClient(index);
+            //ServerTCP._clients[index].CloseClient(index);
             Console.WriteLine("Player: " + username + " logged in succesfully");
         }
 
-        public static void HandleNetworkInformation(int index, byte[] data)
+        private static void HandleAlert(int index, byte[] data)
         {
-            int packetnum;
-            PacketBuffer buffer = new PacketBuffer();
-            Packet_ Packet;
-            buffer.WriteBytes(data);
-            packetnum = buffer.ReadInteger();
-            buffer.Dispose();
-            if (Packets.TryGetValue(packetnum, out Packet))
-            {
-                Packet.Invoke(index,data);
-            }
+
         }
+
+        private static void HandleClientClose(int index, byte[] data)
+        {
+            Console.WriteLine("I'm handling client close");
+            ServerTCP._clients[index].CloseClient();
+        }
+
     }
 }

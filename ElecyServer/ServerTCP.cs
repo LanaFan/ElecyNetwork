@@ -46,8 +46,8 @@ namespace ElecyServer
                     _clients[i].index = i;
                     _clients[i].ip = socket.RemoteEndPoint.ToString();
                     _clients[i].StartClient();
-                    Console.WriteLine("Соединение с '{0}' установлено.", _clients[i].ip);
-                    SendConnetionOK(i);
+                    Console.WriteLine("Соединение с {0} установлено. Клиент находится под индексом {1}", _clients[i].ip, i);
+                    ServerSendData.SendConnetionOK(i);
                     return;
                 }
             }
@@ -55,7 +55,7 @@ namespace ElecyServer
 
         public static void PlayerLogin(int index, string nickname, int[][]accountdata)
         {
-            for(int i = 0; i < Constants.MAX_PLAYERS; i++)
+            for(int i = 1; i < Constants.MAX_PLAYERS; i++)
             {
                 if (_players[i].playerSocket == null)
                 {
@@ -72,7 +72,7 @@ namespace ElecyServer
                 }
             }
         }
-
+        //Send connection
         public static void SendDataTo(int index, byte[] data)
         {
             byte[] sizeinfo = new byte[4];
@@ -84,19 +84,10 @@ namespace ElecyServer
             _clients[index].socket.Send(sizeinfo);
             _clients[index].socket.Send(data);
         }
-
+        //Send data to single client
         public static void SendData(int index, byte[] data)
         {
             _clients[index].socket.Send(data);
-        }
-
-        public static void SendConnetionOK(int index)
-        {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteInteger((int)ServerPackets.SConnectionOK);
-            buffer.WriteString("Connection to server with IP '" + GetLocalIPAddress() + "' succesfull.");
-            SendDataTo(index, buffer.ToArray());
-            buffer.Dispose();
         }
 
         public static string GetLocalIPAddress()
@@ -115,6 +106,7 @@ namespace ElecyServer
     //Client class for every client what connected
     public class Client
     {
+        //Properties
         public int index;
         public string ip;
         public Socket socket = null;
@@ -131,47 +123,60 @@ namespace ElecyServer
         //Get the callback from client
         private void ReceiveCallback(IAsyncResult ar)
         {
-            Console.WriteLine(_buffer.Length);
-            Socket socket = (Socket)ar.AsyncState;
-
-            try
+            if (!closing)
             {
-                int received = socket.EndReceive(ar);
-                Console.WriteLine("1");
-                if(received <= 0)
+                socket = (Socket)ar.AsyncState;
+
+                try
                 {
-                    Console.WriteLine("rec = 0");
-                    CloseClient(index);
+
+                        int received = socket.EndReceive(ar);
+                        if (received <= 0)
+                        {
+                            CloseClient();
+                        }
+                        else
+                        {
+                            byte[] dataBuffer = new byte[received];
+                            Array.Copy(_buffer, dataBuffer, received);
+                            PacketBuffer buffer = new PacketBuffer();
+                            buffer.WriteBytes(dataBuffer);
+                            int packetnum = buffer.ReadInteger();
+                            ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer); 
+                            if (packetnum != 5)
+                            {
+                                socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
+                            }
+                            else
+                            {
+                                return;
+                            }
+                        }
+
                 }
-                else
+                catch
                 {
-                    Console.WriteLine("2");
-                    byte[] dataBuffer = new byte[received];
-                    Console.WriteLine("3");
-                    Array.Copy(_buffer, dataBuffer, received);
-                    Console.WriteLine("4");
-                    ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer);
-                    Console.WriteLine("5");
-                    socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
+                    Console.WriteLine("else");
+                    CloseClient();
                 }
             }
-            catch
+            else
             {
-                Console.WriteLine("else");
-                CloseClient(index);
+                return;
             }
         }
 
-        public void CloseClient(int index)
+        //Close client
+        public void CloseClient()
         {
             closing = true;
             Console.WriteLine("Соединение от {0} было разорвано.", ip);
-            //PlayerLeft();
             socket.Close();
+            ServerTCP._clients[index].socket = null;
         }
     }
-
-     public class Player
+    //Player class for every player what logged in
+    public class Player
     {
         public int index;
         public string ip;
@@ -194,7 +199,7 @@ namespace ElecyServer
         public void StartPlayer(int index)
         {
             state = playerState.InMainLobby;
-            playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
+            //playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
             playerClosing = false;
         }
 
@@ -227,7 +232,7 @@ namespace ElecyServer
         private void ClosePlayer(int index)
         {
             playerClosing = true;
-            Console.WriteLine("Соединение от {0} было разорвано.", ip);
+            //Console.WriteLine("Соединение от {0} было разорвано.", ip);
             //PlayerLeft();
             playerSocket.Close();
         }

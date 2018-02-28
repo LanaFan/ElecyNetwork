@@ -6,6 +6,15 @@ namespace ElecyServer
 {
     class ServerSendData
     {
+        public static void SendConnetionOK(int index)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SConnectionOK);
+            buffer.WriteString("Connection to server with IP '" + ServerTCP.GetLocalIPAddress() + "' succesfull.");
+            ServerTCP.SendDataTo(index, buffer.ToArray());
+            buffer.Dispose();
+        }
+
         public static void SendAlert(int index, string message)
         {
             PacketBuffer buffer = new PacketBuffer();
