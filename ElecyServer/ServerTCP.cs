@@ -176,9 +176,9 @@ namespace ElecyServer
                         }
 
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Console.WriteLine("else");
+                    Console.WriteLine(ex);
                     CloseClient();
                 }
             }
@@ -221,7 +221,7 @@ namespace ElecyServer
         public void StartPlayer(int index)
         {
             state = playerState.InMainLobby;
-            //playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
+            playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
             playerClosing = false;
         }
 
