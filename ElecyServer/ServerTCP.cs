@@ -90,6 +90,28 @@ namespace ElecyServer
             _clients[index].socket.Send(data);
         }
 
+        public static void SendDataToAllClient(byte[] data)
+        {
+            foreach(Client client in _clients)
+            {
+                if(client.socket != null)
+                {
+                    client.socket.Send(data);
+                }
+            }
+        }
+
+        public static void SendDataToAllPlayers(byte[] data)
+        {
+            foreach (Player player in _players)
+            {
+                if (player.playerSocket != null)
+                {
+                    player.playerSocket.Send(data);
+                }
+            }
+        }
+
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());

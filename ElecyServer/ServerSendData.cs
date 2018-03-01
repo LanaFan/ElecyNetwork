@@ -51,5 +51,15 @@ namespace ElecyServer
             ServerTCP.SendData(index, buffer.ToArray());
             buffer.Dispose();
         }
+
+        public static void SendGlChatMsg(string Nickname, string GlChatMsg)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SGlChatMsg);
+            buffer.WriteString(Nickname);
+            buffer.WriteString(GlChatMsg);
+            ServerTCP.SendDataToAllPlayers(buffer.ToArray());
+            buffer.Dispose();
+        }
     }
 }

@@ -17,7 +17,8 @@ namespace ElecyServer
                 {(int)ClientPackets.CRegisterTry, HandleRegisterTry },
                 {(int)ClientPackets.CLoginTry, HandleLoginTry },
                 {(int)ClientPackets.CAlert, HandleAlert },
-                {(int)ClientPackets.CClose, HandleClientClose }
+                {(int)ClientPackets.CClose, HandleClientClose },
+                {(int)ClientPackets.CGlChatMsg, HandleGlChatMsg }
             };
         }
 
@@ -107,5 +108,15 @@ namespace ElecyServer
             ServerTCP._clients[index].CloseClient();
         }
 
+        private static void HandleGlChatMsg(int index, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            string GlChatMsg = buffer.ReadString();
+            string Nickname = ServerTCP._players[index].nickname;
+            buffer.Dispose();
+            ServerSendData.SendGlChatMsg(Nickname, GlChatMsg);
+        }
     }
 }
