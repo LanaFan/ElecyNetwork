@@ -67,7 +67,6 @@ namespace ElecyServer
                         _players[i].level[leveli] = accountdata[0][leveli];
                     for (int ranki = 0; ranki < 5; ranki++)
                         _players[i].Rank[ranki] = accountdata[1][ranki];
-                    _players[i].StartPlayer(index);
                     return;
                 }
             }
@@ -152,28 +151,28 @@ namespace ElecyServer
                 try
                 {
 
-                        int received = socket.EndReceive(ar);
-                        if (received <= 0)
+                    int received = socket.EndReceive(ar);
+                    if (received <= 0)
+                    {
+                        CloseClient();
+                    }
+                    else
+                    {
+                        byte[] dataBuffer = new byte[received];
+                        Array.Copy(_buffer, dataBuffer, received);
+                        PacketBuffer buffer = new PacketBuffer();
+                        buffer.WriteBytes(dataBuffer);
+                        int packetnum = buffer.ReadInteger();
+                        ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer); 
+                        if (packetnum != 5)
                         {
-                            CloseClient();
+                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
                         }
                         else
                         {
-                            byte[] dataBuffer = new byte[received];
-                            Array.Copy(_buffer, dataBuffer, received);
-                            PacketBuffer buffer = new PacketBuffer();
-                            buffer.WriteBytes(dataBuffer);
-                            int packetnum = buffer.ReadInteger();
-                            ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer); 
-                            if (packetnum != 5)
-                            {
-                                socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
-                            }
-                            else
-                            {
-                                return;
-                            }
+                            return;
                         }
+                    }
 
                 }
                 catch (Exception ex)
@@ -192,7 +191,17 @@ namespace ElecyServer
         public void CloseClient()
         {
             closing = true;
-            Console.WriteLine("Соединение от {0} было разорвано.", ip);
+            bool logged = false;
+            foreach(Player player in ServerTCP._players)
+            {
+                if(player.ip == ip)
+                {
+                    logged = true;
+                    player.StartPlayer();
+                }
+            }
+            if(!logged)
+                Console.WriteLine("Соединение от {0} было разорвано.", ip);
             socket.Close();
             ServerTCP._clients[index].socket = null;
         }
@@ -218,7 +227,7 @@ namespace ElecyServer
             EndPlaying = 4
         }
 
-        public void StartPlayer(int index)
+        public void StartPlayer()
         {
             state = playerState.InMainLobby;
             playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);

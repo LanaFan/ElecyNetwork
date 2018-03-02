@@ -41,10 +41,7 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
-            string msg = buffer.ReadString();
             buffer.Dispose();
-
-            Console.WriteLine(msg);
         }
 
         private static void HandleRegisterTry(int index, byte[] data)
@@ -93,7 +90,6 @@ namespace ElecyServer
             int[][] accountdata = Global.data.GetAccountLevels(username);
             ServerTCP.PlayerLogin(index, nickname, accountdata);
             ServerSendData.SendLoginOk(index, nickname, accountdata);
-            //ServerTCP._clients[index].CloseClient(index);
             Console.WriteLine("Player: " + username + " logged in succesfully");
         }
 
@@ -104,7 +100,6 @@ namespace ElecyServer
 
         private static void HandleClientClose(int index, byte[] data)
         {
-            Console.WriteLine("I'm handling client close");
             ServerTCP._clients[index].CloseClient();
         }
 
