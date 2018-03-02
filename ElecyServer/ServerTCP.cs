@@ -89,6 +89,11 @@ namespace ElecyServer
             _clients[index].socket.Send(data);
         }
 
+        public static void SendDataToPlayer(int index, byte[] data)
+        {
+            _players[index].playerSocket.Send(data);
+        }
+
         public static void SendDataToAllClient(byte[] data)
         {
             foreach(Client client in _clients)
@@ -202,7 +207,7 @@ namespace ElecyServer
             }
             if(!logged)
                 Console.WriteLine("Соединение от {0} было разорвано.", ip);
-            socket.Close();
+            //socket.Close();
             ServerTCP._clients[index].socket = null;
         }
     }

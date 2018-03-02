@@ -110,8 +110,10 @@ namespace ElecyServer
             buffer.ReadInteger();
             string GlChatMsg = buffer.ReadString();
             string Nickname = ServerTCP._players[index].nickname;
+            Console.WriteLine(Nickname + " " + GlChatMsg + " in handle");
             buffer.Dispose();
-            ServerSendData.SendGlChatMsg(Nickname, GlChatMsg);
+            ServerSendData.SendGlChatMsg(index,Nickname, GlChatMsg);
+            Console.WriteLine("Message sended");
         }
     }
 }
