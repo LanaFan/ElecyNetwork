@@ -72,7 +72,7 @@ namespace ElecyServer
             }
         }
         //Send connection
-        public static void SendDataTo(int index, byte[] data)
+        public static void SendClientConnection(int index, byte[] data)
         {
             byte[] sizeinfo = new byte[4];
             sizeinfo[0] = (byte)data.Length;
@@ -84,7 +84,7 @@ namespace ElecyServer
             _clients[index].socket.Send(data);
         }
         //Send data to single client
-        public static void SendData(int index, byte[] data)
+        public static void SendDataToClient(int index, byte[] data)
         {
             _clients[index].socket.Send(data);
         }
@@ -268,9 +268,7 @@ namespace ElecyServer
         private void ClosePlayer(int index)
         {
             playerClosing = true;
-            //Console.WriteLine("Соединение от {0} было разорвано.", ip);
-            //PlayerLeft();
-            playerSocket.Close();
+            ServerTCP._players[index].playerSocket = null;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SConnectionOK);
             buffer.WriteString("Connection to server with IP '" + ServerTCP.GetLocalIPAddress() + "' succesfull.");
-            ServerTCP.SendDataTo(index, buffer.ToArray());
+            ServerTCP.SendClientConnection(index, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -20,7 +20,7 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SAlert);
             buffer.WriteString(message);
-            ServerTCP.SendData(index, buffer.ToArray());
+            ServerTCP.SendDataToClient(index, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -29,7 +29,7 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRegisterOK);
             buffer.WriteString("Registration complite.");
-            ServerTCP.SendData(index, buffer.ToArray());
+            ServerTCP.SendDataToClient(index, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -48,7 +48,7 @@ namespace ElecyServer
             buffer.WriteInteger(accountdata[1][2]);
             buffer.WriteInteger(accountdata[1][3]);
             buffer.WriteInteger(accountdata[1][4]);
-            ServerTCP.SendData(index, buffer.ToArray());
+            ServerTCP.SendDataToClient(index, buffer.ToArray());
             buffer.Dispose();
         }
 
