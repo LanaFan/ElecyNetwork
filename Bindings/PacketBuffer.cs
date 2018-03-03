@@ -11,6 +11,7 @@ namespace Bindings
         int _readpos;
         bool _buffupdate = false;
 
+        #region Commands
         public PacketBuffer()
         {
             _bufferlist = new List<byte>();
@@ -42,8 +43,9 @@ namespace Bindings
             _bufferlist.Clear();
             _readpos = 0;
         }
+        #endregion
 
-        //Write data
+        #region Write
         public void WriteBytes(byte[] input)
         {
             _bufferlist.AddRange(input);
@@ -70,8 +72,9 @@ namespace Bindings
             _bufferlist.AddRange(Encoding.ASCII.GetBytes(input));
             _buffupdate = true;
         }
+        #endregion
 
-        //Read Data
+        #region Read
         public int ReadInteger(bool peek = true)
         {
             if(_bufferlist.Count > _readpos)
@@ -91,7 +94,7 @@ namespace Bindings
             }
             else
             {
-                throw new Exception("Буффер достиг своего лимита!");
+                throw new Exception("(Ex) Buffer reached it's limit :(");
             }
         }
         public float ReadFloat(bool peek = true)
@@ -113,7 +116,7 @@ namespace Bindings
             }
             else
             {
-                throw new Exception("Буффкр достиг своего лимита!");
+                throw new Exception("(Ex) Buffer reached it's limit :(");
             }
         }
         public byte ReadByte(bool peek = true)
@@ -135,7 +138,7 @@ namespace Bindings
             }
             else
             {
-                throw new Exception("Буффкр достиг своего лимита!");
+                throw new Exception("(Ex) Buffer reached it's limit :(");
             }
         }
         public byte[] ReadBytes(int length, bool peek = true)
@@ -169,9 +172,12 @@ namespace Bindings
             }
             return value;   
         }
+        #endregion
 
-        //IDisposable
+        #region Dispose
+
         private bool disposedValue = false;
+
         protected virtual void Dispose(bool disposing)
         {
             if(!disposedValue)
@@ -184,6 +190,7 @@ namespace Bindings
             }
             disposedValue = true;
         }
+
         public void Dispose()
         {
             Dispose(true);
@@ -191,5 +198,7 @@ namespace Bindings
                 GC.SuppressFinalize(this);
             }
         }
+
+        #endregion
     }
 }

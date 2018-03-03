@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ADODB;
+using Bindings;
 
 namespace ElecyServer
 {
@@ -106,8 +102,8 @@ namespace ElecyServer
         public int[][] GetAccountLevels(string username)
         {
             int[][] _return = new int[2][];
-            int[] levels = new int[5];
-            int[] ranks = new int[5];
+            int[] levels = new int[Constants.RACES_NUMBER];
+            int[] ranks = new int[Constants.RACES_NUMBER];
             var DB_RS = Global.mysql.DB_RS;
             {
                 DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);

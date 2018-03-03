@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Bindings;
 
 namespace ElecyServer
@@ -65,7 +64,6 @@ namespace ElecyServer
             Global.data.AddAccount(username, password, nickname);
             buffer.Dispose();
             ServerSendData.SendRegisterOk(index);
-            Console.WriteLine("Player: " + username + " succesfully registered.");
         }
 
         private static void HandleLoginTry(int index, byte[] data)
@@ -90,17 +88,16 @@ namespace ElecyServer
             int[][] accountdata = Global.data.GetAccountLevels(username);
             ServerTCP.PlayerLogin(index, nickname, accountdata);
             ServerSendData.SendLoginOk(index, nickname, accountdata);
-            Console.WriteLine("Player: " + username + " logged in succesfully");
         }
 
-        private static void HandleAlert(int index, byte[] data)
+        private static void HandleAlert(int index, byte[] data) // DO IT!
         {
-
+            //Handle Alert
         }
 
         private static void HandleClientClose(int index, byte[] data)
         {
-            ServerTCP._clients[index].CloseClient();
+            Global._clients[index].CloseClient();
         }
 
         private static void HandleGlChatMsg(int index, byte[] data)
@@ -109,11 +106,9 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             string GlChatMsg = buffer.ReadString();
-            string Nickname = ServerTCP._players[index].nickname;
-            Console.WriteLine(Nickname + " " + GlChatMsg + " in handle");
+            string Nickname = Global._players[index].nickname;
             buffer.Dispose();
             ServerSendData.SendGlChatMsg(index,Nickname, GlChatMsg);
-            Console.WriteLine("Message sended");
         }
     }
 }

@@ -4,7 +4,6 @@ namespace ElecyServer
 {
     class Program
     {
-
         public static void Main(string[] args)
         {
             ServerHandleNetworkData.InitializeNetworkPackages();

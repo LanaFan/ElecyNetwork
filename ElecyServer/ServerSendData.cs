@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Bindings;
+﻿using Bindings;
 
 namespace ElecyServer
 {
@@ -58,10 +56,7 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SGlChatMsg);
             buffer.WriteString(Nickname);
             buffer.WriteString(GlChatMsg);
-            Console.WriteLine("In send");
-            Console.WriteLine(buffer.ReadInteger() + " - packet num; " + buffer.ReadString() + " - nickname; " + buffer.ReadString() + " - msg; ");
             ServerTCP.SendDataToPlayer(index, buffer.ToArray());
-            Console.WriteLine("Msg sended");
             buffer.Dispose();
         }
     }

@@ -1,6 +1,4 @@
-﻿
-
-namespace Bindings
+﻿namespace Bindings
 {
     //get send from server to client
     public enum ServerPackets
