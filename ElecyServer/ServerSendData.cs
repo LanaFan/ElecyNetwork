@@ -4,16 +4,17 @@ namespace ElecyServer
 {
     class ServerSendData
     {
-        public static void SendConnetionOK(int index)
+        #region Send to Client
+
+        public static void SendClientConnetionOK(int index)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SConnectionOK);
-            buffer.WriteString("Connection to server with IP '" + ServerTCP.GetLocalIPAddress() + "' succesfull.");
             ServerTCP.SendClientConnection(index, buffer.ToArray());
             buffer.Dispose();
         }
 
-        public static void SendAlert(int index, string message)
+        public static void SendClientAlert(int index, string message)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SAlert);
@@ -51,6 +52,19 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
+        #endregion
+
+        #region Send to Player
+
+        public static void SendPlayerConnectionOK(int index)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SConnectionOK);
+            buffer.WriteString("Hello sexy guy...We've been waiting for you =*");
+            ServerTCP.SendDataToPlayer(index, buffer.ToArray());
+            buffer.Dispose();
+        }
+
         public static void SendGlChatMsg(int index, string Nickname, string GlChatMsg)
         {
             PacketBuffer buffer = new PacketBuffer();
@@ -60,5 +74,7 @@ namespace ElecyServer
             ServerTCP.SendDataToPlayer(index, buffer.ToArray());
             buffer.Dispose();
         }
+
+        #endregion
     }
 }

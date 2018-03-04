@@ -79,8 +79,7 @@ namespace ElecyServer
                     Global._clients[i].index = i;
                     Global._clients[i].ip = socket.RemoteEndPoint.ToString();
                     Global._clients[i].StartClient();
-                    Console.WriteLine("Соединение с {0} установлено. Клиент находится под индексом {1}", Global._clients[i].ip, i);
-                    ServerSendData.SendConnetionOK(i);
+                    ServerSendData.SendClientConnetionOK(i);
                     return;
                 }
             }
@@ -152,14 +151,15 @@ namespace ElecyServer
         public int index;
         public string ip;
         public Socket socket = null;
-        public bool closing = false;
+        public bool closing;
         private byte[] _buffer = new byte[Constants.BUFFER_SIZE];
 
         //Starting client 
         public void StartClient()
         {
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
             closing = false;
+            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
+
         }
 
         //Get the callback from client
@@ -195,7 +195,7 @@ namespace ElecyServer
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    Console.WriteLine(ex.Message + " " + ex.Source);
                     CloseClient();
                 }
             }

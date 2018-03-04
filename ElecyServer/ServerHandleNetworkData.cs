@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Bindings;
 
 namespace ElecyServer
@@ -12,12 +13,14 @@ namespace ElecyServer
         {
             Packets = new Dictionary<int, Packet_>
             {
-                {(int)ClientPackets.CConnectcomplite, HandleConnect },
+                {(int)ClientPackets.CConnectComplite, HandleClientConnect },
                 {(int)ClientPackets.CRegisterTry, HandleRegisterTry },
                 {(int)ClientPackets.CLoginTry, HandleLoginTry },
                 {(int)ClientPackets.CAlert, HandleAlert },
                 {(int)ClientPackets.CClose, HandleClientClose },
-                {(int)ClientPackets.CGlChatMsg, HandleGlChatMsg }
+                {(int)ClientPackets.CReconnectComplite, HandleReconnect },
+                {(int)PlayerPackets.PConnectionComplite, HandlePlayerConnect },
+                {(int)PlayerPackets.PGlChatMsg, HandleGlChatMsg }
             };
         }
 
@@ -35,12 +38,11 @@ namespace ElecyServer
             }
         }
 
-        private static void HandleConnect(int index, byte[] data)
+        #region Client Handlers
+
+        private static void HandleClientConnect(int index, byte[] data)
         {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteBytes(data);
-            buffer.ReadInteger();
-            buffer.Dispose();
+            Console.WriteLine("Соединение с {0} установлено. Клиент находится под индексом {1}", Global._clients[index].ip, index);
         }
 
         private static void HandleRegisterTry(int index, byte[] data)
@@ -51,14 +53,14 @@ namespace ElecyServer
             string username = buffer.ReadString();
             string password = buffer.ReadString();
             string nickname = buffer.ReadString();
-            if (Global.data.AccountExist(index,username))
+            if (Global.data.LoginExist(username))
             {
-                ServerSendData.SendAlert(index, "Username already exist");
+                ServerSendData.SendClientAlert(index, "Username already exist");
                 return;
             }
-            if (Global.data.NicknameExist(index, nickname))
+            if (Global.data.NicknameExist(nickname))
             {
-                ServerSendData.SendAlert(index, "Nickname already exist");
+                ServerSendData.SendClientAlert(index, "Nickname already exist");
                 return;
             }
             Global.data.AddAccount(username, password, nickname);
@@ -73,19 +75,19 @@ namespace ElecyServer
             buffer.ReadInteger();
             string username = buffer.ReadString();
             string password = buffer.ReadString();
-            if (!Global.data.AccountExist(index, username))
+            if (!Global.data.LoginExist(username))
             {
-                ServerSendData.SendAlert(index, "Username does not exist.");
+                ServerSendData.SendClientAlert(index, "Username does not exist.");
                 return;
             }
-            if (!Global.data.PasswordIsOkay(index, username, password))
+            if (!Global.data.PasswordIsOkay(username, password))
             {
-                ServerSendData.SendAlert(index, "Invalid password.");
+                ServerSendData.SendClientAlert(index, "Invalid password.");
                 return;
             }
             buffer.Dispose();
             string nickname = Global.data.GetAccountNickname(username);
-            int[][] accountdata = Global.data.GetAccountLevels(username);
+            int[][] accountdata = Global.data.GetAccountData(nickname);
             int playerIndex = ServerTCP.PlayerLogin(index, nickname, accountdata);
             if(playerIndex != 0)
                 ServerSendData.SendLoginOk(index, playerIndex, nickname, accountdata);
@@ -101,6 +103,15 @@ namespace ElecyServer
             Global._clients[index].CloseClient();
         }
 
+        private static void HandleReconnect(int index, byte[] data) //DO IT, TOO!
+        {
+            //Handle!
+        }
+
+        #endregion
+
+        #region Player Handlers
+
         private static void HandleGlChatMsg(int index, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();
@@ -111,5 +122,12 @@ namespace ElecyServer
             buffer.Dispose();
             ServerSendData.SendGlChatMsg(index,Nickname, GlChatMsg);
         }
+
+        private static void HandlePlayerConnect(int index, byte[] data)
+        {
+            ServerSendData.SendPlayerConnectionOK(index);
+        }
+
+        #endregion
     }
 }
