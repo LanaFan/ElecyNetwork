@@ -18,6 +18,9 @@ namespace ElecyServer
             for (int i = 0; i < Constants.MAX_CLIENTS; i++)
             {
                 Global._clients[i] = new Client();
+            }
+            for (int i = 0; i < Constants.MAX_PLAYERS; i++)
+            {
                 Global._players[i] = new NetPlayer();
             }
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
@@ -68,7 +71,7 @@ namespace ElecyServer
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
 
             //Creating a copy of Client class for every clients 
-            for(int i = 1; i < Constants.MAX_PLAYERS; i++)
+            for(int i = 1; i < Constants.MAX_CLIENTS; i++)
             {
                 if(Global._clients[i].socket == null)
                 {
@@ -178,11 +181,8 @@ namespace ElecyServer
                     {
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
-                        PacketBuffer buffer = new PacketBuffer();
-                        buffer.WriteBytes(dataBuffer);
-                        int packetnum = buffer.ReadInteger();
                         ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer); 
-                        if (packetnum != 5)
+                        if(!closing)
                         {
                             socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), socket);
                         }
@@ -220,7 +220,6 @@ namespace ElecyServer
             }
             if(!logged)
                 Console.WriteLine("Соединение от {0} было разорвано.", ip);
-            //socket.Close();
             Global._clients[index].socket = null;
         }
     }
@@ -247,7 +246,7 @@ namespace ElecyServer
         }
 
         public void StartPlayer()
-        {
+        { 
             state = playerState.InMainLobby;
             playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
             playerClosing = false;
