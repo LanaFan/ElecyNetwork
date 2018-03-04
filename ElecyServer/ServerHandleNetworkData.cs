@@ -86,8 +86,9 @@ namespace ElecyServer
             buffer.Dispose();
             string nickname = Global.data.GetAccountNickname(username);
             int[][] accountdata = Global.data.GetAccountLevels(username);
-            ServerTCP.PlayerLogin(index, nickname, accountdata);
-            ServerSendData.SendLoginOk(index, nickname, accountdata);
+            int playerIndex = ServerTCP.PlayerLogin(index, nickname, accountdata);
+            if(playerIndex != 0)
+                ServerSendData.SendLoginOk(index, playerIndex, nickname, accountdata);
         }
 
         private static void HandleAlert(int index, byte[] data) // DO IT!

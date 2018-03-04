@@ -27,7 +27,7 @@ namespace ElecyServer
         }
 
         //Add new player in Players if there is a place
-        public static void PlayerLogin(int index, string nickname, int[][]accountdata)
+        public static int PlayerLogin(int index, string nickname, int[][]accountdata)
         {
             for(int i = 1; i < Constants.MAX_PLAYERS; i++)
             {
@@ -41,9 +41,10 @@ namespace ElecyServer
                         Global._players[i].level[leveli] = accountdata[0][leveli];
                     for (int ranki = 0; ranki < Constants.RACES_NUMBER; ranki++)
                         Global._players[i].Rank[ranki] = accountdata[1][ranki];
-                    return;
+                    return i;
                 }
             }
+            return 0;
         }
 
         //Get server start point IP

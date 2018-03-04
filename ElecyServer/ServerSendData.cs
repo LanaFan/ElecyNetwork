@@ -31,10 +31,11 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendLoginOk(int index, string nickname, int[][]accountdata)
+        public static void SendLoginOk(int index, int playerIndex, string nickname, int[][]accountdata)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
+            buffer.WriteInteger(playerIndex);
             buffer.WriteString(nickname);
             buffer.WriteInteger(accountdata[0][0]);
             buffer.WriteInteger(accountdata[0][1]);
