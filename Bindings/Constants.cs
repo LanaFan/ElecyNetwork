@@ -14,7 +14,7 @@
 
         public const int BUFFER_SIZE = 1024; //Size of buffers (player, client, server)
 
-        public const int ARENA_SIZE = (MAX_PLAYERS / 2) + 10;
+        public const int ARENA_SIZE = 60;
 
     }
 }

@@ -15,3 +15,4 @@ D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\obj\Debug\Bindings.csp
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\obj\Debug\Bindings.csproj.CoreCompileInputs.cache
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\obj\Debug\Bindings.dll
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Bindings\obj\Debug\Bindings.pdb
+D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\Bindings\obj\Debug\Bindings.csproj.CoreCompileInputs.cache

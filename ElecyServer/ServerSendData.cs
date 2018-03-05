@@ -71,7 +71,7 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SGlChatMsg);
             buffer.WriteString(Nickname);
             buffer.WriteString(GlChatMsg);
-            ServerTCP.SendDataToPlayer(index, buffer.ToArray());
+            ServerTCP.SendDataToAllPlayers(buffer.ToArray());
             buffer.Dispose();
         }
 

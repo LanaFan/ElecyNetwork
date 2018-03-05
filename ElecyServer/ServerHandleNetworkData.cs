@@ -144,7 +144,11 @@ namespace ElecyServer
                     for(int i = 0; i < Constants.MAX_PLAYERS; i++)
                     {
                         if (Global.normalQueue[i] != 0)
+                        {
                             Global.normalQueue[i] = index;
+                            return;
+                        }
+
                     }
                     break;
             }
@@ -174,7 +178,8 @@ namespace ElecyServer
                         }
                         //Send no empty room
                     }
-                    ServerSendData.SendMatchFound(index, index2, roomIndex);
+                    //ServerSendData.SendMatchFound(index, index2, roomIndex);
+                    ServerSendData.SendGlChatMsg(index, "Server", "Igra dlia" + index + " i " + index2 + " naidena");
                     break;
                 }
             }
