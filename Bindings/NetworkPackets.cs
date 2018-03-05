@@ -3,7 +3,7 @@
     //get send from server to client
     public enum ServerPackets
     {
-        SConnectionOK = 1,SRegisterOK = 2,SLoginOK = 3,SAlert = 4,SGlChatMsg = 5
+        SConnectionOK = 1,SRegisterOK = 2,SLoginOK = 3,SAlert = 4,SGlChatMsg = 5,SQueueStarted = 6, SMatchFound = 7,SRoomStarted = 8,
     }
 
     //get send from client to server
@@ -13,8 +13,8 @@
     }
 
     //get send from player to server
-    public enum PlayerPackets
+    public enum NetPlayerPackets
     {
-        PConnectionComplite = 7, PGlChatMsg = 8
+        PConnectionComplite = 7, PGlChatMsg = 8, PQueueStart = 9, PSearch = 10, PBeginMatchLoad = 11, PQueueStop = 12,
     }
 }

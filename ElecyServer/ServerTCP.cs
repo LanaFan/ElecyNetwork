@@ -17,11 +17,11 @@ namespace ElecyServer
         {
             for (int i = 0; i < Constants.MAX_CLIENTS; i++)
             {
-                Global._clients[i] = new Client();
+                Global.clients[i] = new Client();
             }
             for (int i = 0; i < Constants.MAX_PLAYERS; i++)
             {
-                Global._players[i] = new NetPlayer();
+                Global.players[i] = new NetPlayer();
             }
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
             _serverSocket.Listen(Constants.SERVER_LISTEN);
@@ -34,16 +34,16 @@ namespace ElecyServer
         {
             for(int i = 1; i < Constants.MAX_PLAYERS; i++)
             {
-                if (Global._players[i].playerSocket == null)
+                if (Global.players[i].playerSocket == null)
                 {
-                    Global._players[i].playerSocket = Global._clients[index].socket;
-                    Global._players[i].index = i;
-                    Global._players[i].ip = Global._clients[index].ip;
-                    Global._players[i].nickname = nickname;
+                    Global.players[i].playerSocket = Global.clients[index].socket;
+                    Global.players[i].index = i;
+                    Global.players[i].ip = Global.clients[index].ip;
+                    Global.players[i].nickname = nickname;
                     for (int leveli = 0; leveli < Constants.RACES_NUMBER; leveli++)
-                        Global._players[i].level[leveli] = accountdata[0][leveli];
+                        Global.players[i].level[leveli] = accountdata[0][leveli];
                     for (int ranki = 0; ranki < Constants.RACES_NUMBER; ranki++)
-                        Global._players[i].Rank[ranki] = accountdata[1][ranki];
+                        Global.players[i].Rank[ranki] = accountdata[1][ranki];
                     return i;
                 }
             }
@@ -73,12 +73,12 @@ namespace ElecyServer
             //Creating a copy of Client class for every clients 
             for(int i = 1; i < Constants.MAX_CLIENTS; i++)
             {
-                if(Global._clients[i].socket == null)
+                if(Global.clients[i].socket == null)
                 {
-                    Global._clients[i].socket = socket;
-                    Global._clients[i].index = i;
-                    Global._clients[i].ip = socket.RemoteEndPoint.ToString();
-                    Global._clients[i].StartClient();
+                    Global.clients[i].socket = socket;
+                    Global.clients[i].index = i;
+                    Global.clients[i].ip = socket.RemoteEndPoint.ToString();
+                    Global.clients[i].StartClient();
                     ServerSendData.SendClientConnetionOK(i);
                     return;
                 }
@@ -96,20 +96,20 @@ namespace ElecyServer
             sizeinfo[2] = (byte)(data.Length >> 16);
             sizeinfo[3] = (byte)(data.Length >> 24);
 
-            Global._clients[index].socket.Send(sizeinfo);
-            Global._clients[index].socket.Send(data);
+            Global.clients[index].socket.Send(sizeinfo);
+            Global.clients[index].socket.Send(data);
         }
 
         //Send data to single client
         public static void SendDataToClient(int index, byte[] data)
         {
-            Global._clients[index].socket.Send(data);
+            Global.clients[index].socket.Send(data);
         }
 
         //Send data to all clients(sender indeed)
         public static void SendDataToAllClient(byte[] data)
         {
-            foreach(Client client in Global._clients)
+            foreach(Client client in Global.clients)
             {
                 if(client.socket != null)
                 {
@@ -125,13 +125,13 @@ namespace ElecyServer
         //Send data to single player
         public static void SendDataToPlayer(int index, byte[] data)
         {
-            Global._players[index].playerSocket.Send(data);
+            Global.players[index].playerSocket.Send(data);
         }
 
         //Send data to all players(sender indeed)
         public static void SendDataToAllPlayers(byte[] data)
         {
-            foreach (NetPlayer player in Global._players)
+            foreach (NetPlayer player in Global.players)
             {
                 if (player.playerSocket != null)
                 {
@@ -210,7 +210,7 @@ namespace ElecyServer
         {
             closing = true;
             bool logged = false;
-            foreach(NetPlayer player in Global._players)
+            foreach(NetPlayer player in Global.players)
             {
                 if(player.ip == ip)
                 {
@@ -220,7 +220,7 @@ namespace ElecyServer
             }
             if(!logged)
                 Console.WriteLine("Соединение от {0} было разорвано.", ip);
-            Global._clients[index].socket = null;
+            Global.clients[index].socket = null;
         }
     }
 
@@ -269,7 +269,10 @@ namespace ElecyServer
                     byte[] dataBuffer = new byte[received];
                     Array.Copy(_buffer, dataBuffer, received);
                     ServerHandleNetworkData.HandleNetworkInformation(index, dataBuffer);
-                    playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
+                    if (!playerClosing)
+                        playerSocket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), playerSocket);
+                    else
+                        return;
                 }
             }
             catch
@@ -278,10 +281,15 @@ namespace ElecyServer
             }
         }
 
+        public void NetPlayerStop()
+        {
+            playerClosing = true;
+        }
+
         private void ClosePlayer()
         {
             playerClosing = true;
-            Global._players[index].playerSocket = null;
+            Global.players[index].playerSocket = null;
         }
     }
 

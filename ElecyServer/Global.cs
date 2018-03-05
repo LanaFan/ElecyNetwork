@@ -6,7 +6,9 @@ namespace ElecyServer
     {
         public static MySQL mysql = new MySQL();
         public static Database data = new Database();
-        public static Client[] _clients = new Client[Constants.MAX_PLAYERS];
-        public static NetPlayer[] _players = new NetPlayer[Constants.MAX_PLAYERS];
+        public static Client[] clients = new Client[Constants.MAX_PLAYERS];
+        public static NetPlayer[] players = new NetPlayer[Constants.MAX_PLAYERS];
+        public static int[] normalQueue = new int[Constants.MAX_PLAYERS];
+        public static GameRoom[] arena = new GameRoom[Constants.ARENA_SIZE];
     }
 }

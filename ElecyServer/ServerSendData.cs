@@ -75,6 +75,30 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
+        public static void SendQueueStarted(int index)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SQueueStarted);
+            ServerTCP.SendDataToPlayer(index, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        public static void SendMatchFound(int index1, int index2, int roomIndex)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SMatchFound);
+            buffer.WriteInteger(roomIndex);
+            ServerTCP.SendDataToPlayer(index1, buffer.ToArray());
+            ServerTCP.SendDataToPlayer(index2, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        public static void SendGameData(int index, int roomIndex)
+        {
+            string[] nicknames = Global.arena[roomIndex].GetNicknames();
+            float[][][] transforms = Global.arena[roomIndex].GetTransforms();
+
+        }
         #endregion
     }
 }

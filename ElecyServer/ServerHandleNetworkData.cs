@@ -19,8 +19,11 @@ namespace ElecyServer
                 {(int)ClientPackets.CAlert, HandleAlert },
                 {(int)ClientPackets.CClose, HandleClientClose },
                 {(int)ClientPackets.CReconnectComplite, HandleReconnect },
-                {(int)PlayerPackets.PConnectionComplite, HandlePlayerConnect },
-                {(int)PlayerPackets.PGlChatMsg, HandleGlChatMsg }
+                {(int)NetPlayerPackets.PConnectionComplite, HandlePlayerConnect },
+                {(int)NetPlayerPackets.PGlChatMsg, HandleGlChatMsg },
+                {(int)NetPlayerPackets.PQueueStart, HandleNormalQueueStart },
+                {(int)NetPlayerPackets.PSearch, HandleSearch },
+                {(int)NetPlayerPackets.PBeginMatchLoad, HandleMatchLoad }
             };
         }
 
@@ -42,7 +45,7 @@ namespace ElecyServer
 
         private static void HandleClientConnect(int index, byte[] data)
         {
-            Console.WriteLine("Соединение с {0} установлено. Клиент находится под индексом {1}", Global._clients[index].ip, index);
+            Console.WriteLine("Соединение с {0} установлено. Клиент находится под индексом {1}", Global.clients[index].ip, index);
         }
 
         private static void HandleRegisterTry(int index, byte[] data)
@@ -100,7 +103,7 @@ namespace ElecyServer
 
         private static void HandleClientClose(int index, byte[] data)
         {
-            Global._clients[index].CloseClient();
+            Global.clients[index].CloseClient();
         }
 
         private static void HandleReconnect(int index, byte[] data) //DO IT, TOO!
@@ -118,7 +121,7 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             string GlChatMsg = buffer.ReadString();
-            string Nickname = Global._players[index].nickname;
+            string Nickname = Global.players[index].nickname;
             buffer.Dispose();
             ServerSendData.SendGlChatMsg(index,Nickname, GlChatMsg);
         }
@@ -128,6 +131,64 @@ namespace ElecyServer
             ServerSendData.SendPlayerConnectionOK(index);
         }
 
+        private static void HandleNormalQueueStart(int index, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int matchType = buffer.ReadInteger();
+            buffer.Dispose();
+            switch (matchType)
+            {
+                case 0:
+                    for(int i = 0; i < Constants.MAX_PLAYERS; i++)
+                    {
+                        if (Global.normalQueue[i] != 0)
+                            Global.normalQueue[i] = index;
+                    }
+                    break;
+            }
+            ServerSendData.SendQueueStarted(index);
+                    
+        }
+
+        private static void HandleSearch(int index, byte[] data)
+        {
+            int index2;
+            int roomIndex = -1;
+            for(int i = 0; i < Constants.MAX_PLAYERS; i++)
+            {
+                if(Global.normalQueue[i] != 0 && Global.normalQueue[i] != index)
+                {
+                    index2 = i;
+                    for(int j = 0; j < Constants.ARENA_SIZE; j++)
+                    {
+                        if(Global.arena[j] == null)
+                        {
+                            //Global.players[index].NetPlayerStop();
+                            //Global.players[i].NetPlayerStop();
+                            Global.arena[j] = new GameRoom(Global.players[index], Global.players[i]);
+                            Queue.StopSearch(index, i);
+                            roomIndex = j;
+                            break;
+                        }
+                        //Send no empty room
+                    }
+                    ServerSendData.SendMatchFound(index, index2, roomIndex);
+                    break;
+                }
+            }
+        }
+
+        private static void HandleMatchLoad(int index, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
+            buffer.Dispose();
+            //ServerSendData.SendGameData(index, roomIndex);
+        }
         #endregion
     }
 }
