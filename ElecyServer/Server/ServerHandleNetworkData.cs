@@ -167,15 +167,15 @@ namespace ElecyServer
             {
                 if(Global.normalQueue[i] != 0 && Global.normalQueue[i] != index)
                 {
-                    index2 = i;
+                    index2 = Global.normalQueue[i];
                     for(int j = 0; j < Constants.ARENA_SIZE; j++)
                     {
                         if(Global.arena[j] == null)
                         {
                             Global.players[index].NetPlayerStop();
-                            Global.players[i].NetPlayerStop();
-                            Global.arena[j] = new GameRoom(j, Global.players[index], Global.players[i]);
-                            Queue.StopSearch(index, i);
+                            Global.players[Global.normalQueue[i]].NetPlayerStop();
+                            Global.arena[j] = new GameRoom(j, Global.players[index], Global.players[Global.normalQueue[i]]);
+                            Queue.StopSearch(index, Global.normalQueue[i]);
                             roomIndex = j;
                             found = true;
                             break;
