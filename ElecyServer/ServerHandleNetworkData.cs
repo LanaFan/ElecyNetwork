@@ -143,12 +143,11 @@ namespace ElecyServer
                 case 0:
                     for(int i = 0; i < Constants.MAX_PLAYERS; i++)
                     {
-                        if (Global.normalQueue[i] != 0)
+                        if (Global.normalQueue[i] == 0)
                         {
                             Global.normalQueue[i] = index;
-                            return;
+                            break;
                         }
-
                     }
                     break;
             }
@@ -160,6 +159,7 @@ namespace ElecyServer
         {
             int index2;
             int roomIndex = -1;
+            bool found = false;
             for(int i = 0; i < Constants.MAX_PLAYERS; i++)
             {
                 if(Global.normalQueue[i] != 0 && Global.normalQueue[i] != index)
@@ -174,12 +174,19 @@ namespace ElecyServer
                             Global.arena[j] = new GameRoom(Global.players[index], Global.players[i]);
                             Queue.StopSearch(index, i);
                             roomIndex = j;
+                            found = true;
                             break;
                         }
-                        //Send no empty room
+                        ServerSendData.SendPlayerAlert(index, "No more emty game room");
                     }
-                    //ServerSendData.SendMatchFound(index, index2, roomIndex);
-                    ServerSendData.SendGlChatMsg(index, "Server", "Igra dlia" + index + " i " + index2 + " naidena");
+                    if (found)
+                    {
+                        //ServerSendData.SendMatchFound(index, index2, roomIndex);
+                        ServerSendData.SendGlChatMsg(index, "Server", "Igra dlia " + index + " i " + index2 + " naidena");
+                    }
+
+                    else
+                        ServerSendData.SendQueueContinue(index);
                     break;
                 }
             }

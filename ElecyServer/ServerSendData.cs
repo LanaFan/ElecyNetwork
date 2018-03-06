@@ -83,6 +83,14 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
+        public static void SendQueueContinue(int index)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SQueueContinue);
+            ServerTCP.SendDataToPlayer(index, buffer.ToArray());
+            buffer.Dispose();
+        }
+
         public static void SendMatchFound(int index1, int index2, int roomIndex)
         {
             PacketBuffer buffer = new PacketBuffer();
@@ -99,6 +107,17 @@ namespace ElecyServer
             float[][][] transforms = Global.arena[roomIndex].GetTransforms();
 
         }
+
+        public static void SendPlayerAlert(int index,string alert)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SAlert);
+            buffer.WriteString(alert);
+            ServerTCP.SendDataToPlayer(index, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+
         #endregion
     }
 }
