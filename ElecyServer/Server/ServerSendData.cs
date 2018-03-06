@@ -126,6 +126,14 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
+        public static void SendRoomStart(int roomIndex)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SRoomStart);
+            ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
+            buffer.Dispose();
+        }
+
         public static void SendTransform(int ID, int roomIndex, float[] pos, float[] rot)
         {
             PacketBuffer buffer = new PacketBuffer();
