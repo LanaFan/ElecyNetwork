@@ -23,7 +23,10 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PGlChatMsg, HandleGlChatMsg },
                 {(int)NetPlayerPackets.PQueueStart, HandleNormalQueueStart },
                 {(int)NetPlayerPackets.PSearch, HandleSearch },
-                {(int)NetPlayerPackets.PBeginMatchLoad, HandleMatchLoad }
+                {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
+                {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
+                {(int)RoomPackets.RTransform, HandleTransform },
+                {(int)RoomPackets.RLoadComplete, HandleComplete }
             };
         }
 
@@ -169,9 +172,9 @@ namespace ElecyServer
                     {
                         if(Global.arena[j] == null)
                         {
-                            //Global.players[index].NetPlayerStop();
-                            //Global.players[i].NetPlayerStop();
-                            Global.arena[j] = new GameRoom(Global.players[index], Global.players[i]);
+                            Global.players[index].NetPlayerStop();
+                            Global.players[i].NetPlayerStop();
+                            Global.arena[j] = new GameRoom(j, Global.players[index], Global.players[i]);
                             Queue.StopSearch(index, i);
                             roomIndex = j;
                             found = true;
@@ -180,11 +183,7 @@ namespace ElecyServer
                         ServerSendData.SendPlayerAlert(index, "No more emty game room");
                     }
                     if (found)
-                    {
-                        //ServerSendData.SendMatchFound(index, index2, roomIndex);
-                        ServerSendData.SendGlChatMsg(index, "Server", "Igra dlia " + index + " i " + index2 + " naidena");
-                    }
-
+                        ServerSendData.SendMatchFound(index, index2, roomIndex);
                     else
                         ServerSendData.SendQueueContinue(index);
                     break;
@@ -192,15 +191,65 @@ namespace ElecyServer
             }
         }
 
-        private static void HandleMatchLoad(int index, byte[] data)
+
+        private static void HandleQueueStop(int index, byte[] data)
+        {
+            Queue.StopSearch(index);
+        }
+
+        #endregion
+
+        #region Game Room Handle
+
+        private static void HandleRoomConnect(int ID, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
             buffer.Dispose();
-            //ServerSendData.SendGameData(index, roomIndex);
+            ServerSendData.SendGameData(ID, roomIndex);
         }
+
+        private static void HandleComplete(int ID, byte[] data)
+        {
+            float[] pos = new float[3];
+            float[] rot = new float[4];
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
+            pos[0] = buffer.ReadFloat();
+            pos[1] = buffer.ReadFloat();
+            pos[2] = buffer.ReadFloat();
+            rot[0] = buffer.ReadFloat();
+            rot[1] = buffer.ReadFloat();
+            rot[2] = buffer.ReadFloat();
+            rot[3] = buffer.ReadFloat();
+            buffer.Dispose();
+            Global.arena[roomIndex].SetTransform(ID, pos, rot);
+        }
+
+        private static void HandleTransform(int ID, byte[] data)
+        {
+            float[] pos = new float[3];
+            float[] rot = new float[4];
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
+            pos[0] = buffer.ReadFloat();
+            pos[1] = buffer.ReadFloat();
+            pos[2] = buffer.ReadFloat();
+            rot[0] = buffer.ReadFloat();
+            rot[1] = buffer.ReadFloat();
+            rot[2] = buffer.ReadFloat();
+            rot[3] = buffer.ReadFloat();
+            buffer.Dispose();
+            Global.arena[roomIndex].SetTransform(ID, pos, rot);
+        }
+
         #endregion
+
     }
 }

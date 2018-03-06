@@ -8,36 +8,72 @@ namespace ElecyServer
     {
         public bool active = false;
 
+        private int roomIndex;
         private Player player1;
         private Player player2;
 
-        private float[] p1pos;
-        private float[] p1rot;
-
-        private float[] p2pos;
-        private float[] p2rot;
+        private bool p1Set = false;
+        private bool p2Set = false;
         
-        public GameRoom(NetPlayer player1, NetPlayer player2)
+        public GameRoom(int j, NetPlayer player1, NetPlayer player2)
         {
-            p1pos = new float[3];
-            p1pos[0] = -10f;
-            p1pos[1] = 0.5f;
-            p1pos[2] = 0f;
-            p2pos = new float[3];
-            p2pos[0] = 10f;
-            p2pos[1] = 0.5f;
-            p2pos[2] = 0f;
-            p1rot = new float[4];
-            p2rot = new float[4];
-            this.player1 = new Player(player1.playerSocket, player1.index, player1.nickname, p1pos, p1rot);
-            this.player2 = new Player(player2.playerSocket, player2.index, player2.nickname, p2pos, p2rot);
-            //StartGame();
+            p1Set = false;
+            p2Set = false;
+            roomIndex = j;
+            this.player1 = new Player(player1.playerSocket, player1.index, player1.nickname, 1);
+            this.player2 = new Player(player2.playerSocket, player2.index, player2.nickname, 2);
+            StartGame();
         }
 
         private void StartGame()
         {
             player1.StartPlay();
             player2.StartPlay();
+        }
+
+        public void SendTransform()
+        {
+            float[][] p1transform = player1.GetTransform();
+            float[][] p2transform = player2.GetTransform();
+            ServerSendData.SendTransform(2, roomIndex, p1transform[0], p1transform[1]);
+            ServerSendData.SendTransform(1, roomIndex, p2transform[0], p2transform[1]);
+        }
+
+        #region Get And Sets
+        public Socket GetP1Socket()
+        {
+            return player1.GetSocket();
+        }
+
+        public Socket GetP2Socket()
+        {
+            return player2.GetSocket();
+        }
+
+        public Socket GetSocket(int ID)
+        {
+            return (ID == 1) ? GetP1Socket() : GetP2Socket();
+        }
+
+        public void SetTransform(int ID, float[] position, float[] rotation)
+        {
+            if (ID == 1)
+            {
+                player1.SetTransform(position, rotation);
+                p1Set = true;
+            }
+            else
+            {
+                player2.SetTransform(position, rotation);
+                p2Set = true;
+            }
+
+            if(p1Set && p2Set)
+            {
+                SendTransform();
+                p1Set = false;
+                p2Set = false;
+            }
         }
 
         public string[] GetNicknames()
@@ -48,8 +84,6 @@ namespace ElecyServer
             return nicknames;
         }
 
-
-
         public float[][][] GetTransforms()
         {
             float[][][] transforms = new float[2][][];
@@ -57,11 +91,14 @@ namespace ElecyServer
             transforms[1] = player2.GetTransform();
             return transforms;
         }
+        #endregion
+
     }
 
     public class Player
     {
         private int _index;
+        private int _ID;
         private string _nickname;
         private float[] _position;
         private float[] _rotation;
@@ -69,13 +106,12 @@ namespace ElecyServer
         private byte[] _buffer = new byte[Constants.BUFFER_SIZE];
         private bool _playing = false;
 
-        public Player(Socket socket, int index, string nickname, float[] position, float[] rotation)
+        public Player(Socket socket, int index, string nickname, int ID)
         {
             _socket = socket;
             _index = index;
             _nickname = nickname;
-            _position = position;
-            _rotation = rotation;
+            _ID = ID;
         }
 
         public void StartPlay()
@@ -97,7 +133,7 @@ namespace ElecyServer
                 {
                     byte[] dataBuffer = new byte[received];
                     Array.Copy(_buffer, dataBuffer, received);
-                    ServerHandleNetworkData.HandleNetworkInformation(_index, dataBuffer);
+                    ServerHandleNetworkData.HandleNetworkInformation(_ID, dataBuffer);
                     if (!_playing)
                         _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), _socket);
                     else
@@ -122,6 +158,11 @@ namespace ElecyServer
         }
 
         #region Gets and Sets
+
+        public Socket GetSocket()
+        {
+            return _socket;
+        }
 
         public string GetNickname()
         {

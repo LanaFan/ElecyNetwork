@@ -3,7 +3,7 @@
     //get send from server to client
     public enum ServerPackets
     {
-        SConnectionOK = 1,SRegisterOK = 2,SLoginOK = 3,SAlert = 4,SGlChatMsg = 5,SQueueStarted = 6,SQueueContinue = 7,SMatchFound = 8,SRoomStarted = 9,
+        SConnectionOK = 1,SRegisterOK = 2,SLoginOK = 3,SAlert = 4,SGlChatMsg = 5,SQueueStarted = 6,SQueueContinue = 7,SMatchFound = 8,SLoadStarted = 9, SRoomStart = 10, STransform = 11
     }
 
     //get send from client to server
@@ -15,11 +15,11 @@
     //get send from player to server
     public enum NetPlayerPackets
     {
-        PConnectionComplite = 7, PGlChatMsg = 8, PQueueStart = 9, PSearch = 10, PBeginMatchLoad = 11, PQueueStop = 12, PAlert = 14,
+        PConnectionComplite = 7, PGlChatMsg = 8, PQueueStart = 9, PSearch = 10,  PQueueStop = 11, PAlert = 12
     }
 
     public enum RoomPackets
     {
-        RConnectionComplite = 13
+        RConnectionComplite = 13, RTransform = 14, RLoadComplete = 15
     }
 }

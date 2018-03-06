@@ -142,6 +142,18 @@ namespace ElecyServer
 
         #endregion
 
+        #region Send to GamePlayer
+        public static void SendDataToGamePlayer(int roomIndex, int ID, byte[] data)
+        {
+            Global.arena[roomIndex].GetSocket(ID).Send(data);
+        }
+
+        public static void SendDataToGamePlayers(int roomIndex, byte[] data)
+        {
+            Global.arena[roomIndex].GetP1Socket().Send(data);
+            Global.arena[roomIndex].GetP2Socket().Send(data);
+        }
+        #endregion
     }
 
     //Client class for every client what connected

@@ -101,13 +101,6 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendGameData(int index, int roomIndex)
-        {
-            string[] nicknames = Global.arena[roomIndex].GetNicknames();
-            float[][][] transforms = Global.arena[roomIndex].GetTransforms();
-
-        }
-
         public static void SendPlayerAlert(int index,string alert)
         {
             PacketBuffer buffer = new PacketBuffer();
@@ -117,6 +110,36 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
+
+        #endregion
+
+        #region Send to GameRoom
+
+        public static void SendGameData(int ID, int roomIndex)
+        {
+            string[] nicknames = Global.arena[roomIndex].GetNicknames();
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SLoadStarted);
+            buffer.WriteString(nicknames[0]);
+            buffer.WriteString(nicknames[1]);
+            ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        public static void SendTransform(int ID, int roomIndex, float[] pos, float[] rot)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.STransform);
+            buffer.WriteFloat(pos[0]);
+            buffer.WriteFloat(pos[1]);
+            buffer.WriteFloat(pos[2]);
+            buffer.WriteFloat(rot[0]);
+            buffer.WriteFloat(rot[1]);
+            buffer.WriteFloat(rot[2]);
+            buffer.WriteFloat(rot[3]);
+            ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
+            buffer.Dispose();
+        }
 
         #endregion
     }
