@@ -150,36 +150,6 @@ namespace ElecyServer
 
         private static void HandleSearch(int index, byte[] data)
         {
-            //int index2;
-            //int roomIndex = -1;
-            //bool found = false;
-            //for(int i = 0; i < Constants.MAX_PLAYERS; i++)
-            //{
-            //    if(Global.normalQueue[i] != 0 && Global.normalQueue[i] != index)
-            //    {
-            //        index2 = Global.normalQueue[i];
-            //        for(int j = 0; j < Constants.ARENA_SIZE; j++)
-            //        {
-            //            if(Global.arena[j] == null)
-            //            {
-            //                Global.players[index].NetPlayerStop();
-            //                Global.players[Global.normalQueue[i]].NetPlayerStop();
-            //                Global.arena[j] = new GameRoom(j, Global.players[index], Global.players[Global.normalQueue[i]]);
-            //                Queue.StopSearch(index, Global.normalQueue[i]);
-            //                roomIndex = j;
-            //                found = true;
-            //                break;
-            //            }
-            //            ServerSendData.SendPlayerAlert(index, "No more emty game room");
-            //        }
-            //        if (found)
-            //            ServerSendData.SendMatchFound(index, index2, roomIndex);
-            //        else
-            //            ServerSendData.SendQueueContinue(index);
-            //        break;
-            //    }
-            //}
-
             int index2 = Queue.SearchForEnemy(index);
             int roomIndex = -1;
 
@@ -213,7 +183,7 @@ namespace ElecyServer
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
             buffer.Dispose();
-            ServerSendData.SendGameData(ID, roomIndex);
+            Global.arena[roomIndex].SetGameLoadData(ID);
         }
 
         private static void HandleComplete(int ID, byte[] data)

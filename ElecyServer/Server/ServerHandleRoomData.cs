@@ -40,13 +40,12 @@ namespace ElecyServer
 
         private static void HandleRoomConnect(int ID, byte[] data)
         {
-            Console.WriteLine("Handle room coonect from " + ID);
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
             buffer.Dispose();
-            ServerSendData.SendGameData(ID, roomIndex);
+            Global.arena[roomIndex].SetGameLoadData(ID);
         }
 
         private static void HandleComplete(int ID, byte[] data)

@@ -118,15 +118,15 @@ namespace ElecyServer
 
         #region Send to GameRoom
 
-        public static void SendGameData(int ID, int roomIndex)
+        public static void SendGameData(int roomIndex)
         {
-            Console.WriteLine("Send Load started to " + ID + " player");
+            Console.WriteLine("Send Load started to player");
             string[] nicknames = Global.arena[roomIndex].GetNicknames();
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoadStarted);
             buffer.WriteString(nicknames[0]);
             buffer.WriteString(nicknames[1]);
-            ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
+            ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
             buffer.Dispose();
         }
 

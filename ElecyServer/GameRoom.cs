@@ -17,6 +17,8 @@ namespace ElecyServer
 
         private bool p1Loaded = false;
         private bool p2Loaded = false;
+
+
         
         public GameRoom(int j, NetPlayer player1, NetPlayer player2)
         {
@@ -59,6 +61,26 @@ namespace ElecyServer
             return (ID == 1) ? GetP1Socket() : GetP2Socket();
         }
 
+        public void SetGameLoadData(int ID)
+        {
+            if (ID == 1)
+            {
+                p1Loaded = true;
+            }
+            else
+            {
+                p2Loaded = true;
+            }
+
+            if (p1Loaded && p2Loaded)
+            {
+                p1Loaded = false;
+                p2Loaded = false;
+                ServerSendData.SendGameData(roomIndex);
+            }
+
+        }
+
         public void SetGameData(int ID, float[] position, float[] rotation)
         {
             if (ID == 1)
@@ -71,7 +93,12 @@ namespace ElecyServer
             }
 
             if (p1Loaded && p2Loaded)
+            {
+                p1Loaded = false;
+                p2Loaded = false;
                 ServerSendData.SendRoomStart(roomIndex);
+            }
+
         }
 
         public void SetTransform(int ID, float[] position, float[] rotation)
