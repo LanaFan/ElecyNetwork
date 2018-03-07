@@ -141,56 +141,61 @@ namespace ElecyServer
             buffer.ReadInteger();
             int matchType = buffer.ReadInteger();
             buffer.Dispose();
-            switch (matchType)
-            {
-                case 0:
-                    for(int i = 0; i < Constants.MAX_PLAYERS; i++)
-                    {
-                        if (Global.normalQueue[i] == 0)
-                        {
-                            Global.normalQueue[i] = index;
-                            break;
-                        }
-                    }
-                    break;
-            }
-            ServerSendData.SendQueueStarted(index);
+            if (Queue.StartSearch(index, matchType))
+                ServerSendData.SendQueueStarted(index);
+            else
+                ServerSendData.SendPlayerAlert(index, "Queue is overcrowded. Try again later!");
                     
         }
 
         private static void HandleSearch(int index, byte[] data)
         {
-            int index2;
-            int roomIndex = -1;
-            bool found = false;
-            for(int i = 0; i < Constants.MAX_PLAYERS; i++)
-            {
-                if(Global.normalQueue[i] != 0 && Global.normalQueue[i] != index)
-                {
-                    index2 = Global.normalQueue[i];
-                    for(int j = 0; j < Constants.ARENA_SIZE; j++)
-                    {
-                        if(Global.arena[j] == null)
-                        {
-                            Global.players[index].NetPlayerStop();
-                            Global.players[Global.normalQueue[i]].NetPlayerStop();
-                            Global.arena[j] = new GameRoom(j, Global.players[index], Global.players[Global.normalQueue[i]]);
-                            Queue.StopSearch(index, Global.normalQueue[i]);
-                            roomIndex = j;
-                            found = true;
-                            break;
-                        }
-                        ServerSendData.SendPlayerAlert(index, "No more emty game room");
-                    }
-                    if (found)
-                        ServerSendData.SendMatchFound(index, index2, roomIndex);
-                    else
-                        ServerSendData.SendQueueContinue(index);
-                    break;
-                }
-            }
-        }
+            //int index2;
+            //int roomIndex = -1;
+            //bool found = false;
+            //for(int i = 0; i < Constants.MAX_PLAYERS; i++)
+            //{
+            //    if(Global.normalQueue[i] != 0 && Global.normalQueue[i] != index)
+            //    {
+            //        index2 = Global.normalQueue[i];
+            //        for(int j = 0; j < Constants.ARENA_SIZE; j++)
+            //        {
+            //            if(Global.arena[j] == null)
+            //            {
+            //                Global.players[index].NetPlayerStop();
+            //                Global.players[Global.normalQueue[i]].NetPlayerStop();
+            //                Global.arena[j] = new GameRoom(j, Global.players[index], Global.players[Global.normalQueue[i]]);
+            //                Queue.StopSearch(index, Global.normalQueue[i]);
+            //                roomIndex = j;
+            //                found = true;
+            //                break;
+            //            }
+            //            ServerSendData.SendPlayerAlert(index, "No more emty game room");
+            //        }
+            //        if (found)
+            //            ServerSendData.SendMatchFound(index, index2, roomIndex);
+            //        else
+            //            ServerSendData.SendQueueContinue(index);
+            //        break;
+            //    }
+            //}
 
+            int index2 = Queue.SearchForEnemy(index);
+            int roomIndex = -1;
+
+            if (index2 > 0)
+                roomIndex = Queue.SearchForRoom(index, index2);
+            else
+            {
+                ServerSendData.SendQueueContinue(index);
+                return;
+            }
+
+            if (roomIndex >= 0)
+                ServerSendData.SendMatchFound(index, index2, roomIndex);
+            else
+                ServerSendData.SendPlayerAlert(index, "No empty room. Try again later!");
+        }
 
         private static void HandleQueueStop(int index, byte[] data)
         {

@@ -55,6 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queue.cs" />
     <Compile Include="Server\ServerHandleNetworkData.cs" />
+    <Compile Include="Server\ServerHandleRoomData.cs" />
     <Compile Include="Server\ServerSendData.cs" />
     <Compile Include="Server\ServerTCP.cs" />
   </ItemGroup>

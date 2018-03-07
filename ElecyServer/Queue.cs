@@ -9,6 +9,24 @@ namespace ElecyServer
 {
     public static class Queue
     {
+        public static bool StartSearch(int index, int matchType)
+        {
+            switch (matchType)
+            {
+                case 0:
+                    for (int i = 0; i < Constants.MAX_PLAYERS; i++)
+                    {
+                        if (Global.normalQueue[i] == 0)
+                        {
+                            Global.normalQueue[i] = index;
+                            return true;
+                        }
+                    }
+                    break;
+            }
+            return false;
+        }
+
         public static void StopSearch(int index)
         {
             for(int i = 0; i < Constants.MAX_PLAYERS; i++)
@@ -41,6 +59,41 @@ namespace ElecyServer
                     completed = true;
                 }
             }
+        }
+
+        public static int SearchForEnemy(int index)
+        {
+            int index2 = -1;
+            for (int i = 0; i < Constants.MAX_PLAYERS; i++)
+            {
+                if (Global.normalQueue[i] != 0 && Global.normalQueue[i] != index)
+                {
+                    if (Global.players[Global.normalQueue[i]].state != NetPlayer.playerState.Playing)
+                    {
+                        Global.players[Global.normalQueue[i]].state = NetPlayer.playerState.Playing;
+                        Global.players[index].state = NetPlayer.playerState.Playing;
+                        index2 = Global.normalQueue[i];
+                        break;
+                    }
+                }
+            }
+            return index2;
+        }
+
+        public static int SearchForRoom(int index1, int index2)
+        {
+            for (int j = 0; j < Constants.ARENA_SIZE; j++)
+            {
+                if (Global.arena[j] == null)
+                {
+                    Global.players[index1].NetPlayerStop();
+                    Global.players[index2].NetPlayerStop();
+                    Global.arena[j] = new GameRoom(j, Global.players[index1], Global.players[index2]);
+                    StopSearch(index1, index2);
+                    return j;
+                }
+            }
+            return -1;
         }
 
     }

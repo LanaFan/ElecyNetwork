@@ -30,6 +30,7 @@ namespace ElecyServer
 
         private void StartGame()
         {
+            ServerHandleRoomData.InitializeNetworkPackages();
             player1.StartPlay();
             player2.StartPlay();
         }
@@ -151,8 +152,8 @@ namespace ElecyServer
                 {
                     byte[] dataBuffer = new byte[received];
                     Array.Copy(_buffer, dataBuffer, received);
-                    ServerHandleNetworkData.HandleNetworkInformation(_ID, dataBuffer);
-                    if (!_playing)
+                    ServerHandleRoomData.HandleNetworkInformation(_ID, dataBuffer);
+                    if (_playing)
                         _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), _socket);
                     else
                         return;
@@ -160,7 +161,7 @@ namespace ElecyServer
             }
             catch
             {
-
+                Console.WriteLine("GamePlayer Disconnected");
             }
         }
 
