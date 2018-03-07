@@ -1,4 +1,5 @@
 ﻿using Bindings;
+using System;
 
 namespace ElecyServer
 {
@@ -97,7 +98,9 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SMatchFound);
             buffer.WriteInteger(roomIndex);
             ServerTCP.SendDataToPlayer(index1, buffer.ToArray());
+            Console.WriteLine("Match found to " + index1 + " sended");
             ServerTCP.SendDataToPlayer(index2, buffer.ToArray());
+            Console.WriteLine("Match found to " + index2 + " sended");
             buffer.Dispose();
         }
 
@@ -117,6 +120,7 @@ namespace ElecyServer
 
         public static void SendGameData(int ID, int roomIndex)
         {
+            Console.WriteLine("Send Load started to " + ID + " player");
             string[] nicknames = Global.arena[roomIndex].GetNicknames();
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoadStarted);
@@ -128,6 +132,7 @@ namespace ElecyServer
 
         public static void SendRoomStart(int roomIndex)
         {
+            Console.WriteLine("Send room start");
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRoomStart);
             ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
@@ -136,6 +141,7 @@ namespace ElecyServer
 
         public static void SendTransform(int ID, int roomIndex, float[] pos, float[] rot)
         {
+            Console.WriteLine("Send transform to " + ID);
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.STransform);
             buffer.WriteFloat(pos[0]);

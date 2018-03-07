@@ -21,7 +21,7 @@ namespace ElecyServer
                 {(int)ClientPackets.CReconnectComplite, HandleReconnect },
                 {(int)NetPlayerPackets.PConnectionComplite, HandlePlayerConnect },
                 {(int)NetPlayerPackets.PGlChatMsg, HandleGlChatMsg },
-                {(int)NetPlayerPackets.PQueueStart, HandleNormalQueueStart },
+                {(int)NetPlayerPackets.PQueueStart, HandleQueueStart },
                 {(int)NetPlayerPackets.PSearch, HandleSearch },
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
                 {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
@@ -134,7 +134,7 @@ namespace ElecyServer
             ServerSendData.SendPlayerConnectionOK(index);
         }
 
-        private static void HandleNormalQueueStart(int index, byte[] data)
+        private static void HandleQueueStart(int index, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);

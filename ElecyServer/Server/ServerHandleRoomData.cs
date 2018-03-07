@@ -40,6 +40,7 @@ namespace ElecyServer
 
         private static void HandleRoomConnect(int ID, byte[] data)
         {
+            Console.WriteLine("Handle room coonect from " + ID);
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
@@ -50,6 +51,7 @@ namespace ElecyServer
 
         private static void HandleComplete(int ID, byte[] data)
         {
+            Console.WriteLine("Handle load complete from " + ID);
             float[] pos = new float[3];
             float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();
@@ -69,6 +71,7 @@ namespace ElecyServer
 
         private static void HandleTransform(int ID, byte[] data)
         {
+            Console.WriteLine("Handle Transform form " + ID);
             float[] pos = new float[3];
             float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();

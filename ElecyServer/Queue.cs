@@ -75,6 +75,7 @@ namespace ElecyServer
                         index2 = Global.normalQueue[i];
                         break;
                     }
+                    break; // time
                 }
             }
             return index2;
