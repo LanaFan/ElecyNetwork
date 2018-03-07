@@ -141,9 +141,7 @@ namespace ElecyServer
             buffer.ReadInteger();
             int matchType = buffer.ReadInteger();
             buffer.Dispose();
-            if (Queue.StartSearch(index, matchType))
-                ServerSendData.SendQueueStarted(index);
-            else
+            if (!Queue.StartSearch(index, matchType))
                 ServerSendData.SendPlayerAlert(index, "Queue is overcrowded. Try again later!");
                     
         }

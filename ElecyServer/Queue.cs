@@ -14,11 +14,19 @@ namespace ElecyServer
             switch (matchType)
             {
                 case 0:
-                    for (int i = 0; i < Constants.MAX_PLAYERS; i++)
+                    for(int i = 0; i < Constants.ARENA_SIZE; i++)
                     {
-                        if (Global.normalQueue[i] == 0)
+                        if (Global.arena[i].GetStatus() == GameRoom.RoomStatus.Searching)
                         {
-                            Global.normalQueue[i] = index;
+                            Global.arena[i].AddPlayer(Global.players[index]);
+                            return true;
+                        }
+                    }
+                    for(int i = 0; i < Constants.ARENA_SIZE; i++)
+                    {
+                        if(Global.arena[i].GetStatus() == GameRoom.RoomStatus.Empty)
+                        {
+                            Global.arena[i].AddPlayer(Global.players[index]);
                             return true;
                         }
                     }

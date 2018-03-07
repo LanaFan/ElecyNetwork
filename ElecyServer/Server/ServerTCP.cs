@@ -23,11 +23,17 @@ namespace ElecyServer
             {
                 Global.players[i] = new NetPlayer();
             }
+            for(int i = 0; i < Constants.ARENA_SIZE; i++)
+            {
+                Global.arena[i] = new GameRoom();
+            }
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
             _serverSocket.Listen(Constants.SERVER_LISTEN);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
             Console.WriteLine("Сервер запущен на Ip адресе {0} и порте {1}.", GetLocalIPAddress(), Constants.PORT);            
         }
+
+
 
         //Add new player in Players if there is a place
         public static int PlayerLogin(int index, string nickname, int[][]accountdata)

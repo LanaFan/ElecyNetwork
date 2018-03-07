@@ -7,11 +7,18 @@ namespace ElecyServer
     public class GameRoom
     {
         public bool active = false;
-
         private int roomIndex;
         private Player player1;
         private Player player2;
+        private RoomStatus status = RoomStatus.Empty;
 
+        public enum RoomStatus
+        {
+            Empty = 1,
+            Searching = 2,
+            Closed = 3
+        }
+    
         private bool p1Set = false;
         private bool p2Set = false;
 
@@ -19,22 +26,45 @@ namespace ElecyServer
         private bool p2Loaded = false;
 
 
-        
-        public GameRoom(int j, NetPlayer player1, NetPlayer player2)
+        //public void lalala()
+        //{
+        //    p1Set = false;
+        //    p2Set = false;
+        //    roomIndex = j;
+        //    this.player1 = new Player(player1.playerSocket, player1.index, player1.nickname, 1);
+        //    this.player2 = new Player(player2.playerSocket, player2.index, player2.nickname, 2);
+        //    StartGame();
+        //}
+
+        public void AddPlayer(NetPlayer player)
         {
-            p1Set = false;
-            p2Set = false;
-            roomIndex = j;
-            this.player1 = new Player(player1.playerSocket, player1.index, player1.nickname, 1);
-            this.player2 = new Player(player2.playerSocket, player2.index, player2.nickname, 2);
-            StartGame();
+            if (status == RoomStatus.Empty)
+            {
+                player.state = NetPlayer.playerState.SearchingForMatch;
+                player.NetPlayerStop();
+                player1 = new Player(player.playerSocket, player.index, player.nickname, 1);
+                status = RoomStatus.Searching;
+            }
+            else if (status == RoomStatus.Searching)
+            {
+                player.state = NetPlayer.playerState.SearchingForMatch;
+                player.NetPlayerStop();
+                player2 = new Player(player.playerSocket, player.index, player.nickname, 2);
+                status = RoomStatus.Closed;
+                StartGame();
+            }
+            else
+                return; // Ubrat'
+                //Send alert
         }
+
 
         private void StartGame()
         {
             ServerHandleRoomData.InitializeNetworkPackages();
             player1.StartPlay();
             player2.StartPlay();
+            ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
         }
 
         public void SendTransform()
@@ -49,6 +79,11 @@ namespace ElecyServer
         public Socket GetP1Socket()
         {
             return player1.GetSocket();
+        }
+
+        public RoomStatus GetStatus()
+        {
+            return status;
         }
 
         public Socket GetP2Socket()
@@ -213,6 +248,11 @@ namespace ElecyServer
         public string GetNickname()
         {
             return _nickname;
+        }
+
+        public int GetIndex()
+        {
+            return _index;
         }
 
         public float[][] GetTransform()
