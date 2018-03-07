@@ -22,7 +22,7 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PConnectionComplite, HandlePlayerConnect },
                 {(int)NetPlayerPackets.PGlChatMsg, HandleGlChatMsg },
                 {(int)NetPlayerPackets.PQueueStart, HandleQueueStart },
-                {(int)NetPlayerPackets.PSearch, HandleSearch },
+                //{(int)NetPlayerPackets.PSearch, HandleSearch },
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
                 {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
                 {(int)RoomPackets.RTransform, HandleTransform },
@@ -146,24 +146,24 @@ namespace ElecyServer
                     
         }
 
-        private static void HandleSearch(int index, byte[] data)
-        {
-            int index2 = Queue.SearchForEnemy(index);
-            int roomIndex = -1;
+        //private static void HandleSearch(int index, byte[] data)
+        //{
+        //    int index2 = Queue.SearchForEnemy(index);
+        //    int roomIndex = -1;
 
-            if (index2 > 0)
-                roomIndex = Queue.SearchForRoom(index, index2);
-            else
-            {
-                ServerSendData.SendQueueContinue(index);
-                return;
-            }
+        //    if (index2 > 0)
+        //        roomIndex = Queue.SearchForRoom(index, index2);
+        //    else
+        //    {
+        //        ServerSendData.SendQueueContinue(index);
+        //        return;
+        //    }
 
-            if (roomIndex >= 0)
-                ServerSendData.SendMatchFound(index, index2, roomIndex);
-            else
-                ServerSendData.SendPlayerAlert(index, "No empty room. Try again later!");
-        }
+        //    if (roomIndex >= 0)
+        //        ServerSendData.SendMatchFound(index, index2, roomIndex);
+        //    else
+        //        ServerSendData.SendPlayerAlert(index, "No empty room. Try again later!");
+        //}
 
         private static void HandleQueueStop(int index, byte[] data)
         {

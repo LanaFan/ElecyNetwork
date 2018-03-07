@@ -25,6 +25,11 @@ namespace ElecyServer
         private bool p1Loaded = false;
         private bool p2Loaded = false;
 
+        public GameRoom(int index)
+        {
+            roomIndex = index;
+        }
+
 
         //public void lalala()
         //{

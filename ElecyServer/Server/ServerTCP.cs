@@ -25,7 +25,7 @@ namespace ElecyServer
             }
             for(int i = 0; i < Constants.ARENA_SIZE; i++)
             {
-                Global.arena[i] = new GameRoom();
+                Global.arena[i] = new GameRoom(i);
             }
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
             _serverSocket.Listen(Constants.SERVER_LISTEN);

@@ -89,21 +89,21 @@ namespace ElecyServer
             return index2;
         }
 
-        public static int SearchForRoom(int index1, int index2)
-        {
-            for (int j = 0; j < Constants.ARENA_SIZE; j++)
-            {
-                if (Global.arena[j] == null)
-                {
-                    Global.players[index1].NetPlayerStop();
-                    Global.players[index2].NetPlayerStop();
-                    Global.arena[j] = new GameRoom(j, Global.players[index1], Global.players[index2]);
-                    StopSearch(index1, index2);
-                    return j;
-                }
-            }
-            return -1;
-        }
+        //public static int SearchForRoom(int index1, int index2)
+        //{
+        //    for (int j = 0; j < Constants.ARENA_SIZE; j++)
+        //    {
+        //        if (Global.arena[j] == null)
+        //        {
+        //            Global.players[index1].NetPlayerStop();
+        //            Global.players[index2].NetPlayerStop();
+        //            Global.arena[j] = new GameRoom(j, Global.players[index1], Global.players[index2]);
+        //            StopSearch(index1, index2);
+        //            return j;
+        //        }
+        //    }
+        //    return -1;
+        //}
 
     }
 }
