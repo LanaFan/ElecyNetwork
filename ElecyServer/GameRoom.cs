@@ -69,18 +69,12 @@ namespace ElecyServer
             ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
         }
 
-        public void SendTransform(int ID, float[] position, float[] rotation)
+        public void SendTransform()
         {
-            if(ID == 1)
-            {
-                //float[][] p2transform = player2.GetTransform();
-                ServerSendData.SendTransform(1, roomIndex, position, rotation);
-            }
-            else
-            {
-                //float[][] p1transform = player1.GetTransform();
-                ServerSendData.SendTransform(2, roomIndex, position, rotation);
-            }
+            float[][] p2transform = player2.GetTransform();
+            ServerSendData.SendTransform(1, roomIndex, p2transform[0], p2transform[1]);
+            float[][] p1transform = player1.GetTransform();
+            ServerSendData.SendTransform(2, roomIndex, p1transform[0], p1transform[1]);
         }
 
         #region Get And Sets
@@ -148,13 +142,13 @@ namespace ElecyServer
         {
             if (ID == 1)
             {
-                //player1.SetTransform(position, rotation);
-                SendTransform(2, position, rotation);
+                player1.SetTransform(position, rotation);
+                SendTransform();
             }
             else
             {
-                //player2.SetTransform(position, rotation);
-                SendTransform(1, position, rotation);
+                player2.SetTransform(position, rotation);
+                SendTransform();
             }
         }
 
@@ -215,11 +209,12 @@ namespace ElecyServer
                 {
                     byte[] dataBuffer = new byte[received];
                     Array.Copy(_buffer, dataBuffer, received);
-                    ServerHandleRoomData.HandleNetworkInformation(_ID, dataBuffer);
                     if (_playing)
                         _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), _socket);
                     else
                         return;
+                    ServerHandleRoomData.HandleNetworkInformation(_ID, dataBuffer);
+
                 }
             }
             catch
