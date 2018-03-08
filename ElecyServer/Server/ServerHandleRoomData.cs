@@ -70,7 +70,6 @@ namespace ElecyServer
 
         private static void HandleTransform(int ID, byte[] data)
         {
-            Console.WriteLine("Handle Transform form " + ID);
             float[] pos = new float[3];
             float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();

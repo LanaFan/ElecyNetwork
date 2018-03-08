@@ -72,12 +72,20 @@ namespace ElecyServer
             ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
         }
 
-        public void SendTransform()
+        public void SendTransform(int ID)
         {
-            float[][] p1transform = player1.GetTransform();
-            float[][] p2transform = player2.GetTransform();
-            ServerSendData.SendTransform(2, roomIndex, p1transform[0], p1transform[1]);
-            ServerSendData.SendTransform(1, roomIndex, p2transform[0], p2transform[1]);
+            if(ID == 1)
+            {
+                float[][] p2transform = player2.GetTransform();
+                Console.WriteLine("Sent " + p2transform[1] + " - position, " + p2transform + " - rotation to 2");
+                ServerSendData.SendTransform(1, roomIndex, p2transform[0], p2transform[1]);
+            }
+            else
+            {
+                float[][] p1transform = player1.GetTransform();
+                Console.WriteLine("Sent " + p1transform[1] + " - position, " + p1transform + " - rotation to 2");
+                ServerSendData.SendTransform(2, roomIndex, p1transform[0], p1transform[1]);
+            }
         }
 
         #region Get And Sets
@@ -154,11 +162,15 @@ namespace ElecyServer
                 p2Set = true;
             }
 
-            if(p1Set && p2Set)
+            if(p1Set)
             {
-                SendTransform();
                 p1Set = false;
+                SendTransform(2);
+            }
+            else
+            {
                 p2Set = false;
+                SendTransform(1);
             }
         }
 
