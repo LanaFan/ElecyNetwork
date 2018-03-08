@@ -18,9 +18,6 @@ namespace ElecyServer
             Searching = 2,
             Closed = 3
         }
-    
-        private bool p1Set = false;
-        private bool p2Set = false;
 
         private bool p1Loaded = false;
         private bool p2Loaded = false;
@@ -72,19 +69,17 @@ namespace ElecyServer
             ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
         }
 
-        public void SendTransform(int ID)
+        public void SendTransform(int ID, float[] position, float[] rotation)
         {
             if(ID == 1)
             {
-                float[][] p2transform = player2.GetTransform();
-                Console.WriteLine("Sent " + p2transform[1] + " - position, " + p2transform + " - rotation to 2");
-                ServerSendData.SendTransform(1, roomIndex, p2transform[0], p2transform[1]);
+                //float[][] p2transform = player2.GetTransform();
+                ServerSendData.SendTransform(1, roomIndex, position, rotation);
             }
             else
             {
-                float[][] p1transform = player1.GetTransform();
-                Console.WriteLine("Sent " + p1transform[1] + " - position, " + p1transform + " - rotation to 2");
-                ServerSendData.SendTransform(2, roomIndex, p1transform[0], p1transform[1]);
+                //float[][] p1transform = player1.GetTransform();
+                ServerSendData.SendTransform(2, roomIndex, position, rotation);
             }
         }
 
@@ -153,24 +148,13 @@ namespace ElecyServer
         {
             if (ID == 1)
             {
-                player1.SetTransform(position, rotation);
-                p1Set = true;
+                //player1.SetTransform(position, rotation);
+                SendTransform(2, position, rotation);
             }
             else
             {
-                player2.SetTransform(position, rotation);
-                p2Set = true;
-            }
-
-            if(p1Set)
-            {
-                p1Set = false;
-                SendTransform(2);
-            }
-            else
-            {
-                p2Set = false;
-                SendTransform(1);
+                //player2.SetTransform(position, rotation);
+                SendTransform(1, position, rotation);
             }
         }
 
