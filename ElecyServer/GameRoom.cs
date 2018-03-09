@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using Bindings;
+using System.Threading;
 
 namespace ElecyServer
 {
@@ -11,6 +12,7 @@ namespace ElecyServer
         private Player player1;
         private Player player2;
         private RoomStatus status = RoomStatus.Empty;
+        Timer timer;
 
         public enum RoomStatus
         {
@@ -42,15 +44,19 @@ namespace ElecyServer
                 player.NetPlayerStop();
                 player2 = new Player(player.playerSocket, player.index, player.nickname, 2);
                 status = RoomStatus.Closed;
-                StartGame();
+                StartReceive();
             }
             else
                 return; // Ubrat'
                 //Send alert
         }
 
+        public void StartGame()
+        {
+            timer = new Timer(SendTransform, null, 0, 30);
+        }
 
-        private void StartGame()
+        private void StartReceive()
         {
             ServerHandleRoomData.InitializeNetworkPackages();
             player1.StartPlay();
@@ -58,7 +64,7 @@ namespace ElecyServer
             ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
         }
 
-        public void SendTransform()
+        private void SendTransform(Object o)
         {
             float[][] p2transform = player2.GetTransform();
             ServerSendData.SendTransform(1, roomIndex, p2transform[0], p2transform[1]);
@@ -67,6 +73,7 @@ namespace ElecyServer
         }
 
         #region Get And Sets
+
         public Socket GetP1Socket()
         {
             return player1.GetSocket();
@@ -139,6 +146,7 @@ namespace ElecyServer
                 p1Loaded = false;
                 p2Loaded = false;
                 ServerSendData.SendRoomStart(roomIndex);
+                StartGame();
             }
         }
 
@@ -147,14 +155,12 @@ namespace ElecyServer
             if (ID == 1)
             {
                 player1.SetTransform(position, rotation);
-                SendTransform();
             }
             else
             {
                 player2.SetTransform(position, rotation);
-                SendTransform();
             }
-        } // Rewrite
+        }
 
         public string[] GetNicknames()
         {
@@ -171,6 +177,7 @@ namespace ElecyServer
             transforms[1] = player2.GetTransform();
             return transforms;
         }
+
         #endregion
 
     }

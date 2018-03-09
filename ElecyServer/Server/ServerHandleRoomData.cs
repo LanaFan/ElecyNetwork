@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Bindings;
 
 namespace ElecyServer
@@ -49,7 +45,6 @@ namespace ElecyServer
 
         private static void HandlePlayerSpawn(int ID, byte[] data)
         {
-            Console.WriteLine("Handle spawn from " + ID);
             float[] pos = new float[3];
             float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();
@@ -69,7 +64,6 @@ namespace ElecyServer
 
         private static void HandleComplete(int ID, byte[] data)
         {
-            Console.WriteLine("Handle load complete from " + ID);
             float[] pos = new float[3];
             float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();
@@ -77,7 +71,7 @@ namespace ElecyServer
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
             buffer.Dispose();
-            Global.arena[roomIndex].SetGameData(ID, pos, rot);
+            Global.arena[roomIndex].SetLoadComplete(ID);
         }
 
         private static void HandleTransform(int ID, byte[] data)

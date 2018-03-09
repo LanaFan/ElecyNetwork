@@ -120,7 +120,6 @@ namespace ElecyServer
 
         public static void SendGameData(int roomIndex)
         {
-            Console.WriteLine("Send Load started to player");
             string[] nicknames = Global.arena[roomIndex].GetNicknames();
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoadStarted);
@@ -132,7 +131,6 @@ namespace ElecyServer
 
         public static void SendPlayerSpawned(int roomIndex)
         {
-            Console.WriteLine("Send player spawned");
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SPlayerSpawned);
             ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
@@ -141,7 +139,6 @@ namespace ElecyServer
 
         public static void SendRoomStart(int roomIndex)
         {
-            Console.WriteLine("Send room start");
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRoomStart);
             ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
@@ -150,7 +147,6 @@ namespace ElecyServer
 
         public static void SendTransform(int ID, int roomIndex, float[] pos, float[] rot)
         {
-            Console.WriteLine("Send transform to " + ID);
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.STransform);
             buffer.WriteFloat(pos[0]);
