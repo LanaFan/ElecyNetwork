@@ -34,14 +34,12 @@ namespace ElecyServer
             if (status == RoomStatus.Empty)
             {
                 player.state = NetPlayer.playerState.SearchingForMatch;
-                player.NetPlayerStop();
                 player1 = new Player(player.playerSocket, player.index, player.nickname, 1);
                 status = RoomStatus.Searching;
             }
             else if (status == RoomStatus.Searching)
             {
                 player.state = NetPlayer.playerState.SearchingForMatch;
-                player.NetPlayerStop();
                 player2 = new Player(player.playerSocket, player.index, player.nickname, 2);
                 status = RoomStatus.Closed;
                 StartReceive();
@@ -56,9 +54,16 @@ namespace ElecyServer
             timer = new Timer(SendTransform, null, 0, 30);
         }
 
+        private void StopNetPlayers()
+        {
+            Global.players[player1.GetIndex()].NetPlayerStop();
+            Global.players[player2.GetIndex()].NetPlayerStop();
+        }
+
         private void StartReceive()
         {
             ServerHandleRoomData.InitializeNetworkPackages();
+            StopNetPlayers();
             player1.StartPlay();
             player2.StartPlay();
             ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
