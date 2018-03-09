@@ -22,11 +22,7 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PConnectionComplite, HandlePlayerConnect },
                 {(int)NetPlayerPackets.PGlChatMsg, HandleGlChatMsg },
                 {(int)NetPlayerPackets.PQueueStart, HandleQueueStart },
-                //{(int)NetPlayerPackets.PSearch, HandleSearch },
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
-                //{(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
-                //{(int)RoomPackets.RTransform, HandleTransform },
-                //{(int)RoomPackets.RLoadComplete, HandleComplete }
             };
         }
 
@@ -171,58 +167,6 @@ namespace ElecyServer
         }
 
         #endregion
-
-        //#region Game Room Handle
-
-        //private static void HandleRoomConnect(int ID, byte[] data)
-        //{
-        //    PacketBuffer buffer = new PacketBuffer();
-        //    buffer.WriteBytes(data);
-        //    buffer.ReadInteger();
-        //    int roomIndex = buffer.ReadInteger();
-        //    buffer.Dispose();
-        //    Global.arena[roomIndex].SetGameLoadData(ID);
-        //}
-
-        //private static void HandleComplete(int ID, byte[] data)
-        //{
-        //    float[] pos = new float[3];
-        //    float[] rot = new float[4];
-        //    PacketBuffer buffer = new PacketBuffer();
-        //    buffer.WriteBytes(data);
-        //    buffer.ReadInteger();
-        //    int roomIndex = buffer.ReadInteger();
-        //    pos[0] = buffer.ReadFloat();
-        //    pos[1] = buffer.ReadFloat();
-        //    pos[2] = buffer.ReadFloat();
-        //    rot[0] = buffer.ReadFloat();
-        //    rot[1] = buffer.ReadFloat();
-        //    rot[2] = buffer.ReadFloat();
-        //    rot[3] = buffer.ReadFloat();
-        //    buffer.Dispose();
-        //    Global.arena[roomIndex].SetTransform(ID, pos, rot);
-        //}
-
-        //private static void HandleTransform(int ID, byte[] data)
-        //{
-        //    float[] pos = new float[3];
-        //    float[] rot = new float[4];
-        //    PacketBuffer buffer = new PacketBuffer();
-        //    buffer.WriteBytes(data);
-        //    buffer.ReadInteger();
-        //    int roomIndex = buffer.ReadInteger();
-        //    pos[0] = buffer.ReadFloat();
-        //    pos[1] = buffer.ReadFloat();
-        //    pos[2] = buffer.ReadFloat();
-        //    rot[0] = buffer.ReadFloat();
-        //    rot[1] = buffer.ReadFloat();
-        //    rot[2] = buffer.ReadFloat();
-        //    rot[3] = buffer.ReadFloat();
-        //    buffer.Dispose();
-        //    Global.arena[roomIndex].SetTransform(ID, pos, rot);
-        //}
-
-        //#endregion
 
     }
 }

@@ -130,6 +130,15 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
+        public static void SendPlayerSpawned(int roomIndex)
+        {
+            Console.WriteLine("Send player spawned");
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SPlayerSpawned);
+            ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
+            buffer.Dispose();
+        }
+
         public static void SendRoomStart(int roomIndex)
         {
             Console.WriteLine("Send room start");

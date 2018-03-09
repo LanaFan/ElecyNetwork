@@ -17,8 +17,9 @@ namespace ElecyServer
             Packets = new Dictionary<int, Packet_>
             {
                 {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
-                {(int)RoomPackets.RTransform, HandleTransform },
-                {(int)RoomPackets.RLoadComplete, HandleComplete }
+                {(int)RoomPackets.RPlayerSpawned, HandlePlayerSpawn },
+                {(int)RoomPackets.RLoadComplite, HandleComplete },
+                {(int)RoomPackets.RTransform, HandleTransform }
             };
         }
 
@@ -36,8 +37,6 @@ namespace ElecyServer
             }
         }
 
-        #region Game Room Handle
-
         private static void HandleRoomConnect(int ID, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();
@@ -48,9 +47,9 @@ namespace ElecyServer
             Global.arena[roomIndex].SetGameLoadData(ID);
         }
 
-        private static void HandleComplete(int ID, byte[] data)
+        private static void HandlePlayerSpawn(int ID, byte[] data)
         {
-            Console.WriteLine("Handle load complete from " + ID);
+            Console.WriteLine("Handle spawn from " + ID);
             float[] pos = new float[3];
             float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();
@@ -64,6 +63,19 @@ namespace ElecyServer
             rot[1] = buffer.ReadFloat();
             rot[2] = buffer.ReadFloat();
             rot[3] = buffer.ReadFloat();
+            buffer.Dispose();
+            Global.arena[roomIndex].SetGameData(ID, pos, rot);
+        }
+
+        private static void HandleComplete(int ID, byte[] data)
+        {
+            Console.WriteLine("Handle load complete from " + ID);
+            float[] pos = new float[3];
+            float[] rot = new float[4];
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
             buffer.Dispose();
             Global.arena[roomIndex].SetGameData(ID, pos, rot);
         }
@@ -87,6 +99,5 @@ namespace ElecyServer
             Global.arena[roomIndex].SetTransform(ID, pos, rot);
         }
 
-        #endregion
     }
 }

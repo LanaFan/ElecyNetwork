@@ -27,17 +27,6 @@ namespace ElecyServer
             roomIndex = index;
         }
 
-
-        //public void lalala()
-        //{
-        //    p1Set = false;
-        //    p2Set = false;
-        //    roomIndex = j;
-        //    this.player1 = new Player(player1.playerSocket, player1.index, player1.nickname, 1);
-        //    this.player2 = new Player(player2.playerSocket, player2.index, player2.nickname, 2);
-        //    StartGame();
-        //}
-
         public void AddPlayer(NetPlayer player)
         {
             if (status == RoomStatus.Empty)
@@ -133,9 +122,24 @@ namespace ElecyServer
             {
                 p1Loaded = false;
                 p2Loaded = false;
-                ServerSendData.SendRoomStart(roomIndex);
+                ServerSendData.SendPlayerSpawned(roomIndex);
             }
 
+        }
+
+        public void SetLoadComplete(int ID)
+        {
+            if (ID == 1)
+                p1Loaded = true;
+            else
+                p2Loaded = true;
+
+            if(p1Loaded && p2Loaded)
+            {
+                p1Loaded = false;
+                p2Loaded = false;
+                ServerSendData.SendRoomStart(roomIndex);
+            }
         }
 
         public void SetTransform(int ID, float[] position, float[] rotation)
@@ -150,7 +154,7 @@ namespace ElecyServer
                 player2.SetTransform(position, rotation);
                 SendTransform();
             }
-        }
+        } // Rewrite
 
         public string[] GetNicknames()
         {

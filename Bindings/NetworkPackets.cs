@@ -3,7 +3,7 @@
     //get send from server to client
     public enum ServerPackets
     {
-        SConnectionOK = 1,SRegisterOK = 2,SLoginOK = 3,SAlert = 4,SGlChatMsg = 5,SQueueStarted = 6,SQueueContinue = 7,SMatchFound = 8,SLoadStarted = 9, SRoomStart = 10, STransform = 11
+        SConnectionOK = 1,SRegisterOK = 2,SLoginOK = 3,SAlert = 4,SGlChatMsg = 5,SQueueStarted = 6,SQueueContinue = 7,SMatchFound = 8,SLoadStarted = 9,SPlayerSpawned = 10, SRoomStart = 11, STransform = 11
     }
 
     //get send from client to server
@@ -20,6 +20,6 @@
 
     public enum RoomPackets
     {
-        RConnectionComplite = 13, RTransform = 14, RLoadComplete = 15
+        RConnectionComplite = 13, RPlayerSpawned = 14, RLoadComplite = 15, RTransform = 16
     }
 }
