@@ -144,7 +144,7 @@ namespace ElecyServer
 
         private static void HandleQueueStop(int index, byte[] data)
         {
-            Queue.StopSearch(index);
+            Queue.StopSearch(index, Global.players[index].roomIndex);
         }
 
         #endregion

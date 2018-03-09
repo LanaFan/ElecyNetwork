@@ -19,6 +19,7 @@ namespace ElecyServer
                         if (Global.arena[i].GetStatus() == GameRoom.RoomStatus.Searching)
                         {
                             Global.arena[i].AddPlayer(Global.players[index]);
+                            Global.players[index].roomIndex = i;
                             return true;
                         }
                     }
@@ -27,6 +28,7 @@ namespace ElecyServer
                         if(Global.arena[i].GetStatus() == GameRoom.RoomStatus.Empty)
                         {
                             Global.arena[i].AddPlayer(Global.players[index]);
+                            Global.players[index].roomIndex = i;
                             return true;
                         }
                     }
@@ -35,39 +37,32 @@ namespace ElecyServer
             return false;
         }
 
-        public static void StopSearch(int index)
+        public static void StopSearch(int index, int roomIndex)
         {
-            for(int i = 0; i < Constants.MAX_PLAYERS; i++)
-            {
-                if(Global.normalQueue[i] == index)
-                {
-                    Global.normalQueue[i] = 0;
-                    break;
-                }
-            }
+            Global.arena[roomIndex].DeletePlayer(index);
         }
 
-        public static void StopSearch(int index1, int index2)
-        {
-            bool completed = false;
-            for (int i = 0; i < Constants.MAX_PLAYERS; i++)
-            {
-                if (Global.normalQueue[i] == index1)
-                {
-                    Global.normalQueue[i] = 0;
-                    if(completed)
-                        break;
-                    completed = true;
-                }
-                if (Global.normalQueue[i] == index2)
-                {
-                    Global.normalQueue[i] = 0;
-                    if (completed)
-                        break;
-                    completed = true;
-                }
-            }
-        }
+        //public static void StopSearch(int index1, int index2)
+        //{
+        //    bool completed = false;
+        //    for (int i = 0; i < Constants.MAX_PLAYERS; i++)
+        //    {
+        //        if (Global.normalQueue[i] == index1)
+        //        {
+        //            Global.normalQueue[i] = 0;
+        //            if(completed)
+        //                break;
+        //            completed = true;
+        //        }
+        //        if (Global.normalQueue[i] == index2)
+        //        {
+        //            Global.normalQueue[i] = 0;
+        //            if (completed)
+        //                break;
+        //            completed = true;
+        //        }
+        //    }
+        //}
 
         public static int SearchForEnemy(int index)
         {

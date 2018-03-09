@@ -246,6 +246,7 @@ namespace ElecyServer
     public class NetPlayer
     {
         public int index;
+        public int roomIndex;
         public string ip;
         public string nickname;
         public bool playerClosing = false;

@@ -49,6 +49,22 @@ namespace ElecyServer
                 //Send alert
         }
 
+        public void DeletePlayer(int index)
+        {
+            if (player1.GetIndex() == index)
+            {
+                player1 = null;
+                Global.players[index].state = NetPlayer.playerState.InMainLobby;
+                status = RoomStatus.Empty;
+            }
+            else if (player2.GetIndex() == index) 
+            {
+                player2 = null;
+                Global.players[index].state = NetPlayer.playerState.InMainLobby;
+                status = RoomStatus.Empty;
+            }
+        }
+
         public void StartGame()
         {
             timer = new Timer(SendTransform, null, 0, 30);
