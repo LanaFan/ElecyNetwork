@@ -15,7 +15,7 @@
     //get send from player to server
     public enum NetPlayerPackets
     {
-        PConnectionComplite = 7, PGlChatMsg = 8, PQueueStart = 9, PSearch = 10,  PQueueStop = 11, PAlert = 12, PStopPlayer = 17,
+        PConnectionComplite = 7, PGlChatMsg = 8, PQueueStart = 9, PSearch = 10,  PQueueStop = 11, PAlert = 12, PStopPlayer = 17, // hello
     }
 
     public enum RoomPackets
