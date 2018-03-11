@@ -43,7 +43,8 @@ namespace ElecyServer
                 Console.WriteLine("Player " + 2 + " added");
                 player.state = NetPlayer.playerState.SearchingForMatch;
                 player2 = new Player(player.playerSocket, player.index, player.nickname, 2);
-                status = RoomStatus.Closed; //sosi hui
+                status = RoomStatus.Closed;
+                ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
             }
             else
                 return; // Ubrat'
@@ -68,7 +69,7 @@ namespace ElecyServer
 
         public void StartGame()
         {
-            timer = new Timer(SendTransform, null, 0, 30);
+            timer = new Timer(SendTransform, null, 0, 1000/Constants.UPDATE_RATE);
         }
 
         public void StartReceive()
@@ -77,7 +78,6 @@ namespace ElecyServer
             StopNetPlayers();
             player1.StartPlay();
             player2.StartPlay();
-            ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
         }
 
         private void StopNetPlayers()

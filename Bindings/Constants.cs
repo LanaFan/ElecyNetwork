@@ -16,5 +16,7 @@
 
         public const int ARENA_SIZE = 60;
 
+        public const int UPDATE_RATE = 40;
+
     }
 }
