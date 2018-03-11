@@ -23,6 +23,7 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PGlChatMsg, HandleGlChatMsg },
                 {(int)NetPlayerPackets.PQueueStart, HandleQueueStart },
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
+                {(int)NetPlayerPackets.PStopPlayer, HandlePlayerStop }
             };
         }
 
@@ -114,7 +115,7 @@ namespace ElecyServer
 
         #region Player Handlers
 
-        private static void HandleGlChatMsg(int index, byte[] data)
+        private static void HandleGlChatMsg(int index, byte[] data) 
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
@@ -145,6 +146,11 @@ namespace ElecyServer
         private static void HandleQueueStop(int index, byte[] data)
         {
             Queue.StopSearch(index, Global.players[index].roomIndex);
+        }
+
+        private static void HandlePlayerStop(int index, byte[] data)
+        {
+            Global.arena[Global.players[index].roomIndex].StartReceive(); // sosi hui
         }
 
         #endregion

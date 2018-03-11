@@ -33,16 +33,17 @@ namespace ElecyServer
         {
             if (status == RoomStatus.Empty)
             {
+                Console.WriteLine("Player " + 1 + " added");
                 player.state = NetPlayer.playerState.SearchingForMatch;
                 player1 = new Player(player.playerSocket, player.index, player.nickname, 1);
                 status = RoomStatus.Searching;
             }
             else if (status == RoomStatus.Searching)
             {
+                Console.WriteLine("Player " + 2 + " added");
                 player.state = NetPlayer.playerState.SearchingForMatch;
                 player2 = new Player(player.playerSocket, player.index, player.nickname, 2);
-                status = RoomStatus.Closed;
-                StartReceive();
+                status = RoomStatus.Closed; //sosi hui
             }
             else
                 return; // Ubrat'
@@ -70,19 +71,19 @@ namespace ElecyServer
             timer = new Timer(SendTransform, null, 0, 30);
         }
 
-        private void StopNetPlayers()
-        {
-            Global.players[player1.GetIndex()].NetPlayerStop();
-            Global.players[player2.GetIndex()].NetPlayerStop();
-        }
-
-        private void StartReceive()
+        public void StartReceive()
         {
             ServerHandleRoomData.InitializeNetworkPackages();
             StopNetPlayers();
             player1.StartPlay();
             player2.StartPlay();
             ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
+        }
+
+        private void StopNetPlayers()
+        {
+            Global.players[player1.GetIndex()].NetPlayerStop();
+            Global.players[player2.GetIndex()].NetPlayerStop();
         }
 
         private void SendTransform(Object o)
@@ -226,6 +227,7 @@ namespace ElecyServer
         {
             _playing = true;
             _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), _socket);
+            Console.WriteLine("Player " + _ID + " started");
         }
 
         private void PlayerReceiveCallBack(IAsyncResult ar)
