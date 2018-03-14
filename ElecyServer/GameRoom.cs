@@ -72,18 +72,23 @@ namespace ElecyServer
             timer = new Timer(SendTransform, null, 0, 1000/Constants.UPDATE_RATE);
         }
 
-        public void StartReceive()
+        public void StartReceive(int index)
         {
-            ServerHandleRoomData.InitializeNetworkPackages();
-            StopNetPlayers();
-            player1.StartPlay();
-            player2.StartPlay();
+            if(index == player1.GetIndex())
+            {
+                player1.StartPlay();
+                StopNetPlayer(index);
+            }
+            else
+            {
+                player2.StartPlay();
+                StopNetPlayer(index);
+            }
         }
 
-        private void StopNetPlayers()
+        private void StopNetPlayer(int index)
         {
-            Global.players[player1.GetIndex()].NetPlayerStop();
-            Global.players[player2.GetIndex()].NetPlayerStop();
+            Global.players[index].NetPlayerStop();
         }
 
         private void SendTransform(Object o)
@@ -141,10 +146,12 @@ namespace ElecyServer
             if (ID == 1)
             {
                 p1Loaded = true;
+                SetTransform(ID, position, rotation);
             }
             else
             {
                 p2Loaded = true;
+                SetTransform(ID, position, rotation);
             }
 
             if (p1Loaded && p2Loaded)
@@ -152,6 +159,7 @@ namespace ElecyServer
                 p1Loaded = false;
                 p2Loaded = false;
                 ServerSendData.SendPlayerSpawned(roomIndex);
+
             }
 
         }

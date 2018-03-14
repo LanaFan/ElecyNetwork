@@ -150,7 +150,7 @@ namespace ElecyServer
 
         private static void HandlePlayerStop(int index, byte[] data)
         {
-            Global.arena[Global.players[index].roomIndex].StartReceive(); // sosi hui
+            Global.arena[Global.players[index].roomIndex].StartReceive(index);
         }
 
         #endregion

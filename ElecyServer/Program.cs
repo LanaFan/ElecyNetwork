@@ -7,6 +7,7 @@ namespace ElecyServer
         public static void Main(string[] args)
         {
             ServerHandleNetworkData.InitializeNetworkPackages();
+            ServerHandleRoomData.InitializeNetworkPackages();
             Global.mysql.MySQLInit();
             ServerTCP.SetupServer();
             Console.ReadLine();
