@@ -7,12 +7,13 @@ namespace ElecyServer
 {
     public class GameRoom
     {
-        public bool active = false;
         private int roomIndex;
         private Player player1;
         private Player player2;
-        private RoomStatus status = RoomStatus.Empty;
-        Timer timer;
+        private Timer timer;
+        private bool p1Loaded = false;
+        private bool p2Loaded = false;
+        private RoomStatus status;
 
         public enum RoomStatus
         {
@@ -21,27 +22,21 @@ namespace ElecyServer
             Closed = 3
         }
 
-        private bool p1Loaded = false;
-        private bool p2Loaded = false;
-
         public GameRoom(int index)
         {
             roomIndex = index;
+            status = RoomStatus.Empty;
         }
 
         public void AddPlayer(NetPlayer player)
         {
             if (status == RoomStatus.Empty)
             {
-                Console.WriteLine("Player " + 1 + " added");
-                player.state = NetPlayer.playerState.SearchingForMatch;
                 player1 = new Player(player.playerSocket, player.index, player.nickname, 1);
                 status = RoomStatus.Searching;
             }
             else if (status == RoomStatus.Searching)
             {
-                Console.WriteLine("Player " + 2 + " added");
-                player.state = NetPlayer.playerState.SearchingForMatch;
                 player2 = new Player(player.playerSocket, player.index, player.nickname, 2);
                 status = RoomStatus.Closed;
                 ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
@@ -63,7 +58,7 @@ namespace ElecyServer
             {
                 player2 = null;
                 Global.players[index].state = NetPlayer.playerState.InMainLobby;
-                status = RoomStatus.Empty;
+                status = RoomStatus.Searching;
             }
         }
 
@@ -100,26 +95,6 @@ namespace ElecyServer
         }
 
         #region Get And Sets
-
-        public Socket GetP1Socket()
-        {
-            return player1.GetSocket();
-        }
-
-        public RoomStatus GetStatus()
-        {
-            return status;
-        }
-
-        public Socket GetP2Socket()
-        {
-            return player2.GetSocket();
-        }
-
-        public Socket GetSocket(int ID)
-        {
-            return (ID == 1) ? GetP1Socket() : GetP2Socket();
-        }
 
         public void SetGameLoadData(int ID)
         {
@@ -192,20 +167,32 @@ namespace ElecyServer
             }
         }
 
+        public RoomStatus GetStatus()
+        {
+            return status;
+        }
+
+        public Socket GetP1Socket()
+        {
+            return player1.GetSocket();
+        }
+
+        public Socket GetP2Socket()
+        {
+            return player2.GetSocket();
+        }
+
+        public Socket GetSocket(int ID)
+        {
+            return (ID == 1) ? GetP1Socket() : GetP2Socket();
+        }
+
         public string[] GetNicknames()
         {
             string[] nicknames = new string[2];
             nicknames[0] = player1.GetNickname();
             nicknames[1] = player2.GetNickname();
             return nicknames;
-        }
-
-        public float[][][] GetTransforms()
-        {
-            float[][][] transforms = new float[2][][];
-            transforms[0] = player1.GetTransform();
-            transforms[1] = player2.GetTransform();
-            return transforms;
         }
 
         #endregion
@@ -235,7 +222,6 @@ namespace ElecyServer
         {
             _playing = true;
             _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), _socket);
-            Console.WriteLine("Player " + _ID + " started");
         }
 
         private void PlayerReceiveCallBack(IAsyncResult ar)

@@ -98,9 +98,7 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SMatchFound);
             buffer.WriteInteger(roomIndex);
             ServerTCP.SendDataToPlayer(index1, buffer.ToArray());
-            Console.WriteLine("Match found to " + index1 + " sended");
             ServerTCP.SendDataToPlayer(index2, buffer.ToArray());
-            Console.WriteLine("Match found to " + index2 + " sended");
             buffer.Dispose();
         }
 
@@ -112,7 +110,6 @@ namespace ElecyServer
             ServerTCP.SendDataToPlayer(index, buffer.ToArray());
             buffer.Dispose();
         }
-
 
         #endregion
 

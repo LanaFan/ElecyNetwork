@@ -64,8 +64,6 @@ namespace ElecyServer
 
         private static void HandleComplete(int ID, byte[] data)
         {
-            float[] pos = new float[3];
-            float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
