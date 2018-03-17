@@ -9,5 +9,6 @@ namespace ElecyServer
         public static Client[] clients = new Client[Constants.MAX_PLAYERS];
         public static NetPlayer[] players = new NetPlayer[Constants.MAX_PLAYERS];
         public static GameRoom[] arena = new GameRoom[Constants.ARENA_SIZE];
+        public static Server serverForm;
     }
 }

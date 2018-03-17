@@ -66,7 +66,7 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendGlChatMsg(int index, string Nickname, string GlChatMsg)
+        public static void SendGlChatMsg(string Nickname, string GlChatMsg)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SGlChatMsg);

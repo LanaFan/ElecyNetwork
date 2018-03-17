@@ -24,3 +24,6 @@ D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServ
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\adodb.dll
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\adodb.dll
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csproj.CoreCompileInputs.cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.Server.resources
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csproj.GenerateResource.Cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.Properties.Resources.resources

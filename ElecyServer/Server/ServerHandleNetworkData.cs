@@ -123,7 +123,8 @@ namespace ElecyServer
             string GlChatMsg = buffer.ReadString();
             string Nickname = Global.players[index].nickname;
             buffer.Dispose();
-            ServerSendData.SendGlChatMsg(index,Nickname, GlChatMsg);
+            Global.serverForm.ShowChatMsg(Nickname, GlChatMsg);
+            ServerSendData.SendGlChatMsg(Nickname, GlChatMsg);
         }
 
         private static void HandlePlayerConnect(int index, byte[] data)

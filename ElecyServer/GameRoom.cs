@@ -81,6 +81,15 @@ namespace ElecyServer
             }
         }
 
+        public void StopTimer()
+        {
+            try
+            {
+                timer.Dispose();
+            }
+            catch { }
+        }
+
         private void StopNetPlayer(int index)
         {
             Global.players[index].NetPlayerStop();

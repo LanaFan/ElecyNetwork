@@ -1,16 +1,16 @@
 ﻿using System;
+using System.Windows.Forms;
 
 namespace ElecyServer
 {
-    class Program
+    public class Program
     {
         public static void Main(string[] args)
         {
-            ServerHandleNetworkData.InitializeNetworkPackages();
-            ServerHandleRoomData.InitializeNetworkPackages();
-            Global.mysql.MySQLInit();
-            ServerTCP.SetupServer();
-            Console.ReadLine();
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Global.serverForm = new Server();
+            Application.Run(Global.serverForm);
         }
     }
 }

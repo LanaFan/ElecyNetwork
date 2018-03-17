@@ -1,0 +1,5 @@
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Server\obj\Debug\Server.csprojResolveAssemblyReference.cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Server\obj\Debug\Server.Properties.Resources.resources
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Server\obj\Debug\Server.ServerInterface.resources
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Server\obj\Debug\Server.csproj.GenerateResource.Cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
