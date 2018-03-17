@@ -50,6 +50,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArenaRandomGenerator.cs" />
+    <Compile Include="GameObjectList.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="MySQL\Database.cs" />
     <Compile Include="GameRoom.cs" />

@@ -7,12 +7,16 @@ namespace ElecyServer
 {
     public class GameRoom
     {
+        private GameObjectList objects;
         private int roomIndex;
         private Player player1;
         private Player player2;
         private Timer timer;
+        private ArenaRandomGenerator spawner;
         private bool p1Loaded = false;
         private bool p2Loaded = false;
+        private float scaleX;
+        private float scaleZ;
         private RoomStatus status;
 
         public enum RoomStatus
@@ -26,6 +30,7 @@ namespace ElecyServer
         {
             roomIndex = index;
             status = RoomStatus.Empty;
+            objects = new GameObjectList();
         }
 
         public void AddPlayer(NetPlayer player)
@@ -90,6 +95,21 @@ namespace ElecyServer
             catch { }
         }
 
+        public void SpawnTree(int ID)
+        {
+            if (ID == 1)
+                p1Loaded = true;
+            else
+                p2Loaded = true;
+
+            if(p1Loaded == true && p2Loaded == true)
+            {
+                p1Loaded = false;
+                p2Loaded = false;
+                objects.Add(NetworkGameObject.Type.tree, roomIndex);
+            }
+        }
+
         private void StopNetPlayer(int index)
         {
             Global.players[index].NetPlayerStop();
@@ -105,15 +125,25 @@ namespace ElecyServer
 
         #region Get And Sets
 
-        public void SetGameLoadData(int ID)
+        public void SetGameLoadData(int ID, float scaleX, float scaleZ)
         {
             if (ID == 1)
             {
                 p1Loaded = true;
+                if(this.scaleX != scaleX && this.scaleZ != scaleZ)
+                {
+                    this.scaleX = scaleX;
+                    this.scaleZ = scaleZ;
+                }
             }
             else
             {
                 p2Loaded = true;
+                if (this.scaleX != scaleX && this.scaleZ != scaleZ)
+                {
+                    this.scaleX = scaleX;
+                    this.scaleZ = scaleZ;
+                }
             }
 
             if (p1Loaded && p2Loaded)
@@ -142,8 +172,8 @@ namespace ElecyServer
             {
                 p1Loaded = false;
                 p2Loaded = false;
-                ServerSendData.SendPlayerSpawned(roomIndex);
-
+                spawner = new ArenaRandomGenerator(scaleX, scaleZ, player1.GetPosition(), player2.GetPosition());
+                objects.Add(NetworkGameObject.Type.rock, roomIndex);
             }
 
         }
@@ -204,6 +234,16 @@ namespace ElecyServer
             return nicknames;
         }
 
+        public ArenaRandomGenerator GetRandom()
+        {
+            return spawner;
+        }
+
+        public GameObjectList GetObjectsList()
+        {
+            return objects;
+        }
+
         #endregion
 
     }
@@ -256,7 +296,7 @@ namespace ElecyServer
             }
             catch
             {
-                Console.WriteLine("GamePlayer Disconnected");
+                Global.serverForm.Debug("GamePlayer Disconnected");
             }
         }
 
@@ -294,6 +334,11 @@ namespace ElecyServer
             transform[0] = _position;
             transform[1] = _rotation;
             return transform;
+        }
+
+        public float[] GetPosition()
+        {
+            return _position;
         }
 
         public void SetTransform(float[] position, float[] rotation)
