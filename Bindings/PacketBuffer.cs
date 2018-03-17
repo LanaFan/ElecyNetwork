@@ -68,8 +68,8 @@ namespace Bindings
         }
         public void WriteString(string input)
         {
-            _bufferlist.AddRange(BitConverter.GetBytes(input.Length));
-            _bufferlist.AddRange(Encoding.ASCII.GetBytes(input));
+            _bufferlist.AddRange(BitConverter.GetBytes(Encoding.UTF8.GetByteCount(input)));
+            _bufferlist.AddRange(Encoding.UTF8.GetBytes(input));
             _buffupdate = true;
         }
         #endregion
@@ -159,13 +159,14 @@ namespace Bindings
         public string ReadString(bool peek = true)
         {
             int length = ReadInteger(true);
+            //Global.serverForm.Debug(length);
             if (_buffupdate)
             {
                 _readbuffer = _bufferlist.ToArray();
                 _buffupdate = false;
             }
 
-            string value = Encoding.ASCII.GetString(_readbuffer, _readpos, length);
+            string value = Encoding.UTF8.GetString(_readbuffer, _readpos, length);
             if (peek & _bufferlist.Count > _readpos)
             {
                 _readpos += length;
