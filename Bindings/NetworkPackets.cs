@@ -12,10 +12,10 @@
         SQueueContinue = 7,
         SMatchFound = 8,
         SLoadStarted = 9,
-        SRockSpawned = 10,
+        SRockSpawn = 10,
         SRoomStart = 11,
         STransform = 12,
-        STreeSpawned = 13,
+        STreeSpawn = 13,
         SEnemyLoadProgress = 14,
     }
 
@@ -48,6 +48,8 @@
         RPlayerSpawned = 14,
         RLoadComplite = 15,
         RTransform = 16,
-        RRockSpawn = 18,
+        RRockSpawned = 18,
+        RTreeSpawned = 19,
+        RLoadProgress = 20
     }
 }

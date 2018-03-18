@@ -145,7 +145,7 @@ namespace ElecyServer
         public static void SendRockSpawned(int roomIndex, int start, int end) 
         {
             PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteInteger((int)ServerPackets.SRockSpawned);
+            buffer.WriteInteger((int)ServerPackets.SRockSpawn);
             buffer.WriteInteger(end - start);
             while(start <= end)
             {
@@ -169,7 +169,7 @@ namespace ElecyServer
         public static void SendTreeSpawned(int roomIndex, int start, int end)
         {
             PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteInteger((int)ServerPackets.STreeSpawned);
+            buffer.WriteInteger((int)ServerPackets.STreeSpawn);
             buffer.WriteInteger(end - start);
             while (start <= end)
             {
