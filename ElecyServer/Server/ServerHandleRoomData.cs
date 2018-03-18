@@ -15,6 +15,7 @@ namespace ElecyServer
                 {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
                 {(int)RoomPackets.RPlayerSpawned, HandlePlayerSpawn },
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
+                {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
                 {(int)RoomPackets.RTransform, HandleTransform }
             };
         }
@@ -40,7 +41,7 @@ namespace ElecyServer
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
             float scaleX = buffer.ReadFloat();
-            float scaleZ = buffer.ReadFloat(); 
+            float scaleZ = buffer.ReadFloat();
             buffer.Dispose();
             Global.arena[roomIndex].SetGameLoadData(ID, scaleX, scaleZ);
         }

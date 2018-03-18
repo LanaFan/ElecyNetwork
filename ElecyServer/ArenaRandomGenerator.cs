@@ -56,10 +56,14 @@ namespace ElecyServer
             {
                 pos[0] = (float)(rnd.NextDouble() * (xRange[1] - xRange[0]) + xRange[0]);
                 pos[1] = (float)(rnd.NextDouble() * (zRange[1] - zRange[0]) + zRange[0]);
+                randomed = true;
                 for (int i = 0; i < xSpaces.Count(); i++)
                 {
                     if ((pos[0] <= xSpaces.ElementAt(i).xTo && pos[0] >= xSpaces.ElementAt(i).xFrom) && (pos[1] <= zSpaces.ElementAt(i).zTo && pos[1] >= zSpaces.ElementAt(i).zFrom))
+                    {
                         randomed = false;
+                        break;
+                    }
                 }
             }
             while (!randomed);
@@ -90,15 +94,15 @@ namespace ElecyServer
         private void SetXRange(float size)
         {
             xRange = new float[2];
-            xRange[0] = -(size / 2f);
-            xRange[1] = (size/2f);
+            xRange[0] = -(((size / 2f) * 10f) - 1f);
+            xRange[1] = (((size / 2f) * 10f) - 1f);
         }
 
         private void SetZRange(float size)
         {
             zRange = new float[2];
-            zRange[0] = -(size / 2f);
-            zRange[1] = (size / 2f);
+            zRange[0] = -(((size / 2f) * 10f) - 1f);
+            zRange[1] = (((size / 2f) * 10f) - 1f);
         }
     }
 

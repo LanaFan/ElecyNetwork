@@ -17,6 +17,7 @@ namespace ElecyServer
         {
             length = 100;
             objects = new NetworkGameObject[length];
+            ranges = new Dictionary<NetworkGameObject.Type, int[]>();
             offset = 0;
         }
 
@@ -112,9 +113,18 @@ namespace ElecyServer
             posX = pos[0];
             posY = 0.5f;
             posZ = pos[1];
-            rotX = rot[0];
-            rotY = rot[1];
-            rotZ = rot[2];
+            if(type == Type.tree)
+            {
+                rotX = 0f;
+                rotY = rot[1];
+                rotZ = 0f;
+            }
+            else
+            {
+                rotX = rot[0];
+                rotY = rot[1];
+                rotZ = rot[2];
+            }
             rotW = 1;
         }
 
