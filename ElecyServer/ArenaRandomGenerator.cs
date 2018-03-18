@@ -48,7 +48,7 @@ namespace ElecyServer
             return 0;
         }
 
-        public float[] RandomPosition()
+        public float[] RandomPosition(NetworkGameObject.Type type)
         {
             float[] pos = new float[2];
             bool randomed = true;
@@ -63,6 +63,8 @@ namespace ElecyServer
                 }
             }
             while (!randomed);
+            xSpaces.Add(new SpaceX(pos[0], type));
+            zSpaces.Add(new SpaceZ(pos[1], type));
             return pos;
         }
 
