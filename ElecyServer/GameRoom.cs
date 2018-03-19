@@ -39,6 +39,7 @@ namespace ElecyServer
             {
                 player1 = new Player(player.playerSocket, player.index, player.nickname, 1);
                 status = RoomStatus.Searching;
+                Global.serverForm.AddGameRoom(roomIndex + "");
             }
             else if (status == RoomStatus.Searching)
             {
@@ -58,6 +59,7 @@ namespace ElecyServer
                 player1 = null;
                 Global.players[index].state = NetPlayer.playerState.InMainLobby;
                 status = RoomStatus.Empty;
+                Global.serverForm.RemoveGameRoom(roomIndex + "");
             }
             else if (player2.GetIndex() == index) 
             {
@@ -206,6 +208,11 @@ namespace ElecyServer
             }
         }
 
+        public Player GetPlayer(int number)
+        {
+            return number == 1 ? player1 : player2;
+        }
+
         public RoomStatus GetStatus()
         {
             return status;
@@ -232,6 +239,16 @@ namespace ElecyServer
             nicknames[0] = player1.GetNickname();
             nicknames[1] = player2.GetNickname();
             return nicknames;
+        }
+
+        public int GetRoomIndex()
+        {
+            return roomIndex;
+        }
+
+        public string GetSize()
+        {
+            return scaleX + "x" + scaleZ;
         }
 
         public ArenaRandomGenerator GetRandom()

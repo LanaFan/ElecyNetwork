@@ -146,6 +146,7 @@
             this.listGameRooms.Size = new System.Drawing.Size(120, 121);
             this.listGameRooms.TabIndex = 1;
             this.listGameRooms.TabStop = false;
+            this.listGameRooms.SelectedIndexChanged += new System.EventHandler(this.listGameRooms_SelectedIndexChanged);
             // 
             // lblGameRooms
             // 
