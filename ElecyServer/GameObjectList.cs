@@ -23,7 +23,7 @@ namespace ElecyServer
 
         public int[] Add(NetworkGameObject.Type type, int roomIndex)
         {
-            int number = offset +  ArenaRandomGenerator.NumberOfObjects(NetworkGameObject.Type.rock); 
+            int number = offset +  ArenaRandomGenerator.NumberOfObjects(type); 
             int[] range = new int[2];
             range[0] = offset;
             while(offset < number)

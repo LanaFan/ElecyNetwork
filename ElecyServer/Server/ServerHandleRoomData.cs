@@ -46,27 +46,20 @@ namespace ElecyServer
             int roomIndex = buffer.ReadInteger();
             float scaleX = buffer.ReadFloat();
             float scaleZ = buffer.ReadFloat();
+            float[] FSPpos = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() };
+            float[] SSPpos = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() };
             buffer.Dispose();
-            Global.arena[roomIndex].SetGameLoadData(ID, scaleX, scaleZ);
+            Global.arena[roomIndex].SetGameLoadData(ID, scaleX, scaleZ, FSPpos, SSPpos);
         }
 
         private static void HandlePlayerSpawn(int ID, byte[] data)
         {
-            float[] pos = new float[3];
-            float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
-            pos[0] = buffer.ReadFloat();
-            pos[1] = buffer.ReadFloat();
-            pos[2] = buffer.ReadFloat();
-            rot[0] = buffer.ReadFloat();
-            rot[1] = buffer.ReadFloat();
-            rot[2] = buffer.ReadFloat();
-            rot[3] = buffer.ReadFloat();
             buffer.Dispose();
-            Global.arena[roomIndex].SetGameData(ID, pos, rot);
+            Global.arena[roomIndex].SpawnRock(ID);
         }
 
         //Gets roomIndex
@@ -86,7 +79,7 @@ namespace ElecyServer
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
             buffer.Dispose();
-            Global.arena[roomIndex].SetLoadComplete(ID);
+            Global.arena[roomIndex].LoadComplete(ID);
         }
 
         private static void HandleTransform(int ID, byte[] data)

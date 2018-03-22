@@ -41,9 +41,9 @@ namespace ElecyServer
             switch (type)
             {
                 case NetworkGameObject.Type.rock:
-                    return rnd.Next(15, 20);
+                    return rnd.Next(5, 10);
                 case NetworkGameObject.Type.tree:
-                    return rnd.Next(10, 15);
+                    return rnd.Next(3, 7);
             }
             return 0;
         }
@@ -94,15 +94,15 @@ namespace ElecyServer
         private void SetXRange(float size)
         {
             xRange = new float[2];
-            xRange[0] = -(((size / 2f) * 10f) - 1f);
-            xRange[1] = (((size / 2f) * 10f) - 1f);
+            xRange[0] = -((size / 2f) - 1f);
+            xRange[1] = ((size / 2f) - 1f);
         }
 
         private void SetZRange(float size)
         {
             zRange = new float[2];
-            zRange[0] = -(((size / 2f) * 10f) - 1f);
-            zRange[1] = (((size / 2f) * 10f) - 1f);
+            zRange[0] = -((size / 2f) - 1f);
+            zRange[1] = ((size / 2f) - 1f);
         }
     }
 
