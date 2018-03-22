@@ -9,7 +9,7 @@ namespace ElecyServer
     public class GameObjectList
     {
         NetworkGameObject[] objects;
-        Dictionary<NetworkGameObject.Type, int[]> ranges;
+        //Dictionary<NetworkGameObject.Type, int[]> ranges;
         int length;
         int offset;
 
@@ -17,11 +17,11 @@ namespace ElecyServer
         {
             length = 100;
             objects = new NetworkGameObject[length];
-            ranges = new Dictionary<NetworkGameObject.Type, int[]>();
+            //ranges = new Dictionary<NetworkGameObject.Type, int[]>();
             offset = 0;
         }
 
-        public void Add(NetworkGameObject.Type type, int roomIndex)
+        public int[] Add(NetworkGameObject.Type type, int roomIndex)
         {
             int number = offset +  ArenaRandomGenerator.NumberOfObjects(NetworkGameObject.Type.rock); 
             int[] range = new int[2];
@@ -33,22 +33,23 @@ namespace ElecyServer
                 offset++;
             }
             range[1] = offset - 1;
-            ranges.Add(type, range);
-            SendAdded(type, roomIndex, range[0], range[1]);
+            return range;
+            //ranges.Add(type, range);
+            //SendAdded(type, roomIndex, range[0], range[1]);
         }
 
-        public void SendAdded(NetworkGameObject.Type type, int roomIndex, int start, int end)
-        {
-            switch (type)
-            {
-                case NetworkGameObject.Type.rock:
-                    ServerSendData.SendRockSpawned(roomIndex, start, end);
-                    break;
-                case NetworkGameObject.Type.tree:
-                    ServerSendData.SendTreeSpawned(roomIndex, start, end);
-                    break;
-            }
-        }
+        //public void SendAdded(NetworkGameObject.Type type, int roomIndex, int start, int end)
+        //{
+        //    switch (type)
+        //    {
+        //        case NetworkGameObject.Type.rock:
+        //            ServerSendData.SendRockSpawned(roomIndex, start, end);
+        //            break;
+        //        case NetworkGameObject.Type.tree:
+        //            ServerSendData.SendTreeSpawned(roomIndex, start, end);
+        //            break;
+        //    }
+        //}
 
         public NetworkGameObject Get(int index)
         {

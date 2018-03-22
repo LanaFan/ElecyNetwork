@@ -229,11 +229,8 @@ namespace ElecyServer
         {
             if (!closing)
             {
-                socket = (Socket)ar.AsyncState;
-
                 try
                 {
-
                     int received = socket.EndReceive(ar);
                     if (received <= 0)
                     {
@@ -319,10 +316,9 @@ namespace ElecyServer
         {
             if (!playerClosing)
             {
-                Socket socket = (Socket)ar.AsyncState;
                 try
                 {
-                    int received = socket.EndReceive(ar);
+                    int received = playerSocket.EndReceive(ar);
 
                     if (received <= 0)
                     {

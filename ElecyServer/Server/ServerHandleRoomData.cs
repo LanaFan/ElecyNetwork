@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Bindings;
 
 namespace ElecyServer
 {
     public static class ServerHandleRoomData
     {
-        private delegate void Packet_(int index, byte[] data);
+        private delegate void Packet_(int ID, byte[] data);
         private static Dictionary<int, Packet_> Packets;
 
         public static void InitializeNetworkPackages()
@@ -16,9 +17,12 @@ namespace ElecyServer
                 {(int)RoomPackets.RPlayerSpawned, HandlePlayerSpawn },
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
-                {(int)RoomPackets.RTransform, HandleTransform }
+                {(int)RoomPackets.RTransform, HandleTransform },
+                {(int)RoomPackets.RLoadProgress, HandleLoadProgress }
             };
         }
+
+
 
         public static void HandleNetworkInformation(int index, byte[] data)
         {
@@ -104,5 +108,14 @@ namespace ElecyServer
             Global.arena[roomIndex].SetTransform(ID, pos, rot);
         }
 
+        private static void HandleLoadProgress(int ID, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
+            float loadProgress = buffer.ReadFloat();
+            Global.arena[roomIndex].SetLoadProgress(ID, loadProgress);
+        }
     }
 }

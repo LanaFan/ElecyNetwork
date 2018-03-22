@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using Bindings;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace ElecyServer
 {
@@ -13,11 +14,17 @@ namespace ElecyServer
         private Player player2;
         private Timer timer;
         private ArenaRandomGenerator spawner;
+        Dictionary<NetworkGameObject.Type, int[]> ranges;
         private bool p1Loaded = false;
         private bool p2Loaded = false;
         private float scaleX;
         private float scaleZ;
         private RoomStatus status;
+
+        #region Randomed
+        private bool _rockRandomed = false;
+        private bool _treeRandomed = false;
+        #endregion
 
         public enum RoomStatus
         {
@@ -31,19 +38,20 @@ namespace ElecyServer
             roomIndex = index;
             status = RoomStatus.Empty;
             objects = new GameObjectList();
+            ranges = new Dictionary<NetworkGameObject.Type, int[]>();
         }
 
         public void AddPlayer(NetPlayer player)
         {
             if (status == RoomStatus.Empty)
             {
-                player1 = new Player(player.playerSocket, player.index, player.nickname, 1);
+                player1 = new Player(player.playerSocket, player.index, player.nickname, 1, 0f);
                 status = RoomStatus.Searching;
                 Global.serverForm.AddGameRoom(roomIndex + "");
             }
             else if (status == RoomStatus.Searching)
             {
-                player2 = new Player(player.playerSocket, player.index, player.nickname, 2);
+                player2 = new Player(player.playerSocket, player.index, player.nickname, 2, 0f);
                 status = RoomStatus.Closed;
                 ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
             }
@@ -99,17 +107,14 @@ namespace ElecyServer
 
         public void SpawnTree(int ID)
         {
-            if (ID == 1)
-                p1Loaded = true;
-            else
-                p2Loaded = true;
-
-            if(p1Loaded == true && p2Loaded == true)
+            if(!_treeRandomed)
             {
-                p1Loaded = false;
-                p2Loaded = false;
-                objects.Add(NetworkGameObject.Type.tree, roomIndex);
+                _treeRandomed = true;
+                int[] range = objects.Add(NetworkGameObject.Type.tree, roomIndex);
+                ranges.Add(NetworkGameObject.Type.tree, range);
             }
+
+            ServerSendData.SendRockSpawned(ID, roomIndex, ranges[NetworkGameObject.Type.tree]);
         }
 
         private void StopNetPlayer(int index)
@@ -150,6 +155,7 @@ namespace ElecyServer
 
             if (p1Loaded && p2Loaded)
             {
+                spawner = new ArenaRandomGenerator(scaleX, scaleZ, player1.GetPosition(), player2.GetPosition());
                 p1Loaded = false;
                 p2Loaded = false;
                 ServerSendData.SendGameData(roomIndex);
@@ -159,24 +165,15 @@ namespace ElecyServer
 
         public void SetGameData(int ID, float[] position, float[] rotation)
         {
-            if (ID == 1)
+            if(!_rockRandomed)
             {
-                p1Loaded = true;
-                SetTransform(ID, position, rotation);
-            }
-            else
-            {
-                p2Loaded = true;
-                SetTransform(ID, position, rotation);
+                _rockRandomed = true;
+                int[] range = objects.Add(NetworkGameObject.Type.rock, roomIndex);
+                ranges.Add(NetworkGameObject.Type.rock, range);
             }
 
-            if (p1Loaded && p2Loaded)
-            {
-                p1Loaded = false;
-                p2Loaded = false;
-                spawner = new ArenaRandomGenerator(scaleX, scaleZ, player1.GetPosition(), player2.GetPosition());
-                objects.Add(NetworkGameObject.Type.rock, roomIndex);
-            }
+            SetTransform(ID, position, rotation);
+            ServerSendData.SendRockSpawned(ID, roomIndex, ranges[NetworkGameObject.Type.rock]);
 
         }
 
@@ -261,6 +258,19 @@ namespace ElecyServer
             return objects;
         }
 
+        public void SetLoadProgress(int ID, float loadProgress)
+        {
+            if(ID == 1)
+            {
+                player1.SetLoad(loadProgress);
+                ServerSendData.SendEnemyProgress(1, roomIndex, player2.GetLoad());
+            } else
+            {
+                player2.SetLoad(loadProgress);
+                ServerSendData.SendEnemyProgress(2, roomIndex, player1.GetLoad());
+            }
+        }
+
         #endregion
 
     }
@@ -268,6 +278,7 @@ namespace ElecyServer
     public class Player
     {
         private int _index;
+        private float _load;
         private int _ID;
         private string _nickname;
         private float[] _position;
@@ -276,12 +287,13 @@ namespace ElecyServer
         private byte[] _buffer = new byte[Constants.BUFFER_SIZE];
         private bool _playing = false;
 
-        public Player(Socket socket, int index, string nickname, int ID)
+        public Player(Socket socket, int index, string nickname, int ID, float load)
         {
             _socket = socket;
             _index = index;
             _nickname = nickname;
             _ID = ID;
+            _load = load;
         }
 
         public void StartPlay()
@@ -362,6 +374,16 @@ namespace ElecyServer
         {
             _position = position;
             _rotation = rotation;
+        }
+
+        public float GetLoad()
+        {
+            return _load;
+        }
+
+        public void SetLoad(float load)
+        {
+            _load = load;
         }
 
         #endregion

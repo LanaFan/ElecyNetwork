@@ -126,26 +126,12 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        /*Send: 
-         (int) Packetnum
-         (int) Number of rocks
-
-         ------ (***)
-         (int) rock index
-         (float) rock posX
-         (float) rock posY
-         (float) rock posZ
-         (float) rock rotX
-         (float) rock rotY
-         (float) rock rotZ
-         (float) rock rotW
-         ------ (REPEAT FOR *NUMER OF ROCKS* TIMES)
-         
-             */
-        public static void SendRockSpawned(int roomIndex, int start, int end) 
+        public static void SendRockSpawned(int ID, int roomIndex, int[] ranges) 
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRockSpawn);
+            int start = ranges[0];
+            int end = ranges[1];
             buffer.WriteInteger(end - start);
             while(start <= end)
             {
@@ -161,15 +147,16 @@ namespace ElecyServer
                 buffer.WriteFloat(rot[3]);
                 start++;
             }
-            ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
+            ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
             buffer.Dispose();
         }
 
-        // The same ---------------------------------------------------------
-        public static void SendTreeSpawned(int roomIndex, int start, int end)
+        public static void SendTreeSpawned(int ID, int roomIndex, int[] ranges)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.STreeSpawn);
+            int start = ranges[0];
+            int end = ranges[1];
             buffer.WriteInteger(end - start);
             while (start <= end)
             {
@@ -185,7 +172,7 @@ namespace ElecyServer
                 buffer.WriteFloat(rot[3]);
                 start++;
             }
-            ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
+            ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -208,6 +195,15 @@ namespace ElecyServer
             buffer.WriteFloat(rot[1]);
             buffer.WriteFloat(rot[2]);
             buffer.WriteFloat(rot[3]);
+            ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        public static void SendEnemyProgress(int ID, int roomIndex, float loadProgress)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SEnemyLoadProgress);
+            buffer.WriteFloat(loadProgress);
             ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
             buffer.Dispose();
         }
