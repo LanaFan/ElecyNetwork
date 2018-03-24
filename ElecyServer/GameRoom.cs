@@ -87,6 +87,11 @@ namespace ElecyServer
             timer = new Timer(SendTransform, null, 0, 1000/Constants.UPDATE_RATE);
         }
 
+        public void GameRoomInstatiate(int objectID, int instanceType, string objectPath, float[] pos, float[] rot)
+        {
+            ///Here comes the object adding to list and sent to players instantiate
+        }
+
         public void StartReceive(int index)
         {
             if(index == player1.GetIndex())

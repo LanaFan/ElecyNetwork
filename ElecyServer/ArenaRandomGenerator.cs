@@ -41,9 +41,9 @@ namespace ElecyServer
             switch (type)
             {
                 case NetworkGameObject.Type.rock:
-                    return rnd.Next(5, 10);
+                    return rnd.Next(15, 25);
                 case NetworkGameObject.Type.tree:
-                    return rnd.Next(3, 7);
+                    return rnd.Next(15, 20);
             }
             return 0;
         }

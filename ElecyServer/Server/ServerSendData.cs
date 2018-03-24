@@ -198,6 +198,11 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
+        public static void SendInstantiate(int ID, int roomIndex, float[] pos, float[] rot)
+        {
+            //here comes to sen to both player in the room info about object to instantiate
+        }
+
         public static void SendEnemyProgress(int ID, int roomIndex, float loadProgress)
         {
             PacketBuffer buffer = new PacketBuffer();

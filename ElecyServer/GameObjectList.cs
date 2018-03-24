@@ -96,6 +96,7 @@ namespace ElecyServer
             unsigned = 0,
             tree = 1,
             rock = 2,
+            spell = 3,
         }
 
         public NetworkGameObject(int index, Type type, int roomIndex)

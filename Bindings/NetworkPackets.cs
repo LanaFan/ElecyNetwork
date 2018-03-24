@@ -50,6 +50,7 @@
         RTransform = 16,
         RRockSpawned = 18,
         RTreeSpawned = 19,
-        RLoadProgress = 20
+        RLoadProgress = 20,
+        RInstantiate = 21
     }
 }

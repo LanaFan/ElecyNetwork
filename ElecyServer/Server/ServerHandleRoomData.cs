@@ -18,7 +18,8 @@ namespace ElecyServer
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
                 {(int)RoomPackets.RTransform, HandleTransform },
-                {(int)RoomPackets.RLoadProgress, HandleLoadProgress }
+                {(int)RoomPackets.RLoadProgress, HandleLoadProgress },
+                {(int)RoomPackets.RInstantiate, HandleInstantiate}
             };
         }
 
@@ -80,6 +81,28 @@ namespace ElecyServer
             int roomIndex = buffer.ReadInteger();
             buffer.Dispose();
             Global.arena[roomIndex].LoadComplete(ID);
+        }
+
+        private static void HandleInstantiate(int ID, byte[] data)
+        {
+            float[] pos = new float[3];
+            float[] rot = new float[4];
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
+            int objId = buffer.ReadInteger();
+            int instanseType = buffer.ReadInteger();
+            string objectReference = buffer.ReadString();
+            pos[0] = buffer.ReadFloat();
+            pos[1] = buffer.ReadFloat();
+            pos[2] = buffer.ReadFloat();
+            rot[0] = buffer.ReadFloat();
+            rot[1] = buffer.ReadFloat();
+            rot[2] = buffer.ReadFloat();
+            rot[3] = buffer.ReadFloat();
+            buffer.Dispose();
+            //adding the object to array for start to observe
         }
 
         private static void HandleTransform(int ID, byte[] data)
