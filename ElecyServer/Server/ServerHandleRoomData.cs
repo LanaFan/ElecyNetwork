@@ -18,7 +18,7 @@ namespace ElecyServer
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
                 {(int)RoomPackets.RTransform, HandleTransform },
-                {(int)RoomPackets.RLoadProgress, HandleLoadProgress },
+                //{(int)RoomPackets.RLoadProgress, HandleLoadProgress },
                 {(int)RoomPackets.RInstantiate, HandleInstantiate}
             };
         }
