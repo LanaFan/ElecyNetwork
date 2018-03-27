@@ -92,11 +92,12 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendMatchFound(int index1, int index2, int roomIndex)
+        public static void SendMatchFound(int mapIndex, int index1, int index2, int roomIndex)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SMatchFound);
             buffer.WriteInteger(roomIndex);
+            buffer.WriteInteger(mapIndex);
             ServerTCP.SendDataToPlayer(index1, buffer.ToArray());
             ServerTCP.SendDataToPlayer(index2, buffer.ToArray());
             buffer.Dispose();
@@ -115,12 +116,26 @@ namespace ElecyServer
 
         #region Send to GameRoom
 
-        public static void SendGameData(int roomIndex, string nickname1, string nickname2)
+        public static void SendGameData(int roomIndex, string nickname1, string nickname2, float[][]positions, float[][]rotations)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoadStarted);
             buffer.WriteString(nickname1);
             buffer.WriteString(nickname2);
+            buffer.WriteFloat(positions[0][0]);
+            buffer.WriteFloat(positions[0][1]);
+            buffer.WriteFloat(positions[0][2]);
+            buffer.WriteFloat(positions[1][0]);
+            buffer.WriteFloat(positions[1][1]);
+            buffer.WriteFloat(positions[1][2]);
+            buffer.WriteFloat(rotations[0][0]);
+            buffer.WriteFloat(rotations[0][1]);
+            buffer.WriteFloat(rotations[0][2]);
+            buffer.WriteFloat(rotations[0][3]);
+            buffer.WriteFloat(rotations[1][0]);
+            buffer.WriteFloat(rotations[1][1]);
+            buffer.WriteFloat(rotations[1][2]);
+            buffer.WriteFloat(rotations[1][3]);
             ServerTCP.SendDataToGamePlayers(roomIndex, buffer.ToArray());
             buffer.Dispose();
         }

@@ -18,5 +18,6 @@
 
         public const int UPDATE_RATE = 40;
 
+        public const int MAPS_COUNT = 1;
     }
 }

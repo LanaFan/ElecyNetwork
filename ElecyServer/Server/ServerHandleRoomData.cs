@@ -45,12 +45,8 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
-            float scaleX = buffer.ReadFloat();
-            float scaleZ = buffer.ReadFloat();
-            float[] FSPpos = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() };
-            float[] SSPpos = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() };
             buffer.Dispose();
-            Global.arena[roomIndex].SetGameLoadData(ID, scaleX, scaleZ, FSPpos, SSPpos);
+            Global.arena[roomIndex].SetGameLoadData(ID);
         }
 
         private static void HandlePlayerSpawn(int ID, byte[] data)

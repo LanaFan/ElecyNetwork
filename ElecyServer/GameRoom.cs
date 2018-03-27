@@ -18,6 +18,7 @@ namespace ElecyServer
 
         private GameObjectList objects;
         private int roomIndex;
+        private int mapIndex;
         private Player player1;
         private Player player2;
         private Timer timer;
@@ -44,6 +45,7 @@ namespace ElecyServer
             status = RoomStatus.Empty;
             objects = new GameObjectList();
             ranges = new Dictionary<NetworkGameObject.Type, int[]>();
+            mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT); 
         }
 
         public void AddPlayer(NetPlayer player)
@@ -58,7 +60,7 @@ namespace ElecyServer
             {
                 player2 = new Player(player.playerSocket, player.index, player.nickname, 2, 0f);
                 status = RoomStatus.Closed;
-                ServerSendData.SendMatchFound(player1.GetIndex(), player2.GetIndex(), roomIndex);
+                ServerSendData.SendMatchFound(mapIndex, player1.GetIndex(), player2.GetIndex(), roomIndex);
             }
             else
                 return; // Ubrat'
@@ -117,33 +119,36 @@ namespace ElecyServer
 
         #region Load
 
-        public void SetGameLoadData(int ID, float scaleX, float scaleZ, float[] FSPpos, float[] SSPpos)
+        public void SetGameLoadData(int ID)
         {
+            int[] scale = Global.data.GetMapScale(mapIndex);
+            float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
             if (ID == 1)
             {
                 p1Loaded = true;
-                SetTransform(ID, FSPpos, new float[] { 0, 0, 0 ,1});
-                this.scaleX = scaleX * 10f;
-                this.scaleZ = scaleZ * 10f;
-                firstSpawnPointPos = FSPpos;
-                secondSpawnPointPos = SSPpos;
+                SetTransform(ID, spawnPos[0], new float[] { 0, 0, 0, 1 });
+                this.scaleX = scale[0] * 10f;
+                this.scaleZ = scale[1] * 10f;
+                firstSpawnPointPos = spawnPos[0];
+                secondSpawnPointPos = spawnPos[1];
             }
             else
             {
                 p2Loaded = true;
-                SetTransform(ID, SSPpos, new float[] { 0, 0, 0, 1 });
-                this.scaleX = scaleX * 10f;
-                this.scaleZ = scaleZ * 10f;
-                firstSpawnPointPos = FSPpos;
-                secondSpawnPointPos = SSPpos;
+                SetTransform(ID, spawnPos[1], new float[] { 0, 0, 0, 1 });
+                this.scaleX = scale[0] * 10f;
+                this.scaleZ = scale[1] * 10f;
+                firstSpawnPointPos = spawnPos[0];
+                secondSpawnPointPos = spawnPos[1];
             }
 
             if (p1Loaded && p2Loaded)
             {
+                float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
                 p1Loaded = false;
                 p2Loaded = false;
                 spawner = new ArenaRandomGenerator(this.scaleX, this.scaleZ, firstSpawnPointPos, secondSpawnPointPos);
-                ServerSendData.SendGameData(roomIndex, player1.GetNickname(), player2.GetNickname());
+                ServerSendData.SendGameData(roomIndex, player1.GetNickname(), player2.GetNickname(), spawnPos, spawnRot);
             }
 
         }

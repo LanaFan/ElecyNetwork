@@ -162,6 +162,63 @@ namespace ElecyServer
 
             return data;
         }
+
+        public int[] GetMapScale(int mapIndex)
+        {
+            int[] scale = new int[2];
+            var DB_RS = Global.mysql.DB_RS;
+            {
+                DB_RS.Open("SELECT * FROM MapsInfo WHERE MapNumber ='" + mapIndex + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                scale[0] = Convert.ToInt32(DB_RS.Fields["MapLenght"].Value);
+                scale[1] = Convert.ToInt32(DB_RS.Fields["MapWidth"].Value);
+                DB_RS.Close();
+            }
+            return scale;
+        }
+
+        public float[][] GetSpawnPos(int mapIndex)
+        {
+            float[][] spawnPos = new float[2][];
+            float[] firstSpawnPos = new float[3];
+            float[] secondSpawnPos = new float[3];
+            var DB_RS = Global.mysql.DB_RS;
+            {
+                DB_RS.Open("SELECT * FROM MapsInfo WHERE MapNumber ='" + mapIndex + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                firstSpawnPos[0] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointX"].Value);
+                firstSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointY"].Value);
+                firstSpawnPos[2] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointZ"].Value);
+                secondSpawnPos[0] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointX"].Value);
+                secondSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointY"].Value);
+                secondSpawnPos[2] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointZ"].Value);
+                DB_RS.Close();
+            }
+            spawnPos[0] = firstSpawnPos;
+            spawnPos[1] = secondSpawnPos;
+            return spawnPos;
+        }
+
+        public float[][] GetSpawnRot(int mapIndex)
+        {
+            float[][] spawnRot = new float[2][];
+            float[] firstSpawnRot = new float[4];
+            float[] secondSpawnRot = new float[4];
+            var DB_RS = Global.mysql.DB_RS;
+            {
+                DB_RS.Open("SELECT * FROM MapsInfo WHERE MapNumber ='" + mapIndex + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                firstSpawnRot[0] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointRotX"].Value);
+                firstSpawnRot[1] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointRotY"].Value);
+                firstSpawnRot[2] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointRotZ"].Value);
+                firstSpawnRot[3] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointRotW"].Value);
+                secondSpawnRot[0] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotX"].Value);
+                secondSpawnRot[1] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotY"].Value);
+                secondSpawnRot[2] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotZ"].Value);
+                secondSpawnRot[3] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotW"].Value);
+                DB_RS.Close();
+            }
+            spawnRot[0] = firstSpawnRot;
+            spawnRot[1] = secondSpawnRot;
+            return spawnRot;
+        }
         
         #endregion
     }
