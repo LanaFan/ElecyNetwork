@@ -40,8 +40,6 @@ namespace ElecyServer
             Global.serverForm.Debug("Сервер запущен на Ip адресе " + GetLocalIPAddress() + " и порте " + Constants.PORT + ".");
         }
 
-
-
         //Add new player in Players if there is a place
         public static int PlayerLogin(int index, string nickname, int[][]accountdata)
         {
