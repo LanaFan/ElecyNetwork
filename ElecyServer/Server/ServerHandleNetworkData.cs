@@ -45,7 +45,7 @@ namespace ElecyServer
 
         private static void HandleClientConnect(int index, byte[] data)
         {
-            Console.WriteLine("Соединение с {0} установлено. Клиент находится под индексом {1}", Global.clients[index].ip, index);
+            Console.WriteLine("Соединение с {0} установлено. Клиент находится под индексом {1}", Global.clients[index].IP, index);
         }
 
         private static void HandleRegisterTry(int index, byte[] data)
@@ -121,7 +121,7 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             string GlChatMsg = buffer.ReadString();
-            string Nickname = Global.players[index].nickname;
+            string Nickname = Global.players[index].Nickname;
             buffer.Dispose();
             Global.serverForm.ShowChatMsg(Nickname, GlChatMsg);
             ServerSendData.SendGlChatMsg(Nickname, GlChatMsg);

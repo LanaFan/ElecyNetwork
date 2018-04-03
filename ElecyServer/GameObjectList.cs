@@ -93,8 +93,8 @@ namespace ElecyServer
 
         private void SetTransform()
         {
-            float[] pos = Global.arena[roomIndex].GetRandom().RandomPosition(type);
-            float[] rot = Global.arena[roomIndex].GetRandom().RandomRotation();
+            float[] pos = Global.arena[roomIndex].Spawner.RandomPosition(type);
+            float[] rot = Global.arena[roomIndex].Spawner.RandomRotation();
             posX = pos[0];
             posY = 0.5f;
             posZ = pos[1];

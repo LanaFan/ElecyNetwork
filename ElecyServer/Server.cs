@@ -32,8 +32,8 @@ namespace ElecyServer
 
         public void AddNetPlayer(NetPlayer player)
         {
-            RemoveClient(player.ip);
-            AddNetPlayer(player.nickname);
+            RemoveClient(player.IP);
+            AddNetPlayer(player.Nickname);
         }
 
         public void AddGameRoom(string roomIndex)
@@ -151,7 +151,7 @@ namespace ElecyServer
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if (ServerTCP.isClosed())
+            if (ServerTCP.Closed)
             { 
                 StartServer();
             }
@@ -164,7 +164,7 @@ namespace ElecyServer
 
         private void btnRefresh_Click(object sender, EventArgs e)
         {
-            if (!ServerTCP.isClosed())
+            if (!ServerTCP.Closed)
             {
                 StopServer();
                 StartServer();
@@ -180,7 +180,7 @@ namespace ElecyServer
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            if (!ServerTCP.isClosed())
+            if (!ServerTCP.Closed)
             {
                 string msg = txtChat.Text;
                 txtChat.Text = "";
@@ -196,7 +196,7 @@ namespace ElecyServer
         {
             if(e.KeyValue.Equals(13))
             {
-                if (!ServerTCP.isClosed())
+                if (!ServerTCP.Closed)
                 {
                     string msg = txtChat.Text;
                     txtChat.Text = "";
@@ -234,11 +234,11 @@ namespace ElecyServer
             {
                 try
                 {
-                    if (client.ip == listClients.SelectedItem.ToString())
+                    if (client.IP == listClients.SelectedItem.ToString())
                     {
                         listData.Items.Clear();
-                        listData.Items.Add("index: " + client.index);
-                        listData.Items.Add("ip: " + client.ip);
+                        listData.Items.Add("index: " + client.Index);
+                        listData.Items.Add("ip: " + client.IP);
                         break;
                     }
                 }
@@ -252,25 +252,25 @@ namespace ElecyServer
             {
                 try
                 {
-                    if (player.nickname == listNetPlayers.SelectedItem.ToString())
+                    if (player.Nickname == listNetPlayers.SelectedItem.ToString())
                     {
                         listData.Items.Clear();
-                        listData.Items.Add("index: " + player.index);
+                        listData.Items.Add("index: " + player.Index);
                         listData.Items.Add("roomIndex: " + player.roomIndex);
-                        listData.Items.Add("ip: " + player.ip);
-                        listData.Items.Add("nickname: " + player.nickname);
-                        listData.Items.Add("closing: " + player.playerClosing);
+                        listData.Items.Add("ip: " + player.IP);
+                        listData.Items.Add("nickname: " + player.Nickname);
+                        listData.Items.Add("closing: " + player.Stopped);
                         listData.Items.Add("state: " + player.state);
-                        listData.Items.Add("Ignis level: " + player.level[0]);
-                        listData.Items.Add("Terra level: " + player.level[1]);
-                        listData.Items.Add("Caeli level: " + player.level[2]);
-                        listData.Items.Add("Aqua level: " + player.level[3]);
-                        listData.Items.Add("Primus level: " + player.level[4]);
-                        listData.Items.Add("Ignis rank: " + player.rank[0]);
-                        listData.Items.Add("Terra rank: " + player.rank[1]);
-                        listData.Items.Add("Caeli rank: " + player.rank[2]);
-                        listData.Items.Add("Aqua rank: " + player.rank[3]);
-                        listData.Items.Add("Primus rank: " + player.rank[4]);
+                        listData.Items.Add("Ignis level: " + player.levels[0]);
+                        listData.Items.Add("Terra level: " + player.levels[1]);
+                        listData.Items.Add("Caeli level: " + player.levels[2]);
+                        listData.Items.Add("Aqua level: " + player.levels[3]);
+                        listData.Items.Add("Primus level: " + player.levels[4]);
+                        listData.Items.Add("Ignis rank: " + player.ranks[0]);
+                        listData.Items.Add("Terra rank: " + player.ranks[1]);
+                        listData.Items.Add("Caeli rank: " + player.ranks[2]);
+                        listData.Items.Add("Aqua rank: " + player.ranks[3]);
+                        listData.Items.Add("Primus rank: " + player.ranks[4]);
                         break;
                     }
                 }
@@ -284,16 +284,16 @@ namespace ElecyServer
             {
                 try
                 {
-                    if ((room.GetRoomIndex() + "") == listGameRooms.SelectedItem.ToString())
+                    if ((room.RoomIndex + "") == listGameRooms.SelectedItem.ToString())
                     {
                         listData.Items.Clear();
-                        listData.Items.Add("roomIndex: " + room.GetRoomIndex());
+                        listData.Items.Add("roomIndex: " + room.RoomIndex);
                         if (room.GetPlayer(1) != null)
-                            listData.Items.Add("player1: " + room.GetPlayer(1).GetNickname());
+                            listData.Items.Add("player1: " + room.GetPlayer(1).Nickname);
                         if (room.GetPlayer(2) != null)
-                            listData.Items.Add("player2: " + room.GetPlayer(2).GetNickname());
-                        listData.Items.Add("size: " + room.GetSize());
-                        listData.Items.Add("status: " + room.GetStatus());
+                            listData.Items.Add("player2: " + room.GetPlayer(2).Nickname);
+                        listData.Items.Add("size: " + room.Size);
+                        listData.Items.Add("status: " + room.Status);
                         break;
                     }
                 }

@@ -11,7 +11,7 @@ namespace ElecyServer
                 case 0:
                     for(int i = 0; i < Constants.ARENA_SIZE; i++)
                     {
-                        if (Global.arena[i].GetStatus() == GameRoom.RoomStatus.Searching)
+                        if (Global.arena[i].Status == GameRoom.RoomStatus.Searching)
                         {
                             Global.arena[i].AddPlayer(Global.players[index]);
                             Global.players[index].state = NetPlayer.playerState.SearchingForMatch;
@@ -21,7 +21,7 @@ namespace ElecyServer
                     }
                     for(int i = 0; i < Constants.ARENA_SIZE; i++)
                     {
-                        if(Global.arena[i].GetStatus() == GameRoom.RoomStatus.Empty)
+                        if(Global.arena[i].Status == GameRoom.RoomStatus.Empty)
                         {
                             Global.arena[i].AddPlayer(Global.players[index]);
                             Global.players[index].state = NetPlayer.playerState.SearchingForMatch;
