@@ -19,11 +19,12 @@ namespace ElecyServer
                 {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
                 {(int)RoomPackets.RTransform, HandleTransform },
                 {(int)RoomPackets.RLoadProgress, HandleLoadProgress },
-                {(int)RoomPackets.RInstantiate, HandleInstantiate}
+                {(int)RoomPackets.RInstantiate, HandleInstantiate},
+                {(int)RoomPackets.RSurrender, HandleSurrender },
+                {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
+                {(int)SystemPackets.SysExit, HandleRoomExit }
             };
         }
-
-
 
         public static void HandleNetworkInformation(int index, byte[] data)
         {
@@ -128,6 +129,37 @@ namespace ElecyServer
             int roomIndex = buffer.ReadInteger();
             float loadProgress = buffer.ReadFloat();
             Global.arena[roomIndex].SetLoadProgress(ID, loadProgress);
+        }
+
+        private static void HandleRoomExit(int ID, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
+            ServerSendData.SendRoomExit(ID, roomIndex);
+            Global.arena[roomIndex].AbortGameSession(ID);
+        }
+
+        private static void HandleSurrender(int ID, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
+            buffer.Dispose();
+            Global.arena[roomIndex].Surrended(ID);
+        }
+
+        private static void HandleRoomLeave(int ID, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int roomIndex = buffer.ReadInteger();
+            buffer.Dispose();
+            ServerSendData.SendRoomLogOut(ID, roomIndex);
+            Global.arena[roomIndex].BackToNetPlayer(ID);
         }
     }
 }

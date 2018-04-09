@@ -124,7 +124,8 @@ namespace ElecyServer
         private void StartServer()
         {
             textBoxDebug.Clear();
-            ServerHandleNetworkData.InitializeNetworkPackages();
+            ServerHandleClientData.InitializeNetworkPackages();
+            ServerHandlePlayerData.InitializeNetworkPackages();
             ServerHandleRoomData.InitializeNetworkPackages();
             Global.mysql.MySQLInit();
             ServerTCP.SetupServer();

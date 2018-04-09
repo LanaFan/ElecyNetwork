@@ -70,7 +70,8 @@
     <Compile Include="Server.Designer.cs">
       <DependentUpon>Server.cs</DependentUpon>
     </Compile>
-    <Compile Include="Server\ServerHandleNetworkData.cs" />
+    <Compile Include="Server\ServerHandleClientData.cs" />
+    <Compile Include="Server\ServerHandlePlayerData.cs" />
     <Compile Include="Server\ServerHandleRoomData.cs" />
     <Compile Include="Server\ServerSendData.cs" />
     <Compile Include="Server\ServerTCP.cs" />

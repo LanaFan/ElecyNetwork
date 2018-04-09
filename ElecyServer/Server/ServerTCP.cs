@@ -100,7 +100,20 @@ namespace ElecyServer
             }
         }
 
-       //Get the info about connetcion
+        public static int AddClient(Socket socket)
+        {
+            for (int i = 1; i < Constants.MAX_CLIENTS; i++)
+            {
+                if (Global.clients[i].Socket == null)
+                {
+                    Global.clients[i].SetVar(socket, socket.RemoteEndPoint.ToString(), i);
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        //Get the info about connetcion
         private static void AcceptCallback(IAsyncResult ar)
         {
             if (_closed)
@@ -296,9 +309,9 @@ namespace ElecyServer
 
         public void SetVar(Socket socket, string ip, int index)
         {
-            this._socket = socket;
-            this._ip = ip;
-            this._index = index;
+            _socket = socket;
+            _ip = ip;
+            _index = index;
         }
 
         //Starting client 
@@ -324,7 +337,7 @@ namespace ElecyServer
                     {
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandleNetworkData.HandleNetworkInformation(_index, dataBuffer); 
+                        ServerHandleClientData.HandleNetworkInformation(_index, dataBuffer); 
                         if(!_closing)
                         {
                             _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _socket);
@@ -445,7 +458,7 @@ namespace ElecyServer
                     {
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandleNetworkData.HandleNetworkInformation(_index, dataBuffer);
+                        ServerHandlePlayerData.HandleNetworkInformation(_index, dataBuffer);
                         if (!_playerStopped)
                             _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), _socket);
                         else

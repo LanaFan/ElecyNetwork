@@ -17,7 +17,20 @@
         STransform = 12,
         STreeSpawn = 13,
         SEnemyLoadProgress = 14,
+        SInstantiate = 15,
+        SClientExit = 16,
+        SNetPlayerExit = 17,
+        SPlayerExit = 18,
+        SNetPlayerLogOut = 19,
+        SPlayerLogOut = 20,
+        SMatchResult = 21,
     }
+
+    public enum SystemPackets
+    {
+        SysExit = 22,
+    }
+
 
     //get send from client to server
     public enum ClientPackets
@@ -27,7 +40,7 @@
         CLoginTry = 3,
         CAlert = 4,
         CClose = 5,
-        CReconnectComplite = 6
+        CReconnectComplite = 6,
     }
 
     //get send from player to server
@@ -40,6 +53,7 @@
         PQueueStop = 11,
         PAlert = 12,
         PStopPlayer = 17,
+        PLogOut = 23,
     }
 
     public enum RoomPackets
@@ -49,8 +63,10 @@
         RLoadComplite = 15,
         RTransform = 16,
         RRockSpawned = 18,
-        RTreeSpawned = 19,
+        RTreesSpawned = 19,
         RLoadProgress = 20,
-        RInstantiate = 21
+        RInstantiate = 21,
+        RSurrender = 24,
+        RRoomLeave = 25,
     }
 }

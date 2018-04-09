@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Bindings;
+using System;
 using System.Collections.Generic;
-using Bindings;
 
 namespace ElecyServer
 {
-    class ServerHandleNetworkData
+    class ServerHandleClientData
     {
         private delegate void Packet_(int index, byte[] data);
         private static Dictionary<int, Packet_> Packets;
@@ -17,13 +17,9 @@ namespace ElecyServer
                 {(int)ClientPackets.CRegisterTry, HandleRegisterTry },
                 {(int)ClientPackets.CLoginTry, HandleLoginTry },
                 {(int)ClientPackets.CAlert, HandleAlert },
+                {(int)ClientPackets.CReconnectComplite, HandleClientReconnect },
                 {(int)ClientPackets.CClose, HandleClientClose },
-                {(int)ClientPackets.CReconnectComplite, HandleReconnect },
-                {(int)NetPlayerPackets.PConnectionComplite, HandlePlayerConnect },
-                {(int)NetPlayerPackets.PGlChatMsg, HandleGlChatMsg },
-                {(int)NetPlayerPackets.PQueueStart, HandleQueueStart },
-                {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
-                {(int)NetPlayerPackets.PStopPlayer, HandlePlayerStop }
+                {(int)SystemPackets.SysExit, HandleClientExit},
             };
         }
 
@@ -40,8 +36,6 @@ namespace ElecyServer
                 Packet.Invoke(index, data);
             }
         }
-
-        #region Client Handlers
 
         private static void HandleClientConnect(int index, byte[] data)
         {
@@ -92,7 +86,7 @@ namespace ElecyServer
             string nickname = Global.data.GetAccountNickname(username);
             int[][] accountdata = Global.data.GetAccountData(nickname);
             int playerIndex = ServerTCP.PlayerLogin(index, nickname, accountdata);
-            if(playerIndex != 0)
+            if (playerIndex != 0)
                 ServerSendData.SendLoginOk(index, playerIndex, nickname, accountdata);
         }
 
@@ -106,55 +100,16 @@ namespace ElecyServer
             Global.clients[index].CloseClient();
         }
 
-        private static void HandleReconnect(int index, byte[] data) //DO IT, TOO!
+        private static void HandleClientReconnect(int index, byte[] data)
         {
-            //Handle!
+            // Send to WF that client reconnected
         }
 
-        #endregion
-
-        #region Player Handlers
-
-        private static void HandleGlChatMsg(int index, byte[] data) 
+        private static void HandleClientExit(int index, byte[] data)
         {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteBytes(data);
-            buffer.ReadInteger();
-            string GlChatMsg = buffer.ReadString();
-            string Nickname = Global.players[index].Nickname;
-            buffer.Dispose();
-            Global.serverForm.ShowChatMsg(Nickname, GlChatMsg);
-            ServerSendData.SendGlChatMsg(Nickname, GlChatMsg);
+            ServerSendData.SendClientExit(index);
+            Global.clients[index].CloseClient();
         }
-
-        private static void HandlePlayerConnect(int index, byte[] data)
-        {
-            ServerSendData.SendPlayerConnectionOK(index);
-        }
-
-        private static void HandleQueueStart(int index, byte[] data)
-        {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteBytes(data);
-            buffer.ReadInteger();
-            int matchType = buffer.ReadInteger();
-            buffer.Dispose();
-            if (!Queue.StartSearch(index, matchType))
-                ServerSendData.SendPlayerAlert(index, "Queue is overcrowded. Try again later!");
-                    
-        }
-
-        private static void HandleQueueStop(int index, byte[] data)
-        {
-            Queue.StopSearch(index, Global.players[index].roomIndex);
-        }
-
-        private static void HandlePlayerStop(int index, byte[] data)
-        {
-            Global.arena[Global.players[index].roomIndex].StartReceive(index);
-        }
-
-        #endregion
 
     }
 }

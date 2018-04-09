@@ -56,11 +56,11 @@ namespace ElecyServer
         private Player player1;
         private Player player2;
         private Timer timer;
+        private Timer closeTimer;
         private ArenaRandomGenerator spawner;
         private Dictionary<NetworkGameObject.Type, int[]> ranges;
         private bool p1Loaded;
         private bool p2Loaded;
-        private bool aborted;
         private float scaleX;
         private float scaleZ;
         private float[] firstSpawnPointPos;
@@ -80,7 +80,8 @@ namespace ElecyServer
         {
             Empty = 1,
             Searching = 2,
-            Closed = 3
+            MatchEnded = 3,
+            Closed = 4
         }
 
 
@@ -96,7 +97,6 @@ namespace ElecyServer
             _treeRandomed = false;
             p1Loaded = false;
             p2Loaded = false;
-            aborted = false;
         }
 
         public void AddPlayer(NetPlayer player)
@@ -170,28 +170,66 @@ namespace ElecyServer
 
         public void AbortGameSession(int ID)
         {
-            if (!aborted)
+            if (status != RoomStatus.MatchEnded)
             {
-                aborted = true;
+                status = RoomStatus.MatchEnded;
                 StopTimer();
+                closeTimer = new Timer(AbortGameSession, null, 300000, Timeout.Infinite);
                 if (ID == 1)
                 {
                     player1.PlayerClose();
-                    // Send player2 that game is over
-                    // Stop game
-                    ClearRoom();
+                    player1 = null;
+                    ServerSendData.SendMatchEnded(2, roomIndex, player2.Nickname);
                 }
                 else
                 {
                     player2.PlayerClose();
-                    // Send player1 that game is over
-                    // Stop game
-                    ClearRoom();
+                    player2 = null;
+                    ServerSendData.SendMatchEnded(1, roomIndex, player1.Nickname);
+                }
+            }
+            else
+            {
+                if (ID == 1)
+                {
+                    player1.PlayerClose();
+                    player1 = null;
+                }
+                else
+                {
+                    player2.PlayerClose();
+                    player2 = null;
                 }
             }
         }
 
+        public void Surrended(int ID)
+        {
+            status = RoomStatus.MatchEnded;
+            StopTimer();
+            if(ID == 1)
+            {
+                ServerSendData.SendMatchEnded(roomIndex, player2.Nickname);
+            }
+            else
+            {
+                ServerSendData.SendMatchEnded(roomIndex, player1.Nickname);
+            }
+        }
 
+        public void BackToNetPlayer(int ID)
+        {
+            if(ID == 1)
+            {
+                Global.players[player1.Index].StartPlayer();
+                player1 = null;
+            }
+            else
+            {
+                Global.players[player2.Index].StartPlayer();
+                player2 = null;
+            }
+        }
 
         private void StopNetPlayer(int index)
         {
@@ -206,6 +244,22 @@ namespace ElecyServer
             ServerSendData.SendTransform(2, roomIndex, p1transform[0], p1transform[1]);
         }
 
+        private void AbortGameSession(Object o)
+        {
+            closeTimer.Dispose();
+            if (player1 != null)
+            {
+                ServerSendData.SendRoomLogOut(1, roomIndex);
+                BackToNetPlayer(1);
+            }
+            if (player2 != null)
+            {
+                ServerSendData.SendRoomLogOut(2, roomIndex);
+                BackToNetPlayer(2);
+            }
+            ClearRoom();
+        }
+
         private void ClearRoom()
         {
             player1 = player2 = null;
@@ -217,7 +271,6 @@ namespace ElecyServer
             _treeRandomed = false;
             p1Loaded = false;
             p2Loaded = false;
-            aborted = false;
         }
 
 
@@ -448,7 +501,7 @@ namespace ElecyServer
         public void PlayerClose()
         {
             Global.players[_index].ClosePlayer();
-            //PlayerStop();   
+            PlayerStop();   
         }
 
 
