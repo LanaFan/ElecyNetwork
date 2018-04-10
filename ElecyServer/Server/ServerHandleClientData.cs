@@ -97,7 +97,14 @@ namespace ElecyServer
 
         private static void HandleClientClose(int index, byte[] data)
         {
-            Global.clients[index].CloseClient();
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int pindex = buffer.ReadInteger();
+            if (pindex == 0)
+                Global.clients[index].CloseClient();
+            else
+                Global.clients[index].CloseClient(pindex);
         }
 
         private static void HandleClientReconnect(int index, byte[] data)

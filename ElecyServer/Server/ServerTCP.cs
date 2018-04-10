@@ -53,6 +53,7 @@ namespace ElecyServer
                 {
                     Global.players[i].SetVar(Global.clients[index].Socket, i, Global.clients[index].IP, nickname, accountdata[0], accountdata[1]);
                     Global.clients[index].Logged = true;
+                    //Global.players[i].StartPlayer(); // Remove to nother method
                     Global.serverForm.AddNetPlayer(Global.players[i]);
                     return i;
                 }
@@ -365,8 +366,14 @@ namespace ElecyServer
         public void CloseClient()
         {
             _closing = true;
-            if(!_logged)
-                Console.WriteLine("Соединение от {0} было разорвано.", _ip);
+            Console.WriteLine("Соединение от {0} было разорвано.", _ip);
+            _socket = null;
+        }
+
+        public void CloseClient(int pIndex)
+        {
+            _closing = true;
+            Global.players[pIndex].StartPlayer();
             _socket = null;
         }
 
