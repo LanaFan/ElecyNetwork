@@ -5,25 +5,21 @@ using Bindings;
 
 namespace ElecyServer
 {
-   
+
     class ServerTCP
     {
-        //Creating the main variables
+        public static string ServerIP { get; private set; }
+        public static bool Closed { get; private set; } = true;
+
         private static Socket _serverSocket;
         private static byte[] _buffer;
-        private static bool _closed = true;
 
-        public static bool Closed
-        {
-            get { return _closed; }
-        }
-
-        //Server Setup
         public static void SetupServer()
         {
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _buffer = new byte[Constants.BUFFER_SIZE];
-            _closed = false;
+            ServerIP = GetLocalIPAddress();
+            Closed = false;
 
             for (int i = 0; i < Constants.MAX_CLIENTS; i++)
             {
@@ -41,19 +37,16 @@ namespace ElecyServer
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
             _serverSocket.Listen(Constants.SERVER_LISTEN);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-            Global.serverForm.Debug("Сервер запущен на Ip адресе " + GetLocalIPAddress() + " и порте " + Constants.PORT + ".");
+            Global.serverForm.Debug("Сервер запущен на Ip адресе " + ServerIP + " и порте " + Constants.PORT + ".");
         }
 
-        //Add new player in Players if there is a place
         public static int PlayerLogin(int index, string nickname, int[][]accountdata)
         {
             for(int i = 1; i < Constants.MAX_PLAYERS; i++)
-            {
+            { 
                 if (Global.players[i].Socket == null)
                 {
                     Global.players[i].SetVar(Global.clients[index].Socket, i, Global.clients[index].IP, nickname, accountdata[0], accountdata[1]);
-                    Global.clients[index].Logged = true;
-                    //Global.players[i].StartPlayer(); // Remove to nother method
                     Global.serverForm.AddNetPlayer(Global.players[i]);
                     return i;
                 }
@@ -61,7 +54,6 @@ namespace ElecyServer
             return 0;
         }
 
-        //Get server start point IP
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -77,9 +69,9 @@ namespace ElecyServer
 
         public static void ServerClose()
         {
-            if (!_closed)
+            if (!Closed)
             {
-                _closed = true;
+                Closed = true;
                 for (int i = 0; i < Constants.MAX_CLIENTS; i++)
                 {
                     if (Global.clients[i].Socket != null)
@@ -114,32 +106,29 @@ namespace ElecyServer
             return 0;
         }
 
-        //Get the info about connetcion
         private static void AcceptCallback(IAsyncResult ar)
         {
-            if (_closed)
-                return;
-
-            Socket socket = _serverSocket.EndAccept(ar);
-            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-
-            //Creating a copy of Client class for every clients 
-            for(int i = 1; i < Constants.MAX_CLIENTS; i++)
+            if (!Closed)
             {
-                if(Global.clients[i].Socket == null)
+                Socket socket = _serverSocket.EndAccept(ar);
+                _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+
+                for (int i = 1; i < Constants.MAX_CLIENTS; i++)
                 {
-                    Global.clients[i].SetVar(socket, socket.RemoteEndPoint.ToString(), i);
-                    Global.clients[i].StartClient();
-                    Global.serverForm.AddClient(Global.clients[i].IP);
-                    ServerSendData.SendClientConnetionOK(i);
-                    return;
+                    if (Global.clients[i].Socket == null)
+                    {
+                        Global.clients[i].SetVar(socket, socket.RemoteEndPoint.ToString(), i);
+                        Global.clients[i].StartClient();
+                        Global.serverForm.AddClient(Global.clients[i].IP);
+                        ServerSendData.SendClientConnetionOK(i);
+                        return;
+                    }
                 }
             }
         }
 
         #region Send to Client
 
-        //Send client connection
         public static void SendClientConnection(int index, byte[] data)
         {
             byte[] sizeinfo = new byte[4];
@@ -159,7 +148,6 @@ namespace ElecyServer
             }
         }
 
-        //Send data to single client
         public static void SendDataToClient(int index, byte[] data)
         {
             try
@@ -172,7 +160,6 @@ namespace ElecyServer
             }
         }
 
-        //Send data to all clients(sender indeed)
         public static void SendDataToAllClient(byte[] data)
         {
             foreach(Client client in Global.clients)
@@ -195,7 +182,6 @@ namespace ElecyServer
 
         #region Send to Player
 
-        //Send data to single player
         public static void SendDataToPlayer(int index, byte[] data)
         {
             try
@@ -204,12 +190,10 @@ namespace ElecyServer
             }
             catch
             {
-                ServerSendData.SendGlChatMsg("Server", "Player " + Global.players[index].Nickname + " disconnected");
                 Global.players[index].ClosePlayer();
             }
         }
 
-        //Send data to all players(sender indeed)
         public static void SendDataToAllPlayers(byte[] data)
         {
             foreach (NetPlayer player in Global.players)
@@ -222,7 +206,6 @@ namespace ElecyServer
                     }
                     catch
                     {
-                        ServerSendData.SendGlChatMsg("Server", "Player " + player.Nickname + " disconnected");
                         player.ClosePlayer();
                     }
                 }
@@ -232,6 +215,7 @@ namespace ElecyServer
         #endregion
 
         #region Send to GamePlayer
+
         public static void SendDataToGamePlayer(int roomIndex, int ID, byte[] data)
         {
             try
@@ -266,70 +250,61 @@ namespace ElecyServer
 
 
         }
+
         #endregion
 
     }
 
-    //Client class for every client what connected
     public class Client
     {
-        //Properties
-        private int _index;
-        private string _ip;
-        private Socket _socket;
+        public Socket Socket { get; private set; }
+        public int Index { get; private set; }
+        public string IP { get; private set; }
+
         private bool _closing;
         private byte[] _buffer;
-        private bool _logged;
-
-        #region Public Var
-
-        public bool Logged
-        {
-            set { _logged = value; }
-        }
-        public Socket Socket
-        {
-            get { return _socket; }
-        }
-        public string IP
-        {
-            get { return _ip; }
-        }
-        public int Index
-        {
-            get { return _index; }
-        }
-
-        #endregion
 
         public Client()
         {
-            _logged = false;
             _buffer = new byte[Constants.BUFFER_SIZE];
         }
 
         public void SetVar(Socket socket, string ip, int index)
         {
-            _socket = socket;
-            _ip = ip;
-            _index = index;
+            Socket = socket;
+            IP = ip;
+            Index = index;
         }
 
-        //Starting client 
         public void StartClient()
         {
             _closing = false;
-            _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _socket);
+            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), Socket);
         }
 
-        //Get the callback from client
+        public void CloseClient()
+        {
+            _closing = true;
+            Global.serverForm.Debug("Соединение от " + IP + " было разорвано.");
+            Global.serverForm.RemoveClient(IP);
+            Socket = null;
+        }
+
+        public void LogInClient(int pIndex)
+        {
+            _closing = true;
+            Global.serverForm.RemoveClient(IP);
+            Global.players[pIndex].StartPlayer();
+            Socket = null;
+        }
+
         private void ReceiveCallback(IAsyncResult ar)
         {
             if (!_closing)
             {
                 try
                 {
-                    int received = _socket.EndReceive(ar);
+                    int received = Socket.EndReceive(ar);
                     if (received <= 0)
                     {
                         CloseClient();
@@ -338,15 +313,9 @@ namespace ElecyServer
                     {
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandleClientData.HandleNetworkInformation(_index, dataBuffer); 
+                        ServerHandleClientData.HandleNetworkInformation(Index, dataBuffer); 
                         if(!_closing)
-                        {
-                            _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), _socket);
-                        }
-                        else
-                        {
-                            return;
-                        }
+                            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), Socket);
                     }
 
                 }
@@ -356,70 +325,25 @@ namespace ElecyServer
                     CloseClient();
                 }
             }
-            else
-            {
-                return;
-            }
         }
-
-        //Close client
-        public void CloseClient()
-        {
-            _closing = true;
-            Console.WriteLine("Соединение от {0} было разорвано.", _ip);
-            _socket = null;
-        }
-
-        public void CloseClient(int pIndex)
-        {
-            _closing = true;
-            Global.players[pIndex].StartPlayer();
-            _socket = null;
-        }
-
     }
 
-    //Player class for every player what logged in
     public class NetPlayer
     {
-        public playerState state;
-        public int[] levels;
-        public int[] ranks;
-        public int roomIndex;
+        public int[] levels; // private set!
+        public int[] ranks; //  private set!
+
+        public int RoomIndex { get; private set; }
+        public PlayerState State { get; private set; } 
+        public int Index { get; private set; }
+        public Socket Socket { get; private set; }
+        public string IP { get; private set; }
+        public string Nickname { get; private set; }
+        public bool Stopped { get; private set; }
 
         private byte[] _buffer;
-        private int _index;
-        private Socket _socket;
-        private string _ip;
-        private string _nickname;
-        private bool _playerStopped;
 
-        #region Public Var
-
-        public Socket Socket
-        {
-            get { return _socket; }
-        }
-        public int Index
-        {
-            get { return _index; }
-        }
-        public string IP
-        {
-            get { return _ip; }
-        }
-        public string Nickname
-        {
-            get { return _nickname; }
-        }
-        public bool Stopped
-        {
-            get { return _playerStopped; }
-        }
-
-        #endregion
-
-        public enum playerState
+        public enum PlayerState
         {
             InMainLobby = 1,
             SearchingForMatch = 2,
@@ -430,32 +354,70 @@ namespace ElecyServer
         public NetPlayer()
         {
             _buffer = new byte[Constants.BUFFER_SIZE];
+            RoomIndex = 0;
         }
 
         public void SetVar(Socket socket, int index, string ip, string nickname, int[] levels, int[] ranks)
         {
-            _socket = socket;
-            _index = index;
-            _ip = ip;
-            _nickname = nickname;
+            Socket = socket;
+            Index = index;
+            IP = ip;
+            Nickname = nickname;
             this.levels = levels;
             this.ranks = ranks;
         }
 
         public void StartPlayer()
         { 
-            _playerStopped = false;
-            state = playerState.InMainLobby;
-            _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), _socket);
+            Stopped = false;
+            State = PlayerState.InMainLobby;
+            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), Socket);
+        }
+        #region States
+
+        public void Searching(int roomIndex)
+        {
+            State = PlayerState.SearchingForMatch;
+            RoomIndex = roomIndex;
         }
 
-        public void PlayerReceiveCallback(IAsyncResult ar)
+        public void Playing()
         {
-            if (!_playerStopped)
+            State = PlayerState.Playing;
+        }
+
+        public void EndPlaying(/* lvl, rating (to change) */)
+        {
+            State = PlayerState.EndPlaying;
+        }
+
+        public void InMainLobby()
+        {
+            State = PlayerState.InMainLobby;
+            RoomIndex = 0;
+        }
+
+        #endregion
+        public void NetPlayerStop()
+        {
+            Stopped = true;
+        }
+
+        public void ClosePlayer()
+        {
+            ServerSendData.SendGlChatMsg("Server", "Player " + Nickname + " disconnected");
+            Global.serverForm.RemoveNetPlayer(Nickname);
+            Stopped = true;
+            Socket = null;
+        }
+
+        private void PlayerReceiveCallback(IAsyncResult ar)
+        {
+            if (!Stopped)
             {
                 try
                 {
-                    int received = _socket.EndReceive(ar);
+                    int received = Socket.EndReceive(ar);
 
                     if (received <= 0)
                     {
@@ -465,31 +427,19 @@ namespace ElecyServer
                     {
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandlePlayerData.HandleNetworkInformation(_index, dataBuffer);
-                        if (!_playerStopped)
-                            _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), _socket);
-                        else
-                            return;
+                        ServerHandlePlayerData.HandleNetworkInformation(Index, dataBuffer);
+                        if (!Stopped)
+                            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), Socket);
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
+                    Global.serverForm.Debug(ex.Message + " " + ex.Source);
                     ClosePlayer();
                 }
             }
         }
 
-        public void NetPlayerStop()
-        {
-            _playerStopped = true;
-        }
-
-        public void ClosePlayer()
-        {
-            _playerStopped = true;
-            _socket = null;
-        }
     }
-
 
 }

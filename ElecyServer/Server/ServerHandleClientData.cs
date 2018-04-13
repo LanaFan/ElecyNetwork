@@ -39,7 +39,7 @@ namespace ElecyServer
 
         private static void HandleClientConnect(int index, byte[] data)
         {
-            Console.WriteLine("Соединение с {0} установлено. Клиент находится под индексом {1}", Global.clients[index].IP, index);
+            Global.serverForm.Debug("Соединение с " + Global.clients[index].IP + " установлено. Клиент находится под индексом " + index);
         }
 
         private static void HandleRegisterTry(int index, byte[] data)
@@ -104,7 +104,7 @@ namespace ElecyServer
             if (pindex == 0)
                 Global.clients[index].CloseClient();
             else
-                Global.clients[index].CloseClient(pindex);
+                Global.clients[index].LogInClient(pindex);
         }
 
         private static void HandleClientReconnect(int index, byte[] data)

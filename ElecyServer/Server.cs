@@ -32,7 +32,6 @@ namespace ElecyServer
 
         public void AddNetPlayer(NetPlayer player)
         {
-            RemoveClient(player.IP);
             AddNetPlayer(player.Nickname);
         }
 
@@ -59,6 +58,19 @@ namespace ElecyServer
             else
             {
                 listClients.Items.Remove(ip);
+            }
+        }
+
+        public void RemoveNetPlayer(string nick)
+        {
+            if(listNetPlayers.InvokeRequired)
+            {
+                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(RemoveNetPlayer);
+                Invoke(d, new object[] { nick });
+            }
+            else
+            {
+                listClients.Items.Remove(nick);
             }
         }
 
@@ -130,7 +142,7 @@ namespace ElecyServer
             Global.mysql.MySQLInit();
             ServerTCP.SetupServer();
             lblID.Show();
-            lblID.Text = "Server ip: " + ServerTCP.GetLocalIPAddress();
+            lblID.Text = "Server ip: " + ServerTCP.ServerIP;
             ptrRed.Hide();
             ptrGreen.Show();
         }
@@ -257,11 +269,11 @@ namespace ElecyServer
                     {
                         listData.Items.Clear();
                         listData.Items.Add("index: " + player.Index);
-                        listData.Items.Add("roomIndex: " + player.roomIndex);
+                        listData.Items.Add("roomIndex: " + player.RoomIndex);
                         listData.Items.Add("ip: " + player.IP);
                         listData.Items.Add("nickname: " + player.Nickname);
                         listData.Items.Add("closing: " + player.Stopped);
-                        listData.Items.Add("state: " + player.state);
+                        listData.Items.Add("state: " + player.State);
                         listData.Items.Add("Ignis level: " + player.levels[0]);
                         listData.Items.Add("Terra level: " + player.levels[1]);
                         listData.Items.Add("Caeli level: " + player.levels[2]);

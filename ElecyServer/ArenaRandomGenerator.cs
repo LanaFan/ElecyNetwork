@@ -35,20 +35,20 @@ namespace ElecyServer
             SetZSpace(player2Pos[1], 0);
         }
 
-        public static int NumberOfObjects(NetworkGameObject.Type type)
+        public static int NumberOfObjects(NetworkGameObject.ObjectType type)
         {
             Random rnd = new Random();
             switch (type)
             {
-                case NetworkGameObject.Type.rock:
+                case NetworkGameObject.ObjectType.rock:
                     return rnd.Next(15, 25);
-                case NetworkGameObject.Type.tree:
+                case NetworkGameObject.ObjectType.tree:
                     return rnd.Next(15, 20);
             }
             return 0;
         }
 
-        public float[] RandomPosition(NetworkGameObject.Type type)
+        public float[] RandomPosition(NetworkGameObject.ObjectType type)
         {
             float[] pos = new float[2];
             bool randomed = true;
@@ -81,12 +81,12 @@ namespace ElecyServer
             return rot;
         }
 
-        private void SetXSpace(float pos, NetworkGameObject.Type type)
+        private void SetXSpace(float pos, NetworkGameObject.ObjectType type)
         {
             xSpaces.Add(new SpaceX(pos, type));
         }
 
-        private void SetZSpace(float pos, NetworkGameObject.Type type)
+        private void SetZSpace(float pos, NetworkGameObject.ObjectType type)
         {
             zSpaces.Add(new SpaceZ(pos, type));
         }
@@ -111,9 +111,9 @@ namespace ElecyServer
         public float xFrom;
         public float xTo;
         float pos;
-        NetworkGameObject.Type type;
+        NetworkGameObject.ObjectType type;
 
-        public SpaceX(float pos, NetworkGameObject.Type type)
+        public SpaceX(float pos, NetworkGameObject.ObjectType type)
         {
             this.pos = pos;
             this.type = type;
@@ -124,15 +124,15 @@ namespace ElecyServer
         {
             switch (type)
             {
-                case NetworkGameObject.Type.unsigned:
+                case NetworkGameObject.ObjectType.unsigned:
                     xFrom = pos - 10;
                     xTo = pos + 10;
                     break;
-                case NetworkGameObject.Type.rock:
+                case NetworkGameObject.ObjectType.rock:
                     xFrom = pos - 5;
                     xTo = pos + 5;
                     break;
-                case NetworkGameObject.Type.tree:
+                case NetworkGameObject.ObjectType.tree:
                     xFrom = pos - 7;
                     xTo = pos + 7;
                     break;
@@ -146,9 +146,9 @@ namespace ElecyServer
         public float zFrom;
         public float zTo;
         float pos;
-        NetworkGameObject.Type type;
+        NetworkGameObject.ObjectType type;
 
-        public SpaceZ(float pos, NetworkGameObject.Type type)
+        public SpaceZ(float pos, NetworkGameObject.ObjectType type)
         {
             this.pos = pos;
             this.type = type;
@@ -159,15 +159,15 @@ namespace ElecyServer
         {
             switch (type)
             {
-                case NetworkGameObject.Type.unsigned:
+                case NetworkGameObject.ObjectType.unsigned:
                     zFrom = pos - 10;
                     zTo = pos + 10;
                     break;
-                case NetworkGameObject.Type.rock:
+                case NetworkGameObject.ObjectType.rock:
                     zFrom = pos - 5;
                     zTo = pos + 5;
                     break;
-                case NetworkGameObject.Type.tree:
+                case NetworkGameObject.ObjectType.tree:
                     zFrom = pos - 7;
                     zTo = pos + 7;
                     break;

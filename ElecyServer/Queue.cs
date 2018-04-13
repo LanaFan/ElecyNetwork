@@ -9,23 +9,21 @@ namespace ElecyServer
             switch (matchType)
             {
                 case 0:
-                    for(int i = 0; i < Constants.ARENA_SIZE; i++)
+                    for(int i = 1; i < Constants.ARENA_SIZE; i++)
                     {
                         if (Global.arena[i].Status == GameRoom.RoomStatus.Searching)
                         {
                             Global.arena[i].AddPlayer(Global.players[index]);
-                            Global.players[index].state = NetPlayer.playerState.SearchingForMatch;
-                            Global.players[index].roomIndex = i;
+                            Global.players[index].Searching(i);
                             return true;
                         }
                     }
-                    for(int i = 0; i < Constants.ARENA_SIZE; i++)
+                    for(int i = 1; i < Constants.ARENA_SIZE; i++)
                     {
                         if(Global.arena[i].Status == GameRoom.RoomStatus.Empty)
                         {
                             Global.arena[i].AddPlayer(Global.players[index]);
-                            Global.players[index].state = NetPlayer.playerState.SearchingForMatch;
-                            Global.players[index].roomIndex = i;
+                            Global.players[index].Searching(i);
                             return true;
                         }
                     }

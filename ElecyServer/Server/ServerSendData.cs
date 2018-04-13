@@ -173,8 +173,8 @@ namespace ElecyServer
             buffer.WriteInteger(end - start);
             while(start <= end)
             {
-                float[] pos = Global.arena[roomIndex].ObjectsList.Get(start).GetPos();
-                float[] rot = Global.arena[roomIndex].ObjectsList.Get(start).GetRot();
+                float[] pos = Global.arena[roomIndex].ObjectsList.Get(start).Position;
+                float[] rot = Global.arena[roomIndex].ObjectsList.Get(start).Rotation;
                 buffer.WriteInteger(start);
                 buffer.WriteFloat(pos[0]);
                 buffer.WriteFloat(pos[1]);
@@ -198,8 +198,8 @@ namespace ElecyServer
             buffer.WriteInteger(end - start);
             while (start <= end)
             {
-                float[] pos = Global.arena[roomIndex].ObjectsList.Get(start).GetPos();
-                float[] rot = Global.arena[roomIndex].ObjectsList.Get(start).GetRot();
+                float[] pos = Global.arena[roomIndex].ObjectsList.Get(start).Position;
+                float[] rot = Global.arena[roomIndex].ObjectsList.Get(start).Rotation;
                 buffer.WriteInteger(start);
                 buffer.WriteFloat(pos[0]);
                 buffer.WriteFloat(pos[1]);

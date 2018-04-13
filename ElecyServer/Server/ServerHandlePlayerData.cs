@@ -71,12 +71,12 @@ namespace ElecyServer
 
         private static void HandleQueueStop(int index, byte[] data)
         {
-            Queue.StopSearch(index, Global.players[index].roomIndex);
+            Queue.StopSearch(index, Global.players[index].RoomIndex);
         }
 
         private static void HandlePlayerStop(int index, byte[] data)
         {
-            Global.arena[Global.players[index].roomIndex].StartReceive(index);
+            Global.arena[Global.players[index].RoomIndex].StartReceive(index);
         }
 
         private static void HandlePlayerExit(int index, byte[] data)

@@ -9,29 +9,28 @@ namespace ElecyServer
     public class GameObjectList
     {
         NetworkGameObject[] objects;
-        int length;
-        int offset;
+        Dictionary<NetworkGameObject.ObjectType, int[]> ranges;
+        public int Length { get; private set; }
+        public int Offset { get; private set; }
 
         public GameObjectList()
         {
-            length = 100;
-            objects = new NetworkGameObject[length];
-            offset = 0;
+            Length = 100;
+            objects = new NetworkGameObject[Length];
+            ranges = new Dictionary<NetworkGameObject.ObjectType, int[]>();
+            Offset = 0;
         }
 
-        public int[] Add(NetworkGameObject.Type type, int roomIndex)
+        public void Add(NetworkGameObject.ObjectType type, int roomIndex)
         {
-            int number = offset +  ArenaRandomGenerator.NumberOfObjects(type); 
-            int[] range = new int[2];
-            range[0] = offset;
-            while(offset < number)
+            int number = Offset +  ArenaRandomGenerator.NumberOfObjects(type);
+            ranges.Add(type, new int[] { Offset, number - 1 });
+            while(Offset < number)
             {
-                objects[offset] = new NetworkGameObject(offset, type, roomIndex);
+                objects[Offset] = new NetworkGameObject(Offset, type, roomIndex);
                 CheckLength();
-                offset++;
+                Offset++;
             }
-            range[1] = offset - 1;
-            return range;
         }
 
         public NetworkGameObject Get(int index)
@@ -39,21 +38,26 @@ namespace ElecyServer
             return objects[index];
         }
 
+        public int[] GetRange(NetworkGameObject.ObjectType type)
+        {
+            return ranges[type];
+        }
+
         public void Clear()
         {
-            length = 100;
-            objects = new NetworkGameObject[length];
-            offset = 0;
+            Length = 100;
+            objects = new NetworkGameObject[Length];
+            ranges = new Dictionary<NetworkGameObject.ObjectType, int[]>();
+            Offset = 0;
         }
 
         private void CheckLength()
         {
-            if(offset + 10 >= length)
+            if(Offset + 10 >= Length)
             {
-                NetworkGameObject[] oldObjects = new NetworkGameObject[length];
-                objects.CopyTo(oldObjects, 0);
-                length *= 2;
-                objects = new NetworkGameObject[length];
+                NetworkGameObject[] oldObjects = objects;
+                Length *= 2;
+                objects = new NetworkGameObject[Length];
                 oldObjects.CopyTo(objects, 0);
             }
         }
@@ -61,20 +65,15 @@ namespace ElecyServer
 
     public class NetworkGameObject
     {
-        int index;
-        int roomIndex;
-        int hp;
-        float posX;
-        float posY;
-        float posZ;
-        float rotX;
-        float rotY;
-        float rotZ;
-        float rotW;
-        Type type;
-        bool isDestroyed;
+        public int Index { get; private set; }
+        public float[] Position { get; private set; }
+        public float[] Rotation { get; private set; }
+        public bool IsDestroyed { get; private set; }
+        public int HP { get; private set; }
+        public int RoomIndex { get; private set; } // use 
+        public ObjectType Type { get; private set; } // use
 
-        public enum Type
+        public enum ObjectType
         {
             unsigned = 0,
             tree = 1,
@@ -82,66 +81,43 @@ namespace ElecyServer
             spell = 3,
         }
 
-        public NetworkGameObject(int index, Type type, int roomIndex)
+        public NetworkGameObject(int index, ObjectType type, int roomIndex)
         {
-            this.index = index;
-            this.type = type;
-            this.roomIndex = roomIndex;
+            Index = index;
+            Type = type;
+            RoomIndex = roomIndex;
             SetTransform();
             SetHP();
         }
 
         private void SetTransform()
         {
-            float[] pos = Global.arena[roomIndex].Spawner.RandomPosition(type);
-            float[] rot = Global.arena[roomIndex].Spawner.RandomRotation();
-            posX = pos[0];
-            posY = 0.5f;
-            posZ = pos[1];
-            if(type == Type.tree)
+            float[] pos = Global.arena[RoomIndex].Spawner.RandomPosition(Type);
+            float[] rot = Global.arena[RoomIndex].Spawner.RandomRotation();
+            Position = new float[] { pos[0], 0.5f, pos[1] };
+            if(Type == ObjectType.tree)
             {
-                rotX = 0f;
-                rotY = rot[1];
-                rotZ = 0f;
+                Rotation = new float[] { 0, rot[1], 0, 1 };
             }
             else
             {
-                rotX = rot[0];
-                rotY = rot[1];
-                rotZ = rot[2];
+                Rotation = new float[] { rot[0], rot[1], rot[2], 1 };
             }
-            rotW = 1;
         }
 
         private void SetHP()
         {
-            switch (type)
+            switch (Type)
             {
-                case Type.unsigned:
+                case ObjectType.unsigned:
                     break;
-                case Type.tree:
-                    hp = 20;
+                case ObjectType.tree:
+                    HP = 20;
                     break;
-                case Type.rock:
-                    hp = 30;
+                case ObjectType.rock:
+                    HP = 30;
                     break;
             }
-
-        }
-
-        public float[] GetPos()
-        {
-            return new float[] { posX, posY, posZ };
-        }
-
-        public float[] GetRot()
-        {
-            return new float[] { rotX, rotY, rotZ, rotW };
-        }
-
-        public int GetIndex()
-        {
-            return index;
         }
 
     }
