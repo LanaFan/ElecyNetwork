@@ -198,17 +198,20 @@ namespace ElecyServer
         {
             foreach (NetPlayer player in Global.players)
             {
-                if (player.Socket != null)
+                try
                 {
-                    try
+                    if (player.Socket != null)
                     {
-                        player.Socket.Send(data);
+                        try
+                        {
+                            player.Socket.Send(data);
+                        }
+                        catch
+                        {
+                            player.ClosePlayer();
+                        }
                     }
-                    catch
-                    {
-                        player.ClosePlayer();
-                    }
-                }
+                } catch { }
             }
         }
 
