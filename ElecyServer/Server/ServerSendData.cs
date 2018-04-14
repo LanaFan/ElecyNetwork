@@ -1,5 +1,4 @@
 ﻿using Bindings;
-using System;
 
 namespace ElecyServer
 {
@@ -80,6 +79,7 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SGlChatMsg);
             buffer.WriteString(Nickname);
             buffer.WriteString(GlChatMsg);
+            Global.serverForm.ShowChatMsg(Nickname, GlChatMsg);
             ServerTCP.SendDataToAllPlayers(buffer.ToArray());
             buffer.Dispose();
         }

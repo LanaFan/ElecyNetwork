@@ -225,7 +225,6 @@ namespace ElecyServer
                 if (msg != "")
                 {
                     ServerSendData.SendGlChatMsg("Server", msg);
-                    ShowChatMsg("Server: " + msg);
                 }
             }
         }
@@ -241,7 +240,6 @@ namespace ElecyServer
                     if (msg != "")
                     {
                         ServerSendData.SendGlChatMsg("Server", msg);
-                        ShowChatMsg("Server: " + msg);
                     }
                 }
             }
@@ -352,7 +350,7 @@ namespace ElecyServer
             }
         }
 
-        private void listGameRooms_SelectedIndexChanged(object sender, EventArgs e) // Edit!!!
+        private void listGameRooms_SelectedIndexChanged(object sender, EventArgs e) 
         {
             try
             {

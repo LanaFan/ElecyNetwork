@@ -1,38 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ElecyServer
 {
     public class ArenaRandomGenerator
     {
-        float sizeX;
-        float sizeZ;
-        float[] player1Pos;
-        float[] player2Pos;
-        float[] xRange;
-        float[] zRange;
-        List<SpaceX> xSpaces;
-        List<SpaceZ> zSpaces;
-        Random rnd;
+        private float[] xRange;
+        private float[] zRange;
+        private List<Space> spaces;
+        private Random rnd;
 
         public ArenaRandomGenerator(float scaleX, float scaleZ, float[] player1Pos, float[] player2Pos)
         {
             rnd = new Random();
-            sizeX = scaleX;
-            sizeZ = scaleZ;
-            this.player1Pos = player1Pos;
-            this.player2Pos = player2Pos;
-            SetXRange(sizeX);
-            SetZRange(sizeZ);
-            xSpaces = new List<SpaceX>();
-            zSpaces = new List<SpaceZ>();
-            SetXSpace(player1Pos[0], 0);
-            SetZSpace(player1Pos[1], 0);
-            SetXSpace(player2Pos[0], 0);
-            SetZSpace(player2Pos[1], 0);
+            spaces = new List<Space>();
+            SetXRange(scaleX);
+            SetZRange(scaleZ);
+            spaces.Add(new Space(player1Pos[0], player1Pos[1], 0));
+            spaces.Add(new Space(player2Pos[0], player2Pos[1], 0));
         }
 
         public static int NumberOfObjects(NetworkGameObject.ObjectType type)
@@ -57,9 +43,9 @@ namespace ElecyServer
                 pos[0] = (float)(rnd.NextDouble() * (xRange[1] - xRange[0]) + xRange[0]);
                 pos[1] = (float)(rnd.NextDouble() * (zRange[1] - zRange[0]) + zRange[0]);
                 randomed = true;
-                for (int i = 0; i < xSpaces.Count(); i++)
+                for (int i = 0; i < spaces.Count(); i++)
                 {
-                    if ((pos[0] <= xSpaces.ElementAt(i).xTo && pos[0] >= xSpaces.ElementAt(i).xFrom) && (pos[1] <= zSpaces.ElementAt(i).zTo && pos[1] >= zSpaces.ElementAt(i).zFrom))
+                    if ((pos[0] <= spaces.ElementAt(i).xTo && pos[0] >= spaces.ElementAt(i).xFrom) && (pos[1] <= spaces.ElementAt(i).zTo && pos[1] >= spaces.ElementAt(i).zFrom))
                     {
                         randomed = false;
                         break;
@@ -67,8 +53,7 @@ namespace ElecyServer
                 }
             }
             while (!randomed);
-            xSpaces.Add(new SpaceX(pos[0], type));
-            zSpaces.Add(new SpaceZ(pos[1], type));
+            spaces.Add(new Space(pos[0], pos[1], type));
             return pos;
         }
 
@@ -79,16 +64,6 @@ namespace ElecyServer
             rot[1] = (float)(rnd.NextDouble() * 360);
             rot[2] = (float)(rnd.NextDouble() * 360);
             return rot;
-        }
-
-        private void SetXSpace(float pos, NetworkGameObject.ObjectType type)
-        {
-            xSpaces.Add(new SpaceX(pos, type));
-        }
-
-        private void SetZSpace(float pos, NetworkGameObject.ObjectType type)
-        {
-            zSpaces.Add(new SpaceZ(pos, type));
         }
 
         private void SetXRange(float size)
@@ -106,16 +81,21 @@ namespace ElecyServer
         }
     }
 
-    class SpaceX
+    class Space
     {
-        public float xFrom;
-        public float xTo;
-        float pos;
-        NetworkGameObject.ObjectType type;
+        public float xFrom { get; private set; }
+        public float zFrom { get; private set; }
+        public float xTo { get; private set; }
+        public float zTo { get; private set; }
 
-        public SpaceX(float pos, NetworkGameObject.ObjectType type)
+        private float posX;
+        private float posZ;
+        private NetworkGameObject.ObjectType type;
+
+        public Space(float posX, float posZ, NetworkGameObject.ObjectType type)
         {
-            this.pos = pos;
+            this.posX = posX;
+            this.posZ = posZ;
             this.type = type;
             SetSpace();
         }
@@ -125,56 +105,25 @@ namespace ElecyServer
             switch (type)
             {
                 case NetworkGameObject.ObjectType.unsigned:
-                    xFrom = pos - 10;
-                    xTo = pos + 10;
+                    xFrom = posX - 10f;
+                    zFrom = posZ - 10f;
+                    xTo = posX + 10f;
+                    zTo = posZ + 10f;
                     break;
                 case NetworkGameObject.ObjectType.rock:
-                    xFrom = pos - 5;
-                    xTo = pos + 5;
+                    xFrom = posX - 5f;
+                    zFrom = posZ - 5f;
+                    xTo = posX + 5f;
+                    zTo = posZ + 5f;
                     break;
                 case NetworkGameObject.ObjectType.tree:
-                    xFrom = pos - 7;
-                    xTo = pos + 7;
-                    break;
-            }
-        }
-
-    }
-
-    class SpaceZ
-    {
-        public float zFrom;
-        public float zTo;
-        float pos;
-        NetworkGameObject.ObjectType type;
-
-        public SpaceZ(float pos, NetworkGameObject.ObjectType type)
-        {
-            this.pos = pos;
-            this.type = type;
-            SetSpace();
-        }
-
-        private void SetSpace()
-        {
-            switch (type)
-            {
-                case NetworkGameObject.ObjectType.unsigned:
-                    zFrom = pos - 10;
-                    zTo = pos + 10;
-                    break;
-                case NetworkGameObject.ObjectType.rock:
-                    zFrom = pos - 5;
-                    zTo = pos + 5;
-                    break;
-                case NetworkGameObject.ObjectType.tree:
-                    zFrom = pos - 7;
-                    zTo = pos + 7;
+                    xFrom = posX - 7f;
+                    zFrom = posZ - 7f;
+                    xTo = posX + 7f;
+                    zTo = posZ + 7f;
                     break;
             }
         }
     }
-
-
 
 }

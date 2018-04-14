@@ -1,9 +1,6 @@
 ﻿using Bindings;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ElecyServer
 {
@@ -48,7 +45,6 @@ namespace ElecyServer
             string GlChatMsg = buffer.ReadString();
             string Nickname = Global.players[index].Nickname;
             buffer.Dispose();
-            Global.serverForm.ShowChatMsg(Nickname, GlChatMsg);
             ServerSendData.SendGlChatMsg(Nickname, GlChatMsg);
         }
 
@@ -81,7 +77,6 @@ namespace ElecyServer
 
         private static void HandlePlayerExit(int index, byte[] data)
         {
-            ServerSendData.SendPlayerExit(index);
             Global.players[index].ClosePlayer();
         }
 

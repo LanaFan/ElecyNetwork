@@ -12,6 +12,7 @@ namespace Bindings
         bool _buffupdate = false;
 
         #region Commands
+
         public PacketBuffer()
         {
             _bufferlist = new List<byte>();
@@ -43,9 +44,11 @@ namespace Bindings
             _bufferlist.Clear();
             _readpos = 0;
         }
+
         #endregion
 
         #region Write
+
         public void WriteBytes(byte[] input)
         {
             _bufferlist.AddRange(input);
@@ -72,9 +75,11 @@ namespace Bindings
             _bufferlist.AddRange(Encoding.UTF8.GetBytes(input));
             _buffupdate = true;
         }
+
         #endregion
 
         #region Read
+
         public int ReadInteger(bool peek = true)
         {
             if(_bufferlist.Count > _readpos)
@@ -159,7 +164,6 @@ namespace Bindings
         public string ReadString(bool peek = true)
         {
             int length = ReadInteger(true);
-            //Global.serverForm.Debug(length);
             if (_buffupdate)
             {
                 _readbuffer = _bufferlist.ToArray();

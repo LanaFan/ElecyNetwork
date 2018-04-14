@@ -114,7 +114,6 @@ namespace ElecyServer
 
         private static void HandleClientExit(int index, byte[] data)
         {
-            ServerSendData.SendClientExit(index);
             Global.clients[index].CloseClient();
         }
 

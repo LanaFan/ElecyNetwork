@@ -288,6 +288,7 @@ namespace ElecyServer
         public void CloseClient()
         {
             _closing = true;
+            ServerSendData.SendClientExit(Index);
             Global.serverForm.Debug("Соединение от " + IP + " было разорвано.");
             Global.serverForm.RemoveClient(IP);
             Socket = null;
@@ -412,6 +413,7 @@ namespace ElecyServer
         {
             ServerSendData.SendGlChatMsg("Server", "Player " + Nickname + " disconnected");
             Global.serverForm.RemoveNetPlayer(Nickname);
+            ServerSendData.SendPlayerExit(Index);
             Stopped = true;
             Socket = null;
         }

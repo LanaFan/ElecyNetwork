@@ -308,6 +308,7 @@
             this.listData.FormattingEnabled = true;
             this.listData.Location = new System.Drawing.Point(430, 75);
             this.listData.Name = "listData";
+            this.listData.SelectionMode = System.Windows.Forms.SelectionMode.None;
             this.listData.Size = new System.Drawing.Size(160, 95);
             this.listData.TabIndex = 7;
             // 

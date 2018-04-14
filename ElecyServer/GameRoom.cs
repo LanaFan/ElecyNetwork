@@ -2,13 +2,12 @@
 using System.Net.Sockets;
 using Bindings;
 using System.Threading;
-using System.Collections.Generic;
 
 namespace ElecyServer
 {
+
     public class GameRoom
     {
-
         public GameObjectList ObjectsList { get; private set; }
         public int RoomIndex { get; private set; }
         public ArenaRandomGenerator Spawner { get; private set; }
@@ -471,4 +470,5 @@ namespace ElecyServer
 
 
     }
+
 }

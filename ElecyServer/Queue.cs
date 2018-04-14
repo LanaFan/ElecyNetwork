@@ -4,6 +4,7 @@ namespace ElecyServer
 {
     public static class Queue
     {
+
         public static bool StartSearch(int index, int matchType)
         {
             switch (matchType)
