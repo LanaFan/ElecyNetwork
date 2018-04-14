@@ -57,12 +57,14 @@ namespace ElecyServer
             if (Status == RoomStatus.Empty)
             {
                 player1 = new Player(player.Socket, player.Index, player.Nickname, 1, 0f);
+                player.Searching(RoomIndex);
                 Status = RoomStatus.Searching;
                 Global.serverForm.AddGameRoom(RoomIndex + "");
             }
             else if (Status == RoomStatus.Searching)
             {
                 player2 = new Player(player.Socket, player.Index, player.Nickname, 2, 0f);
+                player.Searching(RoomIndex);
                 Status = RoomStatus.Closed;
                 ServerSendData.SendMatchFound(mapIndex, player1.Index, player2.Index, RoomIndex);
             }
@@ -73,14 +75,14 @@ namespace ElecyServer
 
         public void DeletePlayer(int index)
         {
-            if (player1.Index == index)
+            if (player1 != null && player1.Index == index)
             {
                 player1 = null;
                 Global.players[index].InMainLobby();
                 Status = RoomStatus.Empty;
                 Global.serverForm.RemoveGameRoom(RoomIndex + "");
             }
-            else if (player2.Index == index) 
+            else if (player2 != null && player2.Index == index) 
             {
                 player2 = null;
                 Global.players[index].InMainLobby();
@@ -184,6 +186,16 @@ namespace ElecyServer
             }
         }
 
+        public void CloseRoom()
+        {
+            StopTimers();
+            if (player1 != null)
+                player1.PlayerClose();
+            if (player2 != null)
+                player2.PlayerClose();
+            Global.arena[RoomIndex] = null;
+        }
+
         private void StopNetPlayer(int index)
         {
             Global.players[index].NetPlayerStop();
@@ -195,6 +207,14 @@ namespace ElecyServer
             ServerSendData.SendTransform(1, RoomIndex, p2transform[0], p2transform[1]);
             float[][] p1transform = player1.Transform;
             ServerSendData.SendTransform(2, RoomIndex, p1transform[0], p1transform[1]);
+        }
+
+        private void StopTimers()
+        {
+            if (timer != null)
+                timer.Dispose();
+            if (closeTimer != null)
+                closeTimer.Dispose();
         }
 
         private void AbortGameSession(Object o)
@@ -229,8 +249,10 @@ namespace ElecyServer
 
         public void SetGameLoadData(int ID)
         {
-            int[] scale = Global.data.GetMapScale(mapIndex);
-            float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
+            //int[] scale = Global.data.GetMapScale(mapIndex);
+            //float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
+            int[] scale = new int[] { 5, 5 };
+            float[][] spawnPos = new float[][] { new float[] { 10f, 0.5f, 0 }, new float[] { -10f, 0.5f, 0 } };
             if (ID == 1)
             {
                 p1Loaded = true;
@@ -252,7 +274,8 @@ namespace ElecyServer
 
             if (p1Loaded && p2Loaded)
             {
-                float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
+                //float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
+                float[][] spawnRot = new float[][] { new float[] { 0, 0,0,1 }, new float[] { 0, 0,0,1 } }; 
                 p1Loaded = false;
                 p2Loaded = false;
                 Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstSpawnPointPos, secondSpawnPointPos);

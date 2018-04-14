@@ -15,7 +15,6 @@ namespace ElecyServer
                         if (Global.arena[i].Status == GameRoom.RoomStatus.Searching)
                         {
                             Global.arena[i].AddPlayer(Global.players[index]);
-                            Global.players[index].Searching(i);
                             return true;
                         }
                     }
@@ -24,7 +23,6 @@ namespace ElecyServer
                         if(Global.arena[i].Status == GameRoom.RoomStatus.Empty)
                         {
                             Global.arena[i].AddPlayer(Global.players[index]);
-                            Global.players[index].Searching(i);
                             return true;
                         }
                     }

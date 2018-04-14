@@ -72,6 +72,10 @@ namespace ElecyServer
             if (!Closed)
             {
                 Closed = true;
+                for (int i = 0; i < Constants.ARENA_SIZE; i++)
+                {
+                    Global.arena[i].CloseRoom();
+                }
                 for (int i = 0; i < Constants.MAX_CLIENTS; i++)
                 {
                     if (Global.clients[i].Socket != null)
@@ -83,10 +87,6 @@ namespace ElecyServer
                     if (Global.players[i].Socket != null)
                         Global.players[i].ClosePlayer();
                     Global.players[i] = null;
-                }
-                for (int i = 0; i < Constants.ARENA_SIZE; i++)
-                {
-                    Global.arena[i] = null;
                 }
                 _serverSocket.Dispose();
                 Global.serverForm.Debug("Server closed...");
@@ -411,6 +411,8 @@ namespace ElecyServer
 
         public void ClosePlayer()
         {
+            if (State == PlayerState.SearchingForMatch)
+                Global.arena[RoomIndex].DeletePlayer(Index);
             ServerSendData.SendGlChatMsg("Server", "Player " + Nickname + " disconnected");
             Global.serverForm.RemoveNetPlayer(Nickname);
             ServerSendData.SendPlayerExit(Index);
