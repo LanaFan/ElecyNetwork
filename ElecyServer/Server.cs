@@ -57,6 +57,14 @@ namespace ElecyServer
             }
             else
             {
+                try
+                {
+                    if (listClients.SelectedItem.ToString() == ip)
+                    {
+                        listClients.ClearSelected();
+                        listData.Items.Clear();
+                    }
+                } catch { }
                 listClients.Items.Remove(ip);
             }
         }
@@ -70,7 +78,16 @@ namespace ElecyServer
             }
             else
             {
-                listClients.Items.Remove(nick);
+                try
+                {
+                    if (listNetPlayers.SelectedItem.ToString() == nick)
+                    {
+                        listNetPlayers.ClearSelected();
+                        listData.Items.Clear();
+                    }
+                }
+                catch { }
+                listNetPlayers.Items.Remove(nick);
             }
         }
 
@@ -83,7 +100,15 @@ namespace ElecyServer
             }
             else
             {
-                listGameRooms.SetSelected(listGameRooms.Items.IndexOf(roomIndex), false);
+                try
+                {
+                    if (listGameRooms.SelectedItem.ToString() == roomIndex)
+                    {
+                        listGameRooms.ClearSelected();
+                        listData.Items.Clear();
+                    }
+                }
+                catch { }
                 listGameRooms.Items.Remove(roomIndex);
             }
         }
@@ -243,13 +268,32 @@ namespace ElecyServer
 
         private void listClients_SelectedIndexChanged(object sender, EventArgs e)
         {
+            try
+            {
+                if(listClients.SelectedItem != null)
+                {
+                    listData.Items.Clear();
+                    listGameRooms.ClearSelected();
+                    listNetPlayers.ClearSelected();
+                }
+                else
+                {
+                    return;
+                }
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+
             foreach (Client client in Global.clients)
             {
+
+
                 try
                 {
                     if (client.IP == listClients.SelectedItem.ToString())
                     {
-                        listData.Items.Clear();
                         listData.Items.Add("index: " + client.Index);
                         listData.Items.Add("ip: " + client.IP);
                         break;
@@ -261,13 +305,30 @@ namespace ElecyServer
 
         private void listNetPlayers_SelectedIndexChanged(object sender, EventArgs e)
         {
-            foreach(NetPlayer player in Global.players)
+            try
+            {
+                if(listNetPlayers.SelectedItem != null)
+                {
+                    listData.Items.Clear();
+                    listGameRooms.ClearSelected();
+                    listClients.ClearSelected();
+                }
+                else
+                {
+                    return;
+                }
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+
+            foreach (NetPlayer player in Global.players)
             {
                 try
                 {
                     if (player.Nickname == listNetPlayers.SelectedItem.ToString())
                     {
-                        listData.Items.Clear();
                         listData.Items.Add("index: " + player.Index);
                         listData.Items.Add("roomIndex: " + player.RoomIndex);
                         listData.Items.Add("ip: " + player.IP);
@@ -293,13 +354,31 @@ namespace ElecyServer
 
         private void listGameRooms_SelectedIndexChanged(object sender, EventArgs e) // Edit!!!
         {
-            foreach(GameRoom room in Global.arena)
+            try
+            {
+                if(listGameRooms.SelectedItem != null)
+                {
+                    listData.Items.Clear();
+                    listClients.ClearSelected();
+                    listNetPlayers.ClearSelected();
+                }
+                else
+                {
+                    return;
+                }
+
+            }
+            catch (NullReferenceException)
+            {
+                return;
+            }
+
+            foreach (GameRoom room in Global.arena)
             {
                 try
                 {
                     if ((room.RoomIndex + "") == listGameRooms.SelectedItem.ToString())
                     {
-                        listData.Items.Clear();
                         listData.Items.Add("roomIndex: " + room.RoomIndex);
                         if (room.GetPlayer(1) != null)
                             listData.Items.Add("player1: " + room.GetPlayer(1).Nickname);

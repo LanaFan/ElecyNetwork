@@ -59,7 +59,7 @@ namespace ElecyServer
             buffer.Dispose();
             Global.arena[roomIndex].SpawnRock(ID);
         }
-        //Gets roomIndex
+
         private static void HandleRockSpawned(int ID, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();

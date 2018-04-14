@@ -119,7 +119,6 @@ namespace ElecyServer
                     {
                         Global.clients[i].SetVar(socket, socket.RemoteEndPoint.ToString(), i);
                         Global.clients[i].StartClient();
-                        Global.serverForm.AddClient(Global.clients[i].IP);
                         ServerSendData.SendClientConnetionOK(i);
                         return;
                     }
@@ -282,6 +281,7 @@ namespace ElecyServer
         public void StartClient()
         {
             _closing = false;
+            Global.serverForm.AddClient(IP);
             Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), Socket);
         }
 
@@ -376,6 +376,7 @@ namespace ElecyServer
             State = PlayerState.InMainLobby;
             Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), Socket);
         }
+
         #region States
 
         public void Searching(int roomIndex)
@@ -401,6 +402,7 @@ namespace ElecyServer
         }
 
         #endregion
+
         public void NetPlayerStop()
         {
             Stopped = true;
