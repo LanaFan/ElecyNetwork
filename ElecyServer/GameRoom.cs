@@ -249,10 +249,10 @@ namespace ElecyServer
 
         public void SetGameLoadData(int ID)
         {
-            //int[] scale = Global.data.GetMapScale(mapIndex);
-            //float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
-            int[] scale = new int[] { 5, 5 };
-            float[][] spawnPos = new float[][] { new float[] { 10f, 0.5f, 0 }, new float[] { -10f, 0.5f, 0 } };
+            int[] scale = Global.data.GetMapScale(mapIndex);
+            float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
+            //int[] scale = new int[] { 5, 5 };
+            //float[][] spawnPos = new float[][] { new float[] { 10f, 0.5f, 0 }, new float[] { -10f, 0.5f, 0 } };
             if (ID == 1)
             {
                 p1Loaded = true;
@@ -274,8 +274,8 @@ namespace ElecyServer
 
             if (p1Loaded && p2Loaded)
             {
-                //float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
-                float[][] spawnRot = new float[][] { new float[] { 0, 0,0,1 }, new float[] { 0, 0,0,1 } }; 
+                float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
+                //float[][] spawnRot = new float[][] { new float[] { 0, 0,0,1 }, new float[] { 0, 0,0,1 } }; 
                 p1Loaded = false;
                 p2Loaded = false;
                 Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstSpawnPointPos, secondSpawnPointPos);
