@@ -163,6 +163,10 @@ namespace ElecyServer
             return data;
         }
 
+        #endregion
+
+        #region Maps info
+
         public int[] GetMapScale(int mapIndex)
         {
             int[] scale = new int[2];
@@ -219,7 +223,7 @@ namespace ElecyServer
             spawnRot[1] = secondSpawnRot;
             return spawnRot;
         }
-        
+
         #endregion
     }
 }

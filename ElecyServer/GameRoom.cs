@@ -251,12 +251,11 @@ namespace ElecyServer
         {
             int[] scale = Global.data.GetMapScale(mapIndex);
             float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
-            //int[] scale = new int[] { 5, 5 };
-            //float[][] spawnPos = new float[][] { new float[] { 10f, 0.5f, 0 }, new float[] { -10f, 0.5f, 0 } };
+            float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
             if (ID == 1)
             {
                 p1Loaded = true;
-                SetTransform(ID, spawnPos[0], new float[] { 0, 0, 0, 1 });
+                SetTransform(ID, spawnPos[0], spawnRot[0]);
                 scaleX = scale[0] * 10f;
                 scaleZ = scale[1] * 10f;
                 firstSpawnPointPos = spawnPos[0];
@@ -265,7 +264,7 @@ namespace ElecyServer
             else
             {
                 p2Loaded = true;
-                SetTransform(ID, spawnPos[1], new float[] { 0, 0, 0, 1 });
+                SetTransform(ID, spawnPos[1], spawnRot[1]);
                 scaleX = scale[0] * 10f;
                 scaleZ = scale[1] * 10f;
                 firstSpawnPointPos = spawnPos[0];
@@ -274,8 +273,6 @@ namespace ElecyServer
 
             if (p1Loaded && p2Loaded)
             {
-                float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
-                //float[][] spawnRot = new float[][] { new float[] { 0, 0,0,1 }, new float[] { 0, 0,0,1 } }; 
                 p1Loaded = false;
                 p2Loaded = false;
                 Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstSpawnPointPos, secondSpawnPointPos);

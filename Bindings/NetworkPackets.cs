@@ -64,7 +64,6 @@
         RTransform = 16,
         RRockSpawned = 18,
         RTreesSpawned = 19,
-        RLoadProgress = 20,
         RInstantiate = 21,
         RSurrender = 24,
         RRoomLeave = 25,

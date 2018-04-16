@@ -18,7 +18,6 @@ namespace ElecyServer
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
                 {(int)RoomPackets.RTransform, HandleTransform },
-                {(int)RoomPackets.RLoadProgress, HandleLoadProgress },
                 {(int)RoomPackets.RInstantiate, HandleInstantiate},
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
@@ -56,7 +55,9 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
+            float loadProgress = buffer.ReadFloat();
             buffer.Dispose();
+            Global.arena[roomIndex].SetLoadProgress(ID, loadProgress);
             Global.arena[roomIndex].SpawnRock(ID);
         }
 
@@ -66,6 +67,9 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
+            float loadProgress = buffer.ReadFloat();
+            buffer.Dispose();
+            Global.arena[roomIndex].SetLoadProgress(ID, loadProgress);
             Global.arena[roomIndex].SpawnTree(ID);
         }
 
@@ -75,7 +79,9 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             int roomIndex = buffer.ReadInteger();
+            float loadProgress = buffer.ReadFloat();
             buffer.Dispose();
+            Global.arena[roomIndex].SetLoadProgress(ID, loadProgress);
             Global.arena[roomIndex].LoadComplete(ID);
         }
 
