@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Net;
 using Bindings;
+using System.Threading;
 
 namespace ElecyServer
 {
@@ -13,6 +14,7 @@ namespace ElecyServer
 
         private static Socket _serverSocket;
         private static byte[] _buffer;
+        private static Timer clientConnectTimer;
 
         public static void SetupServer()
         {
@@ -37,6 +39,7 @@ namespace ElecyServer
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
             _serverSocket.Listen(Constants.SERVER_LISTEN);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+            clientConnectTimer = new Timer(CheckClients, null, 0, 60000);
             Global.serverForm.Debug("Сервер запущен на Ip адресе " + ServerIP + " и порте " + Constants.PORT + ".");
         }
 
@@ -255,6 +258,14 @@ namespace ElecyServer
 
         #endregion
 
+        private static void CheckClients(object o)
+        {
+            for(int i = 1; i < Constants.MAX_CLIENTS; i++)
+            {
+                if (Global.clients[i].Socket != null)
+                    SendDataToClient(i, new byte[] { });
+            }
+        }
     }
 
     public class Client
@@ -288,7 +299,6 @@ namespace ElecyServer
         public void CloseClient()
         {
             _closing = true;
-            ServerSendData.SendClientExit(Index);
             Global.serverForm.Debug("Соединение от " + IP + " было разорвано.");
             Global.serverForm.RemoveClient(IP);
             Socket = null;
@@ -346,6 +356,7 @@ namespace ElecyServer
         public bool Stopped { get; private set; }
 
         private byte[] _buffer;
+        private Timer connectTimer;
 
         public enum PlayerState
         {
@@ -374,6 +385,7 @@ namespace ElecyServer
         public void StartPlayer()
         { 
             Stopped = false;
+            connectTimer = new Timer(CheckNetPlayer, null, 0, 5000);
             State = PlayerState.InMainLobby;
             Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), Socket);
         }
@@ -407,6 +419,11 @@ namespace ElecyServer
         public void NetPlayerStop()
         {
             Stopped = true;
+            try
+            {
+                connectTimer.Dispose();
+            }
+            catch { }
         }
 
         public void ClosePlayer()
@@ -414,8 +431,8 @@ namespace ElecyServer
             if (State == PlayerState.SearchingForMatch)
                 Global.arena[RoomIndex].DeletePlayer(Index);
             ServerSendData.SendGlChatMsg("Server", "Player " + Nickname + " disconnected");
+            Global.serverForm.Debug("Соединение от " + IP + " было разорвано.");
             Global.serverForm.RemoveNetPlayer(Nickname);
-            ServerSendData.SendPlayerExit(Index);
             Stopped = true;
             Socket = null;
         }
@@ -447,6 +464,11 @@ namespace ElecyServer
                     ClosePlayer();
                 }
             }
+        }
+
+        private void CheckNetPlayer(object o)
+        {
+            ServerTCP.SendDataToPlayer(Index, new byte[] { });
         }
 
     }

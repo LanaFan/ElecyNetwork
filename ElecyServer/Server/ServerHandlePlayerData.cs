@@ -19,7 +19,6 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
                 {(int)NetPlayerPackets.PStopPlayer, HandlePlayerStop },
                 {(int)NetPlayerPackets.PLogOut, HandlePlayerLogOut },
-                {(int)SystemPackets.SysExit, HandlePlayerExit },
             };
         }
 
@@ -73,11 +72,6 @@ namespace ElecyServer
         private static void HandlePlayerStop(int index, byte[] data)
         {
             Global.arena[Global.players[index].RoomIndex].StartReceive(index);
-        }
-
-        private static void HandlePlayerExit(int index, byte[] data)
-        {
-            Global.players[index].ClosePlayer();
         }
 
         private static void HandlePlayerLogOut(int index, byte[] data)

@@ -56,14 +56,14 @@ namespace ElecyServer
         {
             if (Status == RoomStatus.Empty)
             {
-                player1 = new Player(player.Socket, player.Index, player.Nickname, 1, 0f);
+                player1 = new Player(player.Socket, this, player.Index, player.Nickname, 1, 0f);
                 player.Searching(RoomIndex);
                 Status = RoomStatus.Searching;
                 Global.serverForm.AddGameRoom(RoomIndex + "");
             }
             else if (Status == RoomStatus.Searching)
             {
-                player2 = new Player(player.Socket, player.Index, player.Nickname, 2, 0f);
+                player2 = new Player(player.Socket, this, player.Index, player.Nickname, 2, 0f);
                 player.Searching(RoomIndex);
                 Status = RoomStatus.Closed;
                 ServerSendData.SendMatchFound(mapIndex, player1.Index, player2.Index, RoomIndex);
@@ -129,7 +129,7 @@ namespace ElecyServer
             {
                 Status = RoomStatus.MatchEnded;
                 StopTimer();
-                closeTimer = new Timer(AbortGameSession, null, 300000, Timeout.Infinite);
+                closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
                 if (ID == 1)
                 {
                     player1.PlayerClose();
@@ -158,6 +158,8 @@ namespace ElecyServer
             }
         }
 
+
+
         public void Surrended(int ID)
         {
             Status = RoomStatus.MatchEnded;
@@ -183,6 +185,10 @@ namespace ElecyServer
             {
                 Global.players[player2.Index].StartPlayer();
                 player2 = null;
+            }
+            if (player1 == null && player2 == null)
+            {
+                ClearRoom();
             }
         }
 
@@ -217,7 +223,7 @@ namespace ElecyServer
                 closeTimer.Dispose();
         }
 
-        private void AbortGameSession(Object o)
+        private void EndGameSession(Object o)
         {
             closeTimer.Dispose();
             if (player1 != null)
@@ -235,6 +241,7 @@ namespace ElecyServer
 
         private void ClearRoom()
         {
+            Global.serverForm.RemoveGameRoom(RoomIndex + "");
             player1 = player2 = null;
             Status = RoomStatus.Empty;
             ObjectsList = new GameObjectList();
@@ -383,23 +390,7 @@ namespace ElecyServer
 
     public class Player
     {
-
         #region Public Var
-
-        public Socket Socket
-        {
-            get { return _socket; }
-        }
-
-        public string Nickname
-        {
-            get { return _nickname; }
-        }
-
-        public int Index
-        {
-            get { return _index; }
-        }
 
         public float[][] Transform
         {
@@ -421,73 +412,75 @@ namespace ElecyServer
         #endregion
 
         #region Private Var
+        public string Nickname { get; private set; }
+        public int Index { get; private set; }
+        public Socket Socket { get; private set; }
+        public int ID { get; private set; }
+        public GameRoom Room { get; private set; }
 
-        private int _index;
         private float _load;
-        private int _ID;
-        private string _nickname;
         private float[] _position;
         private float[] _rotation;
-        private Socket _socket;
         private byte[] _buffer = new byte[Constants.BUFFER_SIZE];
         private bool _playing = false;
 
         #endregion
 
-        public Player(Socket socket, int index, string nickname, int ID, float load)
+        public Player(Socket socket, GameRoom room, int index, string nickname, int ID, float load)
         {
-            _socket = socket;
-            _index = index;
-            _nickname = nickname;
-            _ID = ID;
+            Socket = socket;
+            Index = index;
+            Nickname = nickname;
+            Room = room;
+            this.ID = ID;
             _load = load;
         }
 
         public void StartPlay()
         {
             _playing = true;
-            _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), _socket);
+            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), Socket);
         }
 
         private void PlayerReceiveCallBack(IAsyncResult ar)
         {
             try
             {
-                int received = _socket.EndReceive(ar);
+                int received = Socket.EndReceive(ar);
                 if (received <= 0)
                 {
-                    //Disconnect
+                    Global.serverForm.Debug("GamePlayer " + Nickname + " lost connection");
+                    Room.AbortGameSession(ID);
                 }
                 else
                 {
                     byte[] dataBuffer = new byte[received];
                     Array.Copy(_buffer, dataBuffer, received);
                     if (_playing)
-                        _socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), _socket);
+                        Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), Socket);
                     else
                         return;
-                    ServerHandleRoomData.HandleNetworkInformation(_ID, dataBuffer);
+                    ServerHandleRoomData.HandleNetworkInformation(ID, Room, dataBuffer);
 
                 }
             }
             catch
             {
-                Global.serverForm.Debug("GamePlayer Disconnected");
+                Global.serverForm.Debug("GamePlayer " + Nickname + " lost connection");
+                Room.AbortGameSession(ID);
             }
         }
 
         public void PlayerStop()
         {
             _playing = false;
-            //Send disconnect
         }
 
         public void PlayerClose()
         {
-            Global.players[_index].ClosePlayer();
+            Global.players[Index].ClosePlayer();
             PlayerStop();   
         }
-
 
     }
 

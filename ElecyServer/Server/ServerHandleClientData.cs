@@ -19,7 +19,6 @@ namespace ElecyServer
                 {(int)ClientPackets.CAlert, HandleAlert },
                 {(int)ClientPackets.CReconnectComplite, HandleClientReconnect },
                 {(int)ClientPackets.CClose, HandleClientClose },
-                {(int)SystemPackets.SysExit, HandleClientExit},
             };
         }
 
@@ -110,11 +109,6 @@ namespace ElecyServer
         private static void HandleClientReconnect(int index, byte[] data)
         {
             // Send to WF that client reconnected
-        }
-
-        private static void HandleClientExit(int index, byte[] data)
-        {
-            Global.clients[index].CloseClient();
         }
 
     }

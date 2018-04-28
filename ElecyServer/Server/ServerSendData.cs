@@ -27,7 +27,6 @@ namespace ElecyServer
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRegisterOK);
-            buffer.WriteString("Registration complite.");
             ServerTCP.SendDataToClient(index, buffer.ToArray());
             buffer.Dispose();
         }
@@ -48,14 +47,6 @@ namespace ElecyServer
             buffer.WriteInteger(accountdata[1][2]);
             buffer.WriteInteger(accountdata[1][3]);
             buffer.WriteInteger(accountdata[1][4]);
-            ServerTCP.SendDataToClient(index, buffer.ToArray());
-            buffer.Dispose();
-        }
-
-        public static void SendClientExit(int index)
-        {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteInteger((int)ServerPackets.SClientExit);
             ServerTCP.SendDataToClient(index, buffer.ToArray());
             buffer.Dispose();
         }
@@ -116,14 +107,6 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SAlert);
             buffer.WriteString(alert);
-            ServerTCP.SendDataToPlayer(index, buffer.ToArray());
-            buffer.Dispose();
-        }
-
-        public static void SendPlayerExit(int index)
-        { 
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteInteger((int)ServerPackets.SNetPlayerExit);
             ServerTCP.SendDataToPlayer(index, buffer.ToArray());
             buffer.Dispose();
         }
@@ -249,15 +232,6 @@ namespace ElecyServer
             buffer.WriteFloat(loadProgress);
             ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
             buffer.Dispose();
-        }
-
-        public static void SendRoomExit(int ID, int roomIndex)
-        {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteInteger((int)ServerPackets.SPlayerExit);
-            ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
-            buffer.Dispose();
-
         }
 
         public static void SendRoomLogOut(int ID, int roomIndex)
