@@ -75,6 +75,11 @@ namespace ElecyServer
             if (!Closed)
             {
                 Closed = true;
+                try
+                {
+                    clientConnectTimer.Dispose();
+                }
+                catch { }
                 for (int i = 0; i < Constants.ARENA_SIZE; i++)
                 {
                     Global.arena[i].CloseRoom();
@@ -433,7 +438,7 @@ namespace ElecyServer
             ServerSendData.SendGlChatMsg("Server", "Player " + Nickname + " disconnected");
             Global.serverForm.Debug("Соединение от " + IP + " было разорвано.");
             Global.serverForm.RemoveNetPlayer(Nickname);
-            Stopped = true;
+            NetPlayerStop();
             Socket = null;
         }
 
