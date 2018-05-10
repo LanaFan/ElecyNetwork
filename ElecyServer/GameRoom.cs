@@ -132,11 +132,13 @@ namespace ElecyServer
                 closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
                 if (ID == 1)
                 {
+                    player1.PlayerClose();
                     player1 = null;
                     ServerSendData.SendMatchEnded(2, RoomIndex, player2.Nickname);
                 }
                 else
                 {
+                    player2.PlayerClose();
                     player2 = null;
                     ServerSendData.SendMatchEnded(1, RoomIndex, player1.Nickname);
                 }
@@ -145,10 +147,12 @@ namespace ElecyServer
             {
                 if (ID == 1)
                 {
+                    player1.PlayerClose();
                     player1 = null;
                 }
                 else
                 {
+                    player2.PlayerClose();
                     player2 = null;
                 }
             }
