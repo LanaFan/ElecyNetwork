@@ -16,7 +16,7 @@
 
         public const int ARENA_SIZE = 60;
 
-        public const int UPDATE_RATE = 40;
+        public const int UPDATE_RATE = 25;
 
         public const int MAPS_COUNT = 1;
     }
