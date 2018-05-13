@@ -8,6 +8,7 @@ namespace ElecyServer
     {
         delegate void StringArgReturningVoidDelegate(string text);
         Point lastPoint;
+        string _alert;
 
         public Server()
         {
@@ -122,6 +123,7 @@ namespace ElecyServer
             }
             else
             {
+                _alert = msg;
                 textBoxDebug.AppendText(msg + "\n");
             }
 
@@ -130,6 +132,7 @@ namespace ElecyServer
         public void ShowChatMsg(string nickname, string msg)
         {
             ShowChatMsg(nickname + ": " + msg);
+
         }
 
         private void ShowChatMsg(string text)
@@ -141,7 +144,16 @@ namespace ElecyServer
             }
             else
             {
-                txtBoxChat.AppendText(text + "\n");
+                if(txtBoxChat.TextLength != 0)
+                {
+                    txtBoxChat.AppendText("\n" + text);
+                    txtBoxChat.ScrollToCaret();
+                }
+                else
+                {
+                    txtBoxChat.AppendText(text);
+                    txtBoxChat.ScrollToCaret();
+                }
             }
         }
 
@@ -168,6 +180,7 @@ namespace ElecyServer
             ServerTCP.SetupServer();
             lblID.Show();
             lblID.Text = "Server ip: " + ServerTCP.ServerIP;
+            ptrYellow.Hide();
             ptrRed.Hide();
             ptrGreen.Show();
         }
@@ -176,6 +189,7 @@ namespace ElecyServer
         {
             ServerTCP.ServerClose();
             lblID.Hide();
+            ptrYellow.Hide();
             ptrGreen.Hide();
             ptrRed.Show();
             listClients.Items.Clear();
@@ -205,6 +219,7 @@ namespace ElecyServer
             if (!ServerTCP.Closed)
             {
                 StopServer();
+                ptrYellow.Show();
                 StartServer();
                 Debug("Server has been refreshed");
             }
@@ -391,7 +406,23 @@ namespace ElecyServer
             }
         }
 
+        private void btnMinimize_Click(object sender, EventArgs e)
+        {
+
+            WindowState = FormWindowState.Minimized;
+        }
+
+        private void btnCopy_Click(object sender, EventArgs e)
+        {
+            if (textBoxDebug.SelectedText != String.Empty)
+                Clipboard.SetData(DataFormats.Text, textBoxDebug.SelectedText);
+            else if (_alert != String.Empty)
+                Clipboard.SetData(DataFormats.Text, _alert);
+        }
+
         #endregion
+
+
     }
         
 }

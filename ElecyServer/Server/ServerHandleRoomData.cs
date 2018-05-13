@@ -17,7 +17,7 @@ namespace ElecyServer
                 {(int)RoomPackets.RPlayerSpawned, HandlePlayerSpawn },
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
-                {(int)RoomPackets.RTransform, HandleTransform },
+                {(int)RoomPackets.RPlayerUpdate, HandlePlayerUpdate },
                 {(int)RoomPackets.RInstantiate, HandleInstantiate},
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
@@ -82,13 +82,15 @@ namespace ElecyServer
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
-            buffer.ReadInteger();
-            
+            int spell_index = buffer.ReadInteger();
+            float[] pos = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() };
+            float[] rot = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() };
             buffer.Dispose();
-
+            int object_index = Room.DynamicObjectsList.Add(spell_index, pos, rot, ID);
+            ServerSendData.SendInstantiate(Room, spell_index, object_index, pos, rot, ID);
         }
 
-        private static void HandleTransform(int ID, GameRoom Room, byte[] data)
+        private static void HandlePlayerUpdate(int ID, GameRoom Room, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
@@ -125,14 +127,11 @@ namespace ElecyServer
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.ReadInteger();
-            Room.DynamicObjectsList.Add(
-                                        buffer.ReadInteger(),
+            Room.DynamicObjectsList[buffer.ReadInteger()].Update(
                                         new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() },
-                                        new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() },
-                                        ID
-                                        );
+                                        new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() }
+                                        ); 
             buffer.Dispose();
-
         }
 
     }

@@ -14,16 +14,15 @@
         SLoadStarted = 9,
         SRockSpawn = 10,
         SRoomStart = 11,
-        STransform = 12,
+        SPlayerUpdate = 12,
         STreeSpawn = 13,
         SEnemyLoadProgress = 14,
-        SInstantiate = 15,
-        SDynamicObjUpdate = 16,
-        SPlayerUpdate = 17,
-        SDestroy = 18,
-        SNetPlayerLogOut = 19,
-        SPlayerLogOut = 20,
-        SMatchResult = 21,
+        SInstantiate = 15, //Write
+        SDynamicObjUpdate = 16, // Write
+        SDestroy = 17,
+        SNetPlayerLogOut = 18,
+        SPlayerLogOut = 19,
+        SMatchResult = 20,
     }
 
 
@@ -56,7 +55,7 @@
         RConnectionComplite = 13,
         RPlayerSpawned = 14,
         RLoadComplite = 15,
-        RTransform = 16,
+        RPlayerUpdate = 16,
         RRockSpawned = 18,
         RTreesSpawned = 19,
         RStaticObjUpdate = 20,
@@ -64,7 +63,6 @@
         RSurrender = 24,
         RRoomLeave = 25,
         RDynamicObjUpdate = 26,
-        RPlayerUpdate = 27,
-        RDestroy = 28,
+        RDestroy = 27,
     }
 }
