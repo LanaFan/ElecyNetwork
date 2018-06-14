@@ -3,53 +3,48 @@ using System.Collections.Generic;
 
 namespace ElecyServer
 {
-    public class StaticList
+    public class GameObjectList
     {
-        StaticGameObject[] objects;
-        Dictionary<StaticGameObject.ObjectType, int[]> ranges;
+        NetworkGameObject[] objects;
+        Dictionary<NetworkGameObject.ObjectType, int[]> ranges;
         public int Length { get; private set; }
         public int Offset { get; private set; }
 
-        public StaticList()
+        public GameObjectList()
         {
             Length = 100;
-            objects = new StaticGameObject[Length];
-            ranges = new Dictionary<StaticGameObject.ObjectType, int[]>();
+            objects = new NetworkGameObject[Length];
+            ranges = new Dictionary<NetworkGameObject.ObjectType, int[]>();
             Offset = 0;
         }
 
-        public void Add(StaticGameObject.ObjectType type, int roomIndex)
+        public void Add(NetworkGameObject.ObjectType type, int roomIndex)
         {
             int number = Offset +  ArenaRandomGenerator.NumberOfObjects(type);
             ranges.Add(type, new int[] { Offset, number - 1 });
             while(Offset < number)
             {
-                objects[Offset] = new StaticGameObject(Offset, type, roomIndex);
+                objects[Offset] = new NetworkGameObject(Offset, type, roomIndex);
                 CheckLength();
                 Offset++;
             }
         }
 
-        public StaticGameObject this[int index]
+        public NetworkGameObject Get(int index)
         {
-            get
-            {
-                return objects[index];
-            }
+            return objects[index];
         }
 
-        public int[] GetRange(StaticGameObject.ObjectType type)
+        public int[] GetRange(NetworkGameObject.ObjectType type)
         {
             return ranges[type];
         }
 
-
-
         public void Clear()
         {
             Length = 100;
-            objects = new StaticGameObject[Length];
-            ranges = new Dictionary<StaticGameObject.ObjectType, int[]>();
+            objects = new NetworkGameObject[Length];
+            ranges = new Dictionary<NetworkGameObject.ObjectType, int[]>();
             Offset = 0;
         }
 
@@ -57,18 +52,17 @@ namespace ElecyServer
         {
             if(Offset + 10 >= Length)
             {
-                StaticGameObject[] oldObjects = objects;
+                NetworkGameObject[] oldObjects = objects;
                 Length *= 2;
-                objects = new StaticGameObject[Length];
+                objects = new NetworkGameObject[Length];
                 oldObjects.CopyTo(objects, 0);
             }
         }
     }
 
-    public class StaticGameObject
+    public class NetworkGameObject
     {
         public int Index { get; private set; }
-        public int[] effects;
         public float[] Position { get; private set; }
         public float[] Rotation { get; private set; }
         public bool IsDestroyed { get; private set; }
@@ -84,20 +78,13 @@ namespace ElecyServer
             spell = 3,
         }
 
-        public StaticGameObject(int index, ObjectType type, int roomIndex)
+        public NetworkGameObject(int index, ObjectType type, int roomIndex)
         {
             Index = index;
             Type = type;
             RoomIndex = roomIndex;
-            effects = new int[] { 0, 0 };
             SetTransform();
             SetHP();
-        }
-
-        public void UpdateGameObjects(int hp, int[] effects)
-        {
-            HP = hp;
-            this.effects = effects;
         }
 
         private void SetTransform()

@@ -8,8 +8,7 @@ namespace ElecyServer
 
     public class GameRoom
     {
-        public StaticList StaticObjectsList { get; private set; }
-        public DynamicList DynamicObjectsList { get; private set; }
+        public GameObjectList ObjectsList { get; private set; }
         public int RoomIndex { get; private set; }
         public ArenaRandomGenerator Spawner { get; private set; }
         public RoomStatus Status { get; private set; }
@@ -19,8 +18,6 @@ namespace ElecyServer
         private Player player2;
         private Timer timer;
         private Timer closeTimer;
-        private Timer dynamicObjectsTimer; // Write it bro
-        private Timer staticObjectsTimer;  // And this also, i know you can
         private bool p1Loaded;
         private bool p2Loaded;
         private float scaleX;
@@ -47,8 +44,7 @@ namespace ElecyServer
         {
             RoomIndex = roomIndex;
             Status = RoomStatus.Empty;
-            StaticObjectsList = new StaticList();
-            DynamicObjectsList = new DynamicList();
+            ObjectsList = new GameObjectList();
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
             _rockRandomed = false;
             _treeRandomed = false;
@@ -136,11 +132,13 @@ namespace ElecyServer
                 closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
                 if (ID == 1)
                 {
+                    player1.PlayerClose();
                     player1 = null;
                     ServerSendData.SendMatchEnded(2, RoomIndex, player2.Nickname);
                 }
                 else
                 {
+                    player2.PlayerClose();
                     player2 = null;
                     ServerSendData.SendMatchEnded(1, RoomIndex, player1.Nickname);
                 }
@@ -149,14 +147,18 @@ namespace ElecyServer
             {
                 if (ID == 1)
                 {
+                    player1.PlayerClose();
                     player1 = null;
                 }
                 else
                 {
+                    player2.PlayerClose();
                     player2 = null;
                 }
             }
         }
+
+
 
         public void Surrended(int ID)
         {
@@ -240,11 +242,9 @@ namespace ElecyServer
         private void ClearRoom()
         {
             Global.serverForm.RemoveGameRoom(RoomIndex + "");
-            StopTimers();
             player1 = player2 = null;
             Status = RoomStatus.Empty;
-            StaticObjectsList = new StaticList();
-            DynamicObjectsList = new DynamicList();
+            ObjectsList = new GameObjectList();
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
             _rockRandomed = false;
             _treeRandomed = false;
@@ -293,10 +293,10 @@ namespace ElecyServer
             if(!_treeRandomed)
             {
                 _treeRandomed = true;
-                StaticObjectsList.Add(StaticGameObject.ObjectType.tree, RoomIndex);
+                ObjectsList.Add(NetworkGameObject.ObjectType.tree, RoomIndex);
             }
 
-            ServerSendData.SendTreeSpawned(ID, RoomIndex, StaticObjectsList.GetRange(StaticGameObject.ObjectType.tree));
+            ServerSendData.SendTreeSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.tree));
         }
 
         public void SpawnRock(int ID)
@@ -304,10 +304,10 @@ namespace ElecyServer
             if(!_rockRandomed)
             {
                 _rockRandomed = true;
-                StaticObjectsList.Add(StaticGameObject.ObjectType.rock, RoomIndex);
+                ObjectsList.Add(NetworkGameObject.ObjectType.rock, RoomIndex);
             }
 
-            ServerSendData.SendRockSpawned(ID, RoomIndex, StaticObjectsList.GetRange(StaticGameObject.ObjectType.rock));
+            ServerSendData.SendRockSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
         }
 
         public void LoadComplete(int ID)

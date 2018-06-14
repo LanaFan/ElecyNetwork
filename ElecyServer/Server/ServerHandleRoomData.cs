@@ -21,8 +21,6 @@ namespace ElecyServer
                 {(int)RoomPackets.RInstantiate, HandleInstantiate},
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
-                {(int)RoomPackets.RStaticObjUpdate, HandleStaticObjectUpdate },
-                {(int)RoomPackets.RDynamicObjUpdate, HandleDynamicObjectUpdate }
             };
         }
 
@@ -80,12 +78,23 @@ namespace ElecyServer
 
         private static void HandleInstantiate(int ID, GameRoom Room, byte[] data)
         {
+            float[] pos = new float[3];
+            float[] rot = new float[4];
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
-            
+            int objId = buffer.ReadInteger();
+            int instanseType = buffer.ReadInteger();
+            string objectReference = buffer.ReadString();
+            pos[0] = buffer.ReadFloat();
+            pos[1] = buffer.ReadFloat();
+            pos[2] = buffer.ReadFloat();
+            rot[0] = buffer.ReadFloat();
+            rot[1] = buffer.ReadFloat();
+            rot[2] = buffer.ReadFloat();
+            rot[3] = buffer.ReadFloat();
             buffer.Dispose();
-
+            //adding the object to array for start to observe
         }
 
         private static void HandleTransform(int ID, GameRoom Room, byte[] data)
@@ -108,31 +117,6 @@ namespace ElecyServer
         {
             ServerSendData.SendRoomLogOut(ID, Room.RoomIndex);
             Room.BackToNetPlayer(ID);
-        }
-
-        private static void HandleStaticObjectUpdate(int ID, GameRoom Room, byte[] data)
-        {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.ReadInteger();
-            Room.StaticObjectsList[buffer.ReadInteger()].UpdateGameObjects(
-                                                                           buffer.ReadInteger(),
-                                                                           new int[] { buffer.ReadInteger(), buffer.ReadInteger() }
-                                                                           );
-            buffer.Dispose();
-        }
-
-        private static void HandleDynamicObjectUpdate(int ID, GameRoom Room, byte[] data)
-        {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.ReadInteger();
-            Room.DynamicObjectsList.Add(
-                                        buffer.ReadInteger(),
-                                        new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() },
-                                        new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat() },
-                                        ID
-                                        );
-            buffer.Dispose();
-
         }
 
     }

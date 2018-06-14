@@ -21,20 +21,20 @@ namespace ElecyServer
             spaces.Add(new Space(player2Pos[0], player2Pos[1], 0));
         }
 
-        public static int NumberOfObjects(StaticGameObject.ObjectType type)
+        public static int NumberOfObjects(NetworkGameObject.ObjectType type)
         {
             Random rnd = new Random();
             switch (type)
             {
-                case StaticGameObject.ObjectType.rock:
+                case NetworkGameObject.ObjectType.rock:
                     return rnd.Next(15, 25);
-                case StaticGameObject.ObjectType.tree:
+                case NetworkGameObject.ObjectType.tree:
                     return rnd.Next(15, 20);
             }
             return 0;
         }
 
-        public float[] RandomPosition(StaticGameObject.ObjectType type)
+        public float[] RandomPosition(NetworkGameObject.ObjectType type)
         {
             float[] pos = new float[2];
             bool randomed = true;
@@ -90,9 +90,9 @@ namespace ElecyServer
 
         private float posX;
         private float posZ;
-        private StaticGameObject.ObjectType type;
+        private NetworkGameObject.ObjectType type;
 
-        public Space(float posX, float posZ, StaticGameObject.ObjectType type)
+        public Space(float posX, float posZ, NetworkGameObject.ObjectType type)
         {
             this.posX = posX;
             this.posZ = posZ;
@@ -104,19 +104,19 @@ namespace ElecyServer
         {
             switch (type)
             {
-                case StaticGameObject.ObjectType.unsigned:
+                case NetworkGameObject.ObjectType.unsigned:
                     xFrom = posX - 10f;
                     zFrom = posZ - 10f;
                     xTo = posX + 10f;
                     zTo = posZ + 10f;
                     break;
-                case StaticGameObject.ObjectType.rock:
+                case NetworkGameObject.ObjectType.rock:
                     xFrom = posX - 5f;
                     zFrom = posZ - 5f;
                     xTo = posX + 5f;
                     zTo = posZ + 5f;
                     break;
-                case StaticGameObject.ObjectType.tree:
+                case NetworkGameObject.ObjectType.tree:
                     xFrom = posX - 7f;
                     zFrom = posZ - 7f;
                     xTo = posX + 7f;
