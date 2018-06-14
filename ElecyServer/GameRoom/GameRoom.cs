@@ -48,7 +48,7 @@ namespace ElecyServer
             RoomIndex = roomIndex;
             Status = RoomStatus.Empty;
             StaticObjectsList = new StaticList();
-            DynamicObjectsList = new DynamicList(roomIndex);
+            DynamicObjectsList = new DynamicList();
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
             _rockRandomed = false;
             _treeRandomed = false;
@@ -97,8 +97,6 @@ namespace ElecyServer
         public void StartGame()
         {
             timer = new Timer(SendTransform, null, 0, 1000/Constants.UPDATE_RATE);
-            dynamicObjectsTimer = new Timer(UpdateDynamicObjects, null, 0, 1000 / Constants.UPDATE_RATE);
-            staticObjectsTimer = new Timer(UpdateStaticObjects, null, 0, 1000 / (Constants.UPDATE_RATE / 5));
         }
 
         public void GameRoomInstatiate(int objectID, int instanceType, string objectPath, float[] pos, float[] rot)
@@ -215,6 +213,14 @@ namespace ElecyServer
             ServerSendData.SendTransform(2, RoomIndex, p1transform[0], p1transform[1]);
         }
 
+        private void StopTimers()
+        {
+            if (timer != null)
+                timer.Dispose();
+            if (closeTimer != null)
+                closeTimer.Dispose();
+        }
+
         private void EndGameSession(Object o)
         {
             closeTimer.Dispose();
@@ -231,31 +237,6 @@ namespace ElecyServer
             ClearRoom();
         }
 
-        private void UpdateDynamicObjects(Object o)
-        {
-            //And continue here
-        }
-
-        private void UpdateStaticObjects(Object o)
-        {
-            foreach(StaticGameObject s_object in StaticObjectsList)
-            {
-                //Start here
-            }
-        }
-
-        private void StopTimers()
-        {
-            if (timer != null)
-                timer.Dispose();
-            if (closeTimer != null)
-                closeTimer.Dispose();
-            if (dynamicObjectsTimer != null)
-                dynamicObjectsTimer.Dispose();
-            if (staticObjectsTimer != null)
-                staticObjectsTimer.Dispose();
-        }
-
         private void ClearRoom()
         {
             Global.serverForm.RemoveGameRoom(RoomIndex + "");
@@ -263,7 +244,7 @@ namespace ElecyServer
             player1 = player2 = null;
             Status = RoomStatus.Empty;
             StaticObjectsList = new StaticList();
-            DynamicObjectsList = new DynamicList(RoomIndex);
+            DynamicObjectsList = new DynamicList();
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
             _rockRandomed = false;
             _treeRandomed = false;

@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections;
 
 namespace ElecyServer
 {
-    public class StaticList : IEnumerable
+    public class StaticList
     {
         StaticGameObject[] objects;
         Dictionary<StaticGameObject.ObjectType, int[]> ranges;
@@ -44,6 +43,8 @@ namespace ElecyServer
             return ranges[type];
         }
 
+
+
         public void Clear()
         {
             Length = 100;
@@ -62,21 +63,6 @@ namespace ElecyServer
                 oldObjects.CopyTo(objects, 0);
             }
         }
-
-        #region IEnumeration
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public StaticEnum GetEnumerator()
-        {
-            return new StaticEnum(objects);
-        }
-
-        #endregion
-
     }
 
     public class StaticGameObject
@@ -87,8 +73,8 @@ namespace ElecyServer
         public float[] Rotation { get; private set; }
         public bool IsDestroyed { get; private set; }
         public int HP { get; private set; }
-        public int RoomIndex { get; private set; }
-        public ObjectType Type { get; private set; }
+        public int RoomIndex { get; private set; } // use 
+        public ObjectType Type { get; private set; } // use
 
         public enum ObjectType
         {
@@ -97,7 +83,7 @@ namespace ElecyServer
             rock = 2,
             spell = 3,
         }
-        
+
         public StaticGameObject(int index, ObjectType type, int roomIndex)
         {
             Index = index;
@@ -145,53 +131,4 @@ namespace ElecyServer
         }
 
     }
-
-    public class StaticEnum : IEnumerator
-    {
-
-        public StaticGameObject[] objects;
-
-        int position = -1;
-
-        public StaticEnum(StaticGameObject[] list)
-        {
-            objects = list;
-        }
-
-        public bool MoveNext()
-        {
-            position++;
-            return (position < objects.Length);
-        }
-
-        public void Reset()
-        {
-            position = -1;
-        }
-
-        object IEnumerator.Current
-        {
-            get
-            {
-                return Current;
-            }
-        }
-
-        public StaticGameObject Current
-        {
-            get
-            {
-                try
-                {
-                    return objects[position];
-                }
-                catch (IndexOutOfRangeException e)
-                {
-                    Global.serverForm.Debug("Alert in StaticList: \n" + e.Message);
-                    return null; // don't forget to check
-                }
-            }
-        }
-    }
-
 }
