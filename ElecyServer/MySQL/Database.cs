@@ -22,6 +22,7 @@ namespace ElecyServer
                     DB_RS.Close();
                     return true;
                 }
+                DB_RS.
                 
             }
         }
