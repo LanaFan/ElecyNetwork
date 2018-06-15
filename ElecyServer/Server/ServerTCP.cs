@@ -3,6 +3,8 @@ using System.Net.Sockets;
 using System.Net;
 using Bindings;
 using System.Threading;
+using System.Net.NetworkInformation;
+using System.Text.RegularExpressions;
 
 namespace ElecyServer
 {
@@ -59,15 +61,24 @@ namespace ElecyServer
 
         public static string GetLocalIPAddress()
         {
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
+            //var host = Dns.GetHostEntry(Dns.GetHostName());
+            //foreach (var ip in host.AddressList)
+            //{
+            //    if (ip.AddressFamily == AddressFamily.InterNetwork)
+            //    {
+            //        return ip.ToString();
+            //    }
+            //}
+            //throw new Exception("No network adapters with an IPv4 address in the system!");
+            try
             {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    return ip.ToString();
-                }
+                string externalIP;
+                externalIP = (new WebClient()).DownloadString("http://checkip.dyndns.org/");
+                externalIP = (new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"))
+                             .Matches(externalIP)[0].ToString();
+                return externalIP;
             }
-            throw new Exception("No network adapters with an IPv4 address in the system!");
+            catch { return ""; }
         }
 
         public static void ServerClose()
