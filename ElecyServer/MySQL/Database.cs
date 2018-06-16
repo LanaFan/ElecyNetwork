@@ -13,7 +13,7 @@ namespace ElecyServer
             if(list.Count != 0)
             {
                 if (list[0].ThreadState != ThreadState.Running)
-                    list[0].Start();
+                    list[0].Interrupt();
                 else
                 {
                     list.RemoveAt(0);
@@ -51,7 +51,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 return LoginExist(username);
             }
         }
@@ -80,7 +80,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 return NicknameExist(nickname);
             }
         }
@@ -109,7 +109,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 return PasswordIsOkay(username, password);
             }
         }
@@ -130,7 +130,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 return GetAccountNickname(username);
             }
         }
@@ -155,7 +155,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 AddAccount(username, password, nickname);
             }
         }
@@ -193,7 +193,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 accountsParametersTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 SetAccountData(nickname);
             }
         }
@@ -224,7 +224,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 accountsParametersTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 SetAccountData(nickname, levels, ranks);
             }
         }
@@ -260,7 +260,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 accountsParametersTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 return GetAccountData(nickname);
             }
         }
@@ -289,7 +289,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 mapsInfoTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 return GetMapScale(mapIndex);
             }
         }
@@ -320,7 +320,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 mapsInfoTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 return GetSpawnPos(mapIndex);
             }
         }
@@ -353,7 +353,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 mapsInfoTable.Add(Thread.CurrentThread);
-                Thread.Sleep(TimeSpan.MaxValue);
+                Thread.Sleep(Timeout.Infinite);
                 return GetSpawnRot(mapIndex);
             }
         }
