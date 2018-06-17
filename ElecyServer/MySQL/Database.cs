@@ -9,34 +9,22 @@ namespace ElecyServer
     class Database
     {
 
-        private void CheckQueue(System.Collections.Queue queue)
+        private void CheckQueue(List<object> list)
         {
-            //if(list.Count != 0)
-            //{
-            //    if (list[0].ThreadState != ThreadState.Running)
-            //        list[0].Interrupt();
-            //    else
-            //    {
-            //        list.RemoveAt(0);
-            //        CheckQueue(list);
-            //    }
-            //    list.RemoveAt(0);
-            //}
-
             if (list.Count != 0)
             {
                 lock (list[0])
                 {
                     Monitor.Pulse(list[0]);
                 }
+                list.RemoveAt(0);
             }
 
         }
 
         #region Accounts
 
-        //List<Thread> accountsTable = new List<Thread>();
-        static List<object> accountsTables = new List<object>();
+        static List<object> accountsTable = new List<object>();
 
         public bool LoginExist(string username)
         {
@@ -48,23 +36,25 @@ namespace ElecyServer
                     if (DB_RS.EOF)
                     {
                         DB_RS.Close();
-                        //CheckQueue(accountsTables);
-                        return true;
+                        CheckQueue(accountsTable);
+                        return false;
                     }
                     else
                     {
                         DB_RS.Close();
-                        //CheckQueue(accountsTables);
-                        return false;
+                        CheckQueue(accountsTable);
+                        return true;
                     }
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                //accountsTable.Add(Thread.CurrentThread);
-                accountsTables.Add(new object());
-                Monitor.Wait(accountsTables[0]);
-                //Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                accountsTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 return LoginExist(username);
             }
         }
@@ -79,21 +69,25 @@ namespace ElecyServer
                     if (DB_RS.EOF)
                     {
                         DB_RS.Close();
-                        //CheckQueue(accountsTable);
+                        CheckQueue(accountsTable);
                         return false;
                     }
                     else
                     {
                         DB_RS.Close();
-                        //CheckQueue(accountsTable);
+                        CheckQueue(accountsTable);
                         return true;
                     }
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                //accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                accountsTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 return NicknameExist(nickname);
             }
         }
@@ -108,21 +102,25 @@ namespace ElecyServer
                     if (DB_RS.EOF)
                     {
                         DB_RS.Close();
-                        //CheckQueue(accountsTable);
+                        CheckQueue(accountsTable);
                         return false;
                     }
                     else
                     {
                         DB_RS.Close();
-                        //CheckQueue(accountsTable);
+                        CheckQueue(accountsTable);
                         return true;
                     }
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                //accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                accountsTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 return PasswordIsOkay(username, password);
             }
         }
@@ -136,14 +134,18 @@ namespace ElecyServer
                     DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
                     string nickname = DB_RS.Fields["Nickname"].Value.ToString();
                     DB_RS.Close();
-                    //CheckQueue(accountsTable);
+                    CheckQueue(accountsTable);
                     return nickname;
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                //accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                accountsTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 return GetAccountNickname(username);
             }
         }
@@ -161,14 +163,18 @@ namespace ElecyServer
                     DB_RS.Fields["Nickname"].Value = nickname;
                     DB_RS.Update();
                     DB_RS.Close();
-                    //CheckQueue(accountsTable);
+                    CheckQueue(accountsTable);
                 }
                 SetAccountData(nickname);
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                //accountsTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                accountsTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 AddAccount(username, password, nickname);
             }
         }
@@ -177,7 +183,7 @@ namespace ElecyServer
 
         #region Accounts Parameters
 
-        List<Thread> accountsParametersTable = new List<Thread>();
+        List<object> accountsParametersTable = new List<object>();
 
         private void SetAccountData(string nickname)
         {
@@ -200,13 +206,17 @@ namespace ElecyServer
                     DB_RS.Fields["PrimusRank"].Value = 0;
                     DB_RS.Update();
                     DB_RS.Close();
-                    //CheckQueue(accountsParametersTable);
+                    CheckQueue(accountsParametersTable);
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                accountsParametersTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                accountsParametersTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 SetAccountData(nickname);
             }
         }
@@ -231,13 +241,17 @@ namespace ElecyServer
                     DB_RS.Fields["PrimusRank"].Value = ranks[5];
                     DB_RS.Update();
                     DB_RS.Close();
-                    //CheckQueue(accountsParametersTable);
+                    CheckQueue(accountsParametersTable);
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                accountsParametersTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                accountsParametersTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 SetAccountData(nickname, levels, ranks);
             }
         }
@@ -263,7 +277,7 @@ namespace ElecyServer
                     ranks[3] = Convert.ToInt32(DB_RS.Fields["AquaRank"].Value);
                     ranks[4] = Convert.ToInt32(DB_RS.Fields["PrimusRank"].Value);
                     DB_RS.Close();
-                    //CheckQueue(accountsParametersTable);
+                    CheckQueue(accountsParametersTable);
                 }
                 data[0] = levels;
                 data[1] = ranks;
@@ -272,8 +286,12 @@ namespace ElecyServer
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                accountsParametersTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                accountsParametersTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 return GetAccountData(nickname);
             }
         }
@@ -295,17 +313,17 @@ namespace ElecyServer
                     scale[0] = Convert.ToInt32(DB_RS.Fields["MapLenght"].Value);
                     scale[1] = Convert.ToInt32(DB_RS.Fields["MapWidth"].Value);
                     DB_RS.Close();
-                    //CheckQueue(mapsInfoTable);
+                    CheckQueue(mapsInfoTable);
                 }
                 return scale;
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                mapsInfoTable.Add(new object());
-                //Thread.Sleep(Timeout.Infinite);
-                lock (mapsInfoTable[0])
+                object o = new object();
+                mapsInfoTable.Add(o);
+                lock (o)
                 {
-                    Monitor.Wait(mapsInfoTable[0]);
+                    Monitor.Wait(o);
                 }
                 return GetMapScale(mapIndex);
             }
@@ -328,7 +346,7 @@ namespace ElecyServer
                     secondSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointY"].Value);
                     secondSpawnPos[2] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointZ"].Value);
                     DB_RS.Close();
-                    //CheckQueue(mapsInfoTable);
+                    CheckQueue(mapsInfoTable);
                 }
                 spawnPos[0] = firstSpawnPos;
                 spawnPos[1] = secondSpawnPos;
@@ -336,8 +354,12 @@ namespace ElecyServer
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                mapsInfoTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                mapsInfoTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 return GetSpawnPos(mapIndex);
             }
         }
@@ -361,7 +383,7 @@ namespace ElecyServer
                     secondSpawnRot[2] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotZ"].Value);
                     secondSpawnRot[3] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotW"].Value);
                     DB_RS.Close();
-                    //CheckQueue(mapsInfoTable);
+                    CheckQueue(mapsInfoTable);
                 }
                 spawnRot[0] = firstSpawnRot;
                 spawnRot[1] = secondSpawnRot;
@@ -369,8 +391,12 @@ namespace ElecyServer
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                mapsInfoTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                object o = new object();
+                mapsInfoTable.Add(o);
+                lock (o)
+                {
+                    Monitor.Wait(o);
+                }
                 return GetSpawnRot(mapIndex);
             }
         }
