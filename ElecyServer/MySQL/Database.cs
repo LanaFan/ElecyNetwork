@@ -9,7 +9,7 @@ namespace ElecyServer
     class Database
     {
 
-        private void CheckQueue(List<object> list)
+        private void CheckQueue(System.Collections.Queue queue)
         {
             //if(list.Count != 0)
             //{
@@ -22,10 +22,15 @@ namespace ElecyServer
             //    }
             //    list.RemoveAt(0);
             //}
-            if(list.Count != 0)
+
+            if (list.Count != 0)
             {
-                Monitor.Pulse(list[0]);
+                lock (list[0])
+                {
+                    Monitor.Pulse(list[0]);
+                }
             }
+
         }
 
         #region Accounts
@@ -43,13 +48,13 @@ namespace ElecyServer
                     if (DB_RS.EOF)
                     {
                         DB_RS.Close();
-                        CheckQueue(accountsTables);
+                        //CheckQueue(accountsTables);
                         return true;
                     }
                     else
                     {
                         DB_RS.Close();
-                        CheckQueue(accountsTables);
+                        //CheckQueue(accountsTables);
                         return false;
                     }
                 }
@@ -277,7 +282,7 @@ namespace ElecyServer
 
         #region Maps info
 
-        List<Thread> mapsInfoTable = new List<Thread>();
+        List<object> mapsInfoTable = new List<object>();
 
         public int[] GetMapScale(int mapIndex)
         {
@@ -296,8 +301,12 @@ namespace ElecyServer
             }
             catch (System.Runtime.InteropServices.COMException)
             {
-                mapsInfoTable.Add(Thread.CurrentThread);
-                Thread.Sleep(Timeout.Infinite);
+                mapsInfoTable.Add(new object());
+                //Thread.Sleep(Timeout.Infinite);
+                lock (mapsInfoTable[0])
+                {
+                    Monitor.Wait(mapsInfoTable[0]);
+                }
                 return GetMapScale(mapIndex);
             }
         }
