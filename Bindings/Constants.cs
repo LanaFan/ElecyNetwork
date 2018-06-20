@@ -19,5 +19,25 @@
         public const int UPDATE_RATE = 40;
 
         public const int MAPS_COUNT = 1;
+
+        #region DataBase
+
+        public const string FIRST_RACE_NAME = "Ignis";
+
+        public const string SECOND_RACE_NAME = "Terra";
+
+        public const string THIRD_RACE_NAME = "Caeli";
+
+        public const string FOURTH_RACE_NAME = "Aqua";
+
+        public enum SPELLCOUNT
+        {
+            Ignis = 7,
+            Terra = 0,
+            Caeli = 0,
+            Aqua = 0
+        }
+
+        #endregion
     }
 }

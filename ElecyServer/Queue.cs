@@ -5,7 +5,7 @@ namespace ElecyServer
     public static class Queue
     {
 
-        public static bool StartSearch(int index, int matchType)
+        public static bool StartSearch(int index, int matchType, string race)
         {
             switch (matchType)
             {
@@ -14,7 +14,7 @@ namespace ElecyServer
                     {
                         if (Global.arena[i].Status == GameRoom.RoomStatus.Searching)
                         {
-                            Global.arena[i].AddPlayer(Global.players[index]);
+                            Global.arena[i].AddPlayer(Global.players[index], race);
                             return true;
                         }
                     }
@@ -22,7 +22,7 @@ namespace ElecyServer
                     {
                         if(Global.arena[i].Status == GameRoom.RoomStatus.Empty)
                         {
-                            Global.arena[i].AddPlayer(Global.players[index]);
+                            Global.arena[i].AddPlayer(Global.players[index], race);
                             return true;
                         }
                     }

@@ -17,7 +17,8 @@ namespace ElecyServer
                 {(int)RoomPackets.RPlayerSpawned, HandlePlayerSpawn },
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
-                {(int)RoomPackets.RTransform, HandleTransform },
+                {(int)RoomPackets.RTreesSpawned, HandleTreesSpawned },
+                //{(int)RoomPackets.RTransform, HandleTransform },
                 {(int)RoomPackets.RInstantiate, HandleInstantiate},
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
@@ -65,6 +66,17 @@ namespace ElecyServer
             Room.SpawnTree(ID);
         }
 
+        private static void HandleTreesSpawned(int ID, GameRoom Room, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            float loadProgress = buffer.ReadFloat();
+            buffer.Dispose();
+            Room.SetLoadProgress(ID, loadProgress);
+            Room.LoadSpells(ID);
+        }
+
         private static void HandleComplete(int ID, GameRoom Room, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();
@@ -97,16 +109,16 @@ namespace ElecyServer
             //adding the object to array for start to observe
         }
 
-        private static void HandleTransform(int ID, GameRoom Room, byte[] data)
-        {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteBytes(data);
-            buffer.ReadInteger();
-            float[] pos = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat()};
-            float[] rot = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat()};
-            buffer.Dispose();
-            Room.SetTransform(ID, pos, rot);
-        }
+        //private static void HandleTransform(int ID, GameRoom Room, byte[] data)
+        //{
+        //    PacketBuffer buffer = new PacketBuffer();
+        //    buffer.WriteBytes(data);
+        //    buffer.ReadInteger();
+        //    float[] pos = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat()};
+        //    float[] rot = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat()};
+        //    buffer.Dispose();
+        //    Room.SetTransform(ID, pos, rot);
+        //}
 
         private static void HandleSurrender(int ID, GameRoom Room, byte[] data)
         {

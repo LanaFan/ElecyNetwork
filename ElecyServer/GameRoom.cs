@@ -52,18 +52,18 @@ namespace ElecyServer
             p2Loaded = false;
         }
 
-        public void AddPlayer(NetPlayer player)
+        public void AddPlayer(NetPlayer player, string race)
         {
             if (Status == RoomStatus.Empty)
             {
-                player1 = new Player(player.Socket, this, player.Index, player.Nickname, 1, 0f);
+                player1 = new Player(player.Socket, this, player.Index, player.Nickname, 1, 0f, race);
                 player.Searching(RoomIndex);
                 Status = RoomStatus.Searching;
                 Global.serverForm.AddGameRoom(RoomIndex + "");
             }
             else if (Status == RoomStatus.Searching)
             {
-                player2 = new Player(player.Socket, this, player.Index, player.Nickname, 2, 0f);
+                player2 = new Player(player.Socket, this, player.Index, player.Nickname, 2, 0f, race);
                 player.Searching(RoomIndex);
                 Status = RoomStatus.Closed;
                 ServerSendData.SendMatchFound(mapIndex, player1.Index, player2.Index, RoomIndex);
@@ -92,7 +92,7 @@ namespace ElecyServer
 
         public void StartGame()
         {
-            timer = new Timer(SendTransform, null, 0, 1000/Constants.UPDATE_RATE);
+            //timer = new Timer(SendTransform, null, 0, 1000/Constants.UPDATE_RATE);
         }
 
         public void GameRoomInstatiate(int objectID, int instanceType, string objectPath, float[] pos, float[] rot)
@@ -154,8 +154,6 @@ namespace ElecyServer
             }
         }
 
-
-
         public void Surrended(int ID)
         {
             Status = RoomStatus.MatchEnded;
@@ -203,13 +201,13 @@ namespace ElecyServer
             Global.players[index].NetPlayerStop();
         }
 
-        private void SendTransform(Object o)
-        {
-            float[][] p2transform = player2.Transform;
-            ServerSendData.SendTransform(1, RoomIndex, p2transform[0], p2transform[1]);
-            float[][] p1transform = player1.Transform;
-            ServerSendData.SendTransform(2, RoomIndex, p1transform[0], p1transform[1]);
-        }
+        //private void SendTransform(Object o)
+        //{
+        //    float[][] p2transform = player2.Transform;
+        //    ServerSendData.SendTransform(1, RoomIndex, p2transform[0], p2transform[1]);
+        //    float[][] p1transform = player1.Transform;
+        //    ServerSendData.SendTransform(2, RoomIndex, p1transform[0], p1transform[1]);
+        //}
 
         private void StopTimers()
         {
@@ -281,7 +279,6 @@ namespace ElecyServer
                 Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstSpawnPointPos, secondSpawnPointPos);
                 ServerSendData.SendGameData(RoomIndex, player1.Nickname, player2.Nickname, spawnPos, spawnRot);
             }
-
         }
 
         public void SpawnTree(int ID)
@@ -304,6 +301,20 @@ namespace ElecyServer
             }
 
             ServerSendData.SendRockSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
+        }
+
+        public void LoadSpells(int ID)
+        {
+            int[] spellsToLoad;
+            if (ID == 1)
+            {
+                spellsToLoad = Global.data.GetSkillBuildData(player1.Nickname, player1.Race);
+            }
+            else
+            {
+                spellsToLoad = Global.data.GetSkillBuildData(player2.Nickname, player2.Race);
+            }
+            ServerSendData.SendLoadSpells(ID, RoomIndex, spellsToLoad);
         }
 
         public void LoadComplete(int ID)
@@ -399,6 +410,11 @@ namespace ElecyServer
             get { return _position; }
         }
 
+        public string Race
+        {
+            get { return _race; }
+        }
+
         public float Load
         {
             get { return _load; }
@@ -419,10 +435,11 @@ namespace ElecyServer
         private float[] _rotation;
         private byte[] _buffer = new byte[Constants.BUFFER_SIZE];
         private bool _playing = false;
+        private string _race;
 
         #endregion
 
-        public Player(Socket socket, GameRoom room, int index, string nickname, int ID, float load)
+        public Player(Socket socket, GameRoom room, int index, string nickname, int ID, float load, string race)
         {
             Socket = socket;
             Index = index;
@@ -430,6 +447,7 @@ namespace ElecyServer
             Room = room;
             this.ID = ID;
             _load = load;
+            _race = race;
         }
 
         public void StartPlay()

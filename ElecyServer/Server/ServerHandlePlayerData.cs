@@ -19,6 +19,8 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
                 {(int)NetPlayerPackets.PStopPlayer, HandlePlayerStop },
                 {(int)NetPlayerPackets.PLogOut, HandlePlayerLogOut },
+                {(int)NetPlayerPackets.PGetSkillsBuild, HandleGetSkillBuild },
+                {(int)NetPlayerPackets.PSaveSkillsBuild, HandleSaveSkillBuild }
             };
         }
 
@@ -58,10 +60,10 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             int matchType = buffer.ReadInteger();
+            string race = buffer.ReadString();
             buffer.Dispose();
-            if (!Queue.StartSearch(index, matchType))
+            if (!Queue.StartSearch(index, matchType, race))
                 ServerSendData.SendPlayerAlert(index, "Queue is overcrowded. Try again later!");
-
         }
 
         private static void HandleQueueStop(int index, byte[] data)
@@ -89,5 +91,26 @@ namespace ElecyServer
             }
         }
 
+        private static void HandleGetSkillBuild(int index, byte[] data)
+        {
+            int[][] skillBuild = Global.data.GetSkillBuildData(Global.players[index].Nickname);
+            ServerSendData.SendSkillBuild(index, skillBuild);
+        }
+
+        private static void HandleSaveSkillBuild(int index, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            string raceName = buffer.ReadString();
+            int skillCount = buffer.ReadInteger();
+            int[] skillBuild = new int[skillCount];
+            for(int i = 0; i == skillCount; i++)
+            {
+                skillBuild[i] = buffer.ReadInteger();
+            }
+            Global.data.SetSkillBuildData(Global.players[index].Nickname, raceName, skillBuild);
+            ServerSendData.SendBuildSaved(index);
+        }
     }
 }

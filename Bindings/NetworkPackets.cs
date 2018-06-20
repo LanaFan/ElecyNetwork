@@ -24,6 +24,9 @@
         SNetPlayerLogOut = 19,
         SPlayerLogOut = 20,
         SMatchResult = 21,
+        SSpellLoad = 22,
+        SBuildInfo = 23,
+        SBuildSaved = 24,
     }
 
 
@@ -49,6 +52,8 @@
         PAlert = 12,
         PStopPlayer = 17,
         PLogOut = 23,
+        PGetSkillsBuild = 26,
+        PSaveSkillsBuild = 27
     }
 
     public enum RoomPackets
@@ -56,7 +61,7 @@
         RConnectionComplite = 13,
         RPlayerSpawned = 14,
         RLoadComplite = 15,
-        RTransform = 16,
+        //RTransform = 16,
         RRockSpawned = 18,
         RTreesSpawned = 19,
         RInstantiate = 21,
