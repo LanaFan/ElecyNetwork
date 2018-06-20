@@ -305,16 +305,9 @@ namespace ElecyServer
 
         public void LoadSpells(int ID)
         {
-            int[] spellsToLoad;
-            if (ID == 1)
-            {
-                spellsToLoad = Global.data.GetSkillBuildData(player1.Nickname, player1.Race);
-            }
-            else
-            {
-                spellsToLoad = Global.data.GetSkillBuildData(player2.Nickname, player2.Race);
-            }
-            ServerSendData.SendLoadSpells(ID, RoomIndex, spellsToLoad);
+            int[] spellsToLoadFirst = Global.data.GetSkillBuildData(player1.Nickname, player1.Race);
+            int[] spellsToLoadSecond = Global.data.GetSkillBuildData(player2.Nickname, player2.Race);
+            ServerSendData.SendLoadSpells(ID, RoomIndex, spellsToLoadFirst, spellsToLoadSecond);
         }
 
         public void LoadComplete(int ID)

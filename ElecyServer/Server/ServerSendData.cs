@@ -233,14 +233,19 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendLoadSpells(int ID, int roomIndex, int[] spellsNumber)
+        public static void SendLoadSpells(int ID, int roomIndex, int[] spellsNumberFirst, int[] spellsNumberSecond)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SSpellLoad);
-            buffer.WriteInteger(spellsNumber.Length);
-            for(int i = 0; i == spellsNumber.Length; i++)
+            buffer.WriteInteger(spellsNumberFirst.Length);
+            buffer.WriteInteger(spellsNumberSecond.Length);
+            for(int i = 0; i == spellsNumberFirst.Length; i++)
             {
-                buffer.WriteInteger(spellsNumber[i]);
+                buffer.WriteInteger(spellsNumberFirst[i]);
+            }
+            for(int i = 0; i == spellsNumberSecond.Length; i++)
+            {
+                buffer.WriteInteger(spellsNumberSecond[i]);
             }
             ServerTCP.SendDataToGamePlayer(roomIndex, ID, buffer.ToArray());
             buffer.Dispose();
