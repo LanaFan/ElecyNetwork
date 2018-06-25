@@ -1,4 +1,5 @@
 ﻿using Bindings;
+using System;
 
 namespace ElecyServer
 {
@@ -119,29 +120,15 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendSkillBuild(int index, int[][] spellIndexes)
+        public static void SendSkillBuild(int index, int[] spellIndexes, string race)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SBuildInfo);
-            buffer.WriteInteger(spellIndexes[0].Length);
-            buffer.WriteInteger(spellIndexes[1].Length);
-            buffer.WriteInteger(spellIndexes[2].Length);
-            buffer.WriteInteger(spellIndexes[3].Length);
-            for(int i = 0; i == spellIndexes[0].Length; i++)
+            buffer.WriteString(race);
+            buffer.WriteInteger(spellIndexes.Length);
+            for(int i = 0; i < spellIndexes.Length; i++)
             {
-                buffer.WriteInteger(spellIndexes[0][i]);
-            }
-            for (int i = 0; i == spellIndexes[1].Length; i++)
-            {
-                buffer.WriteInteger(spellIndexes[1][i]);
-            }
-            for (int i = 0; i == spellIndexes[2].Length; i++)
-            {
-                buffer.WriteInteger(spellIndexes[2][i]);
-            }
-            for (int i = 0; i == spellIndexes[3].Length; i++)
-            {
-                buffer.WriteInteger(spellIndexes[3][i]);
+                buffer.WriteInteger(spellIndexes[i]);
             }
             ServerTCP.SendDataToPlayer(index, buffer.ToArray());
             buffer.Dispose();

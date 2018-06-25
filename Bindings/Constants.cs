@@ -32,7 +32,7 @@
 
         public enum SPELLCOUNT
         {
-            Ignis = 7,
+            Ignis = 9,
             Terra = 0,
             Caeli = 0,
             Aqua = 0

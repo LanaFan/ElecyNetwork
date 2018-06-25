@@ -93,8 +93,12 @@ namespace ElecyServer
 
         private static void HandleGetSkillBuild(int index, byte[] data)
         {
-            int[][] skillBuild = Global.data.GetSkillBuildData(Global.players[index].Nickname);
-            ServerSendData.SendSkillBuild(index, skillBuild);
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            string race = buffer.ReadString();
+            int[] skillBuild = Global.data.GetSkillBuildData(Global.players[index].Nickname, race);
+            ServerSendData.SendSkillBuild(index, skillBuild, race);
         }
 
         private static void HandleSaveSkillBuild(int index, byte[] data)
@@ -105,7 +109,7 @@ namespace ElecyServer
             string raceName = buffer.ReadString();
             int skillCount = buffer.ReadInteger();
             int[] skillBuild = new int[skillCount];
-            for(int i = 0; i == skillCount; i++)
+            for(int i = 0; i < skillCount; i++)
             {
                 skillBuild[i] = buffer.ReadInteger();
             }
