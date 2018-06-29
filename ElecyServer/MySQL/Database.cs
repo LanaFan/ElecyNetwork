@@ -2,12 +2,45 @@
 using System.Collections.Generic;
 using Bindings;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ElecyServer
 {
     class Database
     {
+        private static List<List<object>> Tables;
+        private static List<object> _accountsTable;
+        private static List<object> _skillBuildsTable;
+        private static List<object> _accountsParametersTable;
+        private static List<object> _mapsInfoTable;
+
+        public void InitDatabase()
+        {
+            _accountsTable = new List<object>();
+            _skillBuildsTable = new List<object>();
+            _accountsParametersTable = new List<object>();
+            _mapsInfoTable = new List<object>();
+            Tables = new List<List<object>> {
+                _accountsTable,
+                _skillBuildsTable,
+                _accountsParametersTable,
+                _mapsInfoTable,
+            };
+            Thread th = new Thread(Timer);
+            th.Start();
+        }
+
+        private void Timer()
+        {
+            Timer t = new Timer(TimerCallback, null, 0, 1000);
+        }
+
+        private void TimerCallback(object o)
+        {
+            foreach(List<object> list in Tables)
+            {
+                CheckQueue(list);
+            }
+        }
 
         private void CheckQueue(List<object> list)
         {
@@ -24,8 +57,6 @@ namespace ElecyServer
 
         #region Accounts
 
-        static List<object> accountsTable = new List<object>();
-
         public bool LoginExist(string username)
         {
             try
@@ -36,13 +67,13 @@ namespace ElecyServer
                     if (DB_RS.EOF)
                     {
                         DB_RS.Close();
-                        CheckQueue(accountsTable);
+                        CheckQueue(_accountsTable);
                         return false;
                     }
                     else
                     {
                         DB_RS.Close();
-                        CheckQueue(accountsTable);
+                        CheckQueue(_accountsTable);
                         return true;
                     }
                 }
@@ -50,7 +81,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                accountsTable.Add(o);
+                _accountsTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -69,13 +100,13 @@ namespace ElecyServer
                     if (DB_RS.EOF)
                     {
                         DB_RS.Close();
-                        CheckQueue(accountsTable);
+                        CheckQueue(_accountsTable);
                         return false;
                     }
                     else
                     {
                         DB_RS.Close();
-                        CheckQueue(accountsTable);
+                        CheckQueue(_accountsTable);
                         return true;
                     }
                 }
@@ -83,7 +114,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                accountsTable.Add(o);
+                _accountsTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -102,13 +133,13 @@ namespace ElecyServer
                     if (DB_RS.EOF)
                     {
                         DB_RS.Close();
-                        CheckQueue(accountsTable);
+                        CheckQueue(_accountsTable);
                         return false;
                     }
                     else
                     {
                         DB_RS.Close();
-                        CheckQueue(accountsTable);
+                        CheckQueue(_accountsTable);
                         return true;
                     }
                 }
@@ -116,7 +147,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                accountsTable.Add(o);
+                _accountsTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -134,14 +165,14 @@ namespace ElecyServer
                     DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
                     string nickname = DB_RS.Fields["Nickname"].Value.ToString();
                     DB_RS.Close();
-                    CheckQueue(accountsTable);
+                    CheckQueue(_accountsTable);
                     return nickname;
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                accountsTable.Add(o);
+                _accountsTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -163,7 +194,7 @@ namespace ElecyServer
                     DB_RS.Fields["Nickname"].Value = nickname;
                     DB_RS.Update();
                     DB_RS.Close();
-                    CheckQueue(accountsTable);
+                    CheckQueue(_accountsTable);
                 }
                 SetAccountData(nickname);
                 SetSkillBuildData(nickname);
@@ -171,7 +202,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                accountsTable.Add(o);
+                _accountsTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -183,8 +214,6 @@ namespace ElecyServer
         #endregion
 
         #region Accounts Parameters
-
-        List<object> accountsParametersTable = new List<object>();
 
         private void SetAccountData(string nickname)
         {
@@ -207,13 +236,13 @@ namespace ElecyServer
                     DB_RS.Fields["PrimusRank"].Value = 0;
                     DB_RS.Update();
                     DB_RS.Close();
-                    CheckQueue(accountsParametersTable);
+                    CheckQueue(_accountsParametersTable);
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                accountsParametersTable.Add(o);
+                _accountsParametersTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -242,13 +271,13 @@ namespace ElecyServer
                     DB_RS.Fields["PrimusRank"].Value = ranks[5];
                     DB_RS.Update();
                     DB_RS.Close();
-                    CheckQueue(accountsParametersTable);
+                    CheckQueue(_accountsParametersTable);
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                accountsParametersTable.Add(o);
+                _accountsParametersTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -278,7 +307,7 @@ namespace ElecyServer
                     ranks[3] = Convert.ToInt32(DB_RS.Fields["AquaRank"].Value);
                     ranks[4] = Convert.ToInt32(DB_RS.Fields["PrimusRank"].Value);
                     DB_RS.Close();
-                    CheckQueue(accountsParametersTable);
+                    CheckQueue(_accountsParametersTable);
                 }
                 data[0] = levels;
                 data[1] = ranks;
@@ -288,7 +317,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                accountsParametersTable.Add(o);
+                _accountsParametersTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -301,8 +330,6 @@ namespace ElecyServer
 
         #region Maps info
 
-        List<object> mapsInfoTable = new List<object>();
-
         public int[] GetMapScale(int mapIndex)
         {
             try
@@ -314,14 +341,14 @@ namespace ElecyServer
                     scale[0] = Convert.ToInt32(DB_RS.Fields["MapLenght"].Value);
                     scale[1] = Convert.ToInt32(DB_RS.Fields["MapWidth"].Value);
                     DB_RS.Close();
-                    CheckQueue(mapsInfoTable);
+                    CheckQueue(_mapsInfoTable);
                 }
                 return scale;
             }
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                mapsInfoTable.Add(o);
+                _mapsInfoTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -347,7 +374,7 @@ namespace ElecyServer
                     secondSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointY"].Value);
                     secondSpawnPos[2] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointZ"].Value);
                     DB_RS.Close();
-                    CheckQueue(mapsInfoTable);
+                    CheckQueue(_mapsInfoTable);
                 }
                 spawnPos[0] = firstSpawnPos;
                 spawnPos[1] = secondSpawnPos;
@@ -356,7 +383,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                mapsInfoTable.Add(o);
+                _mapsInfoTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -384,7 +411,7 @@ namespace ElecyServer
                     secondSpawnRot[2] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotZ"].Value);
                     secondSpawnRot[3] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotW"].Value);
                     DB_RS.Close();
-                    CheckQueue(mapsInfoTable);
+                    CheckQueue(_mapsInfoTable);
                 }
                 spawnRot[0] = firstSpawnRot;
                 spawnRot[1] = secondSpawnRot;
@@ -393,7 +420,7 @@ namespace ElecyServer
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                mapsInfoTable.Add(o);
+                _mapsInfoTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -405,8 +432,6 @@ namespace ElecyServer
         #endregion
 
         #region SkillBuilds
-
-        List<object> skillBuildsTable = new List<object>();
 
         public void SetSkillBuildData(string nickname)
         {
@@ -423,13 +448,13 @@ namespace ElecyServer
                     }
                     DB_RS.Update();
                     DB_RS.Close();
-                    CheckQueue(skillBuildsTable);
+                    CheckQueue(_skillBuildsTable);
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                skillBuildsTable.Add(o);
+                _skillBuildsTable.Add(o);
                 lock(o)
                 {
                     Monitor.Wait(o);
@@ -451,13 +476,13 @@ namespace ElecyServer
                     }
                     DB_RS.Update();
                     DB_RS.Close();
-                    CheckQueue(skillBuildsTable);
+                    CheckQueue(_skillBuildsTable);
                 }
             }
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                skillBuildsTable.Add(o);
+                _skillBuildsTable.Add(o);
                 lock (o)
                 {
                     Monitor.Wait(o);
@@ -502,14 +527,14 @@ namespace ElecyServer
                         skillsNumbers[i] = Convert.ToInt32(DB_RS.Fields[raceName + " " + i.ToString() + " Spell"].Value);
                     }
                     DB_RS.Close();
-                    CheckQueue(skillBuildsTable);
+                    CheckQueue(_skillBuildsTable);
                 }
                 return skillsNumbers;
             }
             catch (System.Runtime.InteropServices.COMException)
             {
                 object o = new object();
-                skillBuildsTable.Add(o);
+                _skillBuildsTable.Add(o);
                 lock(o)
                 {
                     Monitor.Wait(o);
@@ -517,6 +542,8 @@ namespace ElecyServer
                 return GetSkillBuildData(nickname, raceName);
             }
         }
+
         #endregion
+
     }
 }

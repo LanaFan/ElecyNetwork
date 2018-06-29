@@ -165,6 +165,7 @@ namespace ElecyServer
             ServerHandlePlayerData.InitializeNetworkPackages();
             ServerHandleRoomData.InitializeNetworkPackages();
             Global.mysql.MySQLInit();
+            Global.data.InitDatabase();
             ServerTCP.SetupServer();
             lblID.Show();
             lblID.Text = "Server ip: " + ServerTCP.ServerIP;

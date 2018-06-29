@@ -24,11 +24,20 @@ namespace ElecyServer
         private float scaleZ;
         private float[] firstSpawnPointPos;
         private float[] secondSpawnPointPos;
-  
+
         #region Randomed
 
-        private bool _rockRandomed;
-        private bool _treeRandomed;
+        private enum Randoming
+        {
+            unrandomed = 0,
+            randoming = 1,
+            randomed = 2
+        }
+
+        private Randoming _rockRandomed;
+        private Randoming _treeRandomed;
+
+        object expectant = new object(); // list for multiple players
 
         #endregion
 
@@ -46,8 +55,8 @@ namespace ElecyServer
             Status = RoomStatus.Empty;
             ObjectsList = new GameObjectList();
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
-            _rockRandomed = false;
-            _treeRandomed = false;
+            _rockRandomed = Randoming.unrandomed;
+            _treeRandomed = Randoming.unrandomed;
             p1Loaded = false;
             p2Loaded = false;
         }
@@ -240,8 +249,8 @@ namespace ElecyServer
             Status = RoomStatus.Empty;
             ObjectsList = new GameObjectList();
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
-            _rockRandomed = false;
-            _treeRandomed = false;
+            _rockRandomed = Randoming.unrandomed;
+            _treeRandomed = Randoming.unrandomed;
             p1Loaded = false;
             p2Loaded = false;
         }
@@ -253,23 +262,24 @@ namespace ElecyServer
             int[] scale = Global.data.GetMapScale(mapIndex);
             float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
             float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
+
             if (ID == 1)
             {
-                p1Loaded = true;
                 SetTransform(ID, spawnPos[0], spawnRot[0]);
                 scaleX = scale[0] * 10f;
                 scaleZ = scale[1] * 10f;
                 firstSpawnPointPos = spawnPos[0];
                 secondSpawnPointPos = spawnPos[1];
+                p1Loaded = true;
             }
             else
             {
-                p2Loaded = true;
                 SetTransform(ID, spawnPos[1], spawnRot[1]);
                 scaleX = scale[0] * 10f;
                 scaleZ = scale[1] * 10f;
                 firstSpawnPointPos = spawnPos[0];
                 secondSpawnPointPos = spawnPos[1];
+                p2Loaded = true;
             }
 
             if (p1Loaded && p2Loaded)
@@ -283,23 +293,58 @@ namespace ElecyServer
 
         public void SpawnTree(int ID)
         {
-            if(!_treeRandomed)
+            if(_treeRandomed == Randoming.unrandomed)
             {
-                _treeRandomed = true;
-                ObjectsList.Add(NetworkGameObject.ObjectType.tree, RoomIndex);
+                if (_treeRandomed != Randoming.randoming)
+                {
+                    _treeRandomed = Randoming.randoming;
+                    ObjectsList.Add(NetworkGameObject.ObjectType.tree, RoomIndex);
+                    _treeRandomed = Randoming.randomed;
+                    try
+                    {
+                        lock (expectant)
+                            Monitor.Pulse(expectant);
+                    }
+                    catch(ArgumentNullException) // or SynchronizationLockException
+                    {
+                        //nothing
+                    }
+                }
+                else
+                {
+                    lock(expectant)
+                        Monitor.Wait(expectant);
+                }
+                    
             }
-
             ServerSendData.SendTreeSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.tree));
         }
 
         public void SpawnRock(int ID)
         {
-            if(!_rockRandomed)
+            if(_rockRandomed == Randoming.unrandomed)
             {
-                _rockRandomed = true;
-                ObjectsList.Add(NetworkGameObject.ObjectType.rock, RoomIndex);
+                if(_rockRandomed != Randoming.randoming)
+                {
+                    _rockRandomed = Randoming.randoming;
+                    ObjectsList.Add(NetworkGameObject.ObjectType.rock, RoomIndex);
+                    _rockRandomed = Randoming.randomed;
+                    try
+                    {
+                        lock (expectant)
+                            Monitor.Pulse(expectant);
+                    }
+                    catch(ArgumentNullException) // or SynchronizationLockException
+                    {
+                        // nothing
+                    }
+                }
+                else
+                {
+                    lock (expectant)
+                        Monitor.Wait(expectant);
+                }
             }
-
             ServerSendData.SendRockSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
         }
 
