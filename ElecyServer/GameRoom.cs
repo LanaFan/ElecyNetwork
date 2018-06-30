@@ -18,6 +18,7 @@ namespace ElecyServer
         private Player player2;
         private Timer timer;
         private Timer closeTimer;
+        private Timer loadTimer;
         private bool p1Loaded;
         private bool p2Loaded;
         private float scaleX;
@@ -286,6 +287,7 @@ namespace ElecyServer
             {
                 p1Loaded = false;
                 p2Loaded = false;
+                loadTimer = new Timer(LoadPulse, null, 0, 1000);
                 Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstSpawnPointPos, secondSpawnPointPos);
                 ServerSendData.SendGameData(RoomIndex, player1.Nickname, player2.Nickname, spawnPos, spawnRot);
             }
@@ -293,22 +295,15 @@ namespace ElecyServer
 
         public void SpawnTree(int ID)
         {
-            if(_treeRandomed == Randoming.unrandomed)
+            if(_treeRandomed != Randoming.randomed)
             {
                 if (_treeRandomed != Randoming.randoming)
                 {
                     _treeRandomed = Randoming.randoming;
                     ObjectsList.Add(NetworkGameObject.ObjectType.tree, RoomIndex);
                     _treeRandomed = Randoming.randomed;
-                    try
-                    {
-                        lock (expectant)
-                            Monitor.Pulse(expectant);
-                    }
-                    catch(ArgumentNullException) // or SynchronizationLockException
-                    {
-                        //nothing
-                    }
+                    lock (expectant)
+                        Monitor.Pulse(expectant);
                 }
                 else
                 {
@@ -322,22 +317,15 @@ namespace ElecyServer
 
         public void SpawnRock(int ID)
         {
-            if(_rockRandomed == Randoming.unrandomed)
+            if(_rockRandomed != Randoming.randomed)
             {
                 if(_rockRandomed != Randoming.randoming)
                 {
                     _rockRandomed = Randoming.randoming;
                     ObjectsList.Add(NetworkGameObject.ObjectType.rock, RoomIndex);
                     _rockRandomed = Randoming.randomed;
-                    try
-                    {
-                        lock (expectant)
-                            Monitor.Pulse(expectant);
-                    }
-                    catch(ArgumentNullException) // or SynchronizationLockException
-                    {
-                        // nothing
-                    }
+                    lock (expectant)
+                        Monitor.Pulse(expectant);
                 }
                 else
                 {
@@ -366,9 +354,16 @@ namespace ElecyServer
             {
                 p1Loaded = false;
                 p2Loaded = false;
+                loadTimer.Dispose();
                 ServerSendData.SendRoomStart(RoomIndex);
                 StartGame();
             }
+        }
+
+        private void LoadPulse(object o)
+        {
+            lock (expectant)
+                Monitor.Pulse(expectant);
         }
 
         #endregion

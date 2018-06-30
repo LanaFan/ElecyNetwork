@@ -1,4 +1,5 @@
 ﻿using Bindings;
+using System.Threading;
 
 namespace ElecyServer
 {
@@ -10,5 +11,16 @@ namespace ElecyServer
         public static NetPlayer[] players = new NetPlayer[Constants.MAX_PLAYERS];
         public static GameRoom[] arena = new GameRoom[Constants.ARENA_SIZE];
         public static Server serverForm;
+
+        #region Threads
+
+        public static Thread dataTimerThread;
+
+        #endregion
+
+        public static void ThreadsStop()
+        {
+            dataTimerThread.Abort();
+        }
     }
 }

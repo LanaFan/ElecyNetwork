@@ -14,7 +14,6 @@ namespace ElecyServer
             InitializeComponent();
             ptrGreen.Hide();
             ptrYellow.Hide();
-            lblID.Hide();
         }   
 
         public void AddClient(string ip)
@@ -167,8 +166,6 @@ namespace ElecyServer
             Global.mysql.MySQLInit();
             Global.data.InitDatabase();
             ServerTCP.SetupServer();
-            lblID.Show();
-            lblID.Text = "Server ip: " + ServerTCP.ServerIP;
             ptrRed.Hide();
             ptrGreen.Show();
         }
@@ -176,7 +173,6 @@ namespace ElecyServer
         private void StopServer()
         {
             ServerTCP.ServerClose();
-            lblID.Hide();
             ptrGreen.Hide();
             ptrRed.Show();
             listClients.Items.Clear();

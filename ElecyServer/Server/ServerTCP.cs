@@ -3,14 +3,12 @@ using System.Net.Sockets;
 using System.Net;
 using Bindings;
 using System.Threading;
-using System.Text.RegularExpressions;
 
 namespace ElecyServer
 {
 
     class ServerTCP
     {
-        public static string ServerIP { get; private set; }
         public static bool Closed { get; private set; } = true;
 
         private static Socket _serverSocket;
@@ -21,7 +19,6 @@ namespace ElecyServer
         {
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _buffer = new byte[Constants.BUFFER_SIZE];
-            ServerIP = GetLocalIPAddress();
             Closed = false;
 
             for (int i = 0; i < Constants.MAX_CLIENTS; i++)
@@ -41,7 +38,7 @@ namespace ElecyServer
             _serverSocket.Listen(Constants.SERVER_LISTEN);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
             clientConnectTimer = new Timer(CheckClients, null, 0, 60000);
-            Global.serverForm.Debug("Сервер запущен на Ip адресе " + ServerIP + " и порте " + Constants.PORT + ".");
+            Global.serverForm.Debug("Сервер запущен на порте " + Constants.PORT + ".");
         }
 
         public static int PlayerLogin(int index, string nickname, int[][]accountdata)
@@ -58,19 +55,6 @@ namespace ElecyServer
             return 0;
         }
 
-        public static string GetLocalIPAddress()
-        {
-            try
-            {
-                string externalIP;
-                externalIP = (new WebClient()).DownloadString("http://checkip.dyndns.org/");
-                externalIP = (new Regex(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"))
-                             .Matches(externalIP)[0].ToString();
-                return externalIP;
-            }
-            catch { return ""; }
-        }
-
         public static void ServerClose()
         {
             if (!Closed)
@@ -81,6 +65,7 @@ namespace ElecyServer
                     clientConnectTimer.Dispose();
                 }
                 catch { }
+                Global.ThreadsStop();
                 for (int i = 0; i < Constants.ARENA_SIZE; i++)
                 {
                     Global.arena[i].CloseRoom();

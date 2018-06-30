@@ -25,8 +25,8 @@ namespace ElecyServer
                 _accountsParametersTable,
                 _mapsInfoTable,
             };
-            Thread th = new Thread(Timer);
-            th.Start();
+            Global.dataTimerThread = new Thread(Timer);
+            Global.dataTimerThread.Start();
         }
 
         private void Timer()

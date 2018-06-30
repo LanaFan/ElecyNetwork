@@ -274,19 +274,6 @@
             this.btnExit.UseVisualStyleBackColor = true;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
-            // lblID
-            // 
-            this.lblID.AutoSize = true;
-            this.lblID.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblID.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.lblID.Location = new System.Drawing.Point(330, 8);
-            this.lblID.Name = "lblID";
-            this.lblID.Size = new System.Drawing.Size(103, 24);
-            this.lblID.TabIndex = 5;
-            this.lblID.Text = "IP address:";
-            this.lblID.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Server_MouseDown);
-            this.lblID.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Server_MouseMove);
-            // 
             // btnClear
             // 
             this.btnClear.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnClear.BackgroundImage")));
@@ -320,7 +307,6 @@
             this.ClientSize = new System.Drawing.Size(600, 410);
             this.Controls.Add(this.listData);
             this.Controls.Add(this.btnClear);
-            this.Controls.Add(this.lblID);
             this.Controls.Add(this.lblClients);
             this.Controls.Add(this.lblNetPlayers);
             this.Controls.Add(this.lblGameRooms);
