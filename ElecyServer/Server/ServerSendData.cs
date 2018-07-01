@@ -226,11 +226,11 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SSpellLoad);
             buffer.WriteInteger(spellsNumberFirst.Length);
             buffer.WriteInteger(spellsNumberSecond.Length);
-            for(int i = 0; i == spellsNumberFirst.Length; i++)
+            for(int i = 0; i < spellsNumberFirst.Length; i++)
             {
                 buffer.WriteInteger(spellsNumberFirst[i]);
             }
-            for(int i = 0; i == spellsNumberSecond.Length; i++)
+            for(int i = 0; i < spellsNumberSecond.Length; i++)
             {
                 buffer.WriteInteger(spellsNumberSecond[i]);
             }
