@@ -419,11 +419,11 @@ namespace ElecyServer
         {
             if (State == PlayerState.SearchingForMatch)
                 Global.arena[RoomIndex].DeletePlayer(Index);
+            NetPlayerStop();
+            Socket = null;
             ServerSendData.SendGlChatMsg("Server", "Player " + Nickname + " disconnected");
             Global.serverForm.Debug("Соединение от " + IP + " было разорвано.");
             Global.serverForm.RemoveNetPlayer(Nickname);
-            NetPlayerStop();
-            Socket = null;
         }
 
         private void PlayerReceiveCallback(IAsyncResult ar)

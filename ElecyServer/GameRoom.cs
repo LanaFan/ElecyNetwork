@@ -161,6 +161,10 @@ namespace ElecyServer
                 {
                     player2 = null;
                 }
+                if(player1 == null && player2 == null)
+                {
+                    ClearRoom();
+                }
             }
         }
 
@@ -271,6 +275,7 @@ namespace ElecyServer
                 scaleZ = scale[1] * 10f;
                 firstSpawnPointPos = spawnPos[0];
                 secondSpawnPointPos = spawnPos[1];
+                Global.players[player1.Index].Playing();
                 p1Loaded = true;
             }
             else
@@ -280,6 +285,7 @@ namespace ElecyServer
                 scaleZ = scale[1] * 10f;
                 firstSpawnPointPos = spawnPos[0];
                 secondSpawnPointPos = spawnPos[1];
+                Global.players[player2.Index].Playing();
                 p2Loaded = true;
             }
 
@@ -295,42 +301,48 @@ namespace ElecyServer
 
         public void SpawnTree(int ID)
         {
-            if(_treeRandomed != Randoming.randomed)
+            lock (expectant)
             {
-                if (_treeRandomed != Randoming.randoming)
+                if (_treeRandomed != Randoming.randomed)
                 {
-                    _treeRandomed = Randoming.randoming;
-                    ObjectsList.Add(NetworkGameObject.ObjectType.tree, RoomIndex);
-                    _treeRandomed = Randoming.randomed;
-                    lock (expectant)
-                        Monitor.Pulse(expectant);
+                    if (_treeRandomed != Randoming.randoming)
+                    {
+                        _treeRandomed = Randoming.randoming;
+                        ObjectsList.Add(NetworkGameObject.ObjectType.tree, RoomIndex);
+                        _treeRandomed = Randoming.randomed;
+                        lock (expectant)
+                            Monitor.Pulse(expectant);
+                    }
+                    else
+                    {
+                        lock (expectant)
+                            Monitor.Wait(expectant);
+                    }
+
                 }
-                else
-                {
-                    lock(expectant)
-                        Monitor.Wait(expectant);
-                }
-                    
             }
             ServerSendData.SendTreeSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.tree));
         }
 
         public void SpawnRock(int ID)
         {
-            if(_rockRandomed != Randoming.randomed)
+            lock (expectant)
             {
-                if(_rockRandomed != Randoming.randoming)
+                if (_rockRandomed != Randoming.randomed)
                 {
-                    _rockRandomed = Randoming.randoming;
-                    ObjectsList.Add(NetworkGameObject.ObjectType.rock, RoomIndex);
-                    _rockRandomed = Randoming.randomed;
-                    lock (expectant)
-                        Monitor.Pulse(expectant);
-                }
-                else
-                {
-                    lock (expectant)
-                        Monitor.Wait(expectant);
+                    if (_rockRandomed != Randoming.randoming)
+                    {
+                        _rockRandomed = Randoming.randoming;
+                        ObjectsList.Add(NetworkGameObject.ObjectType.rock, RoomIndex);
+                        _rockRandomed = Randoming.randomed;
+                        lock (expectant)
+                            Monitor.Pulse(expectant);
+                    }
+                    else
+                    {
+                        lock (expectant)
+                            Monitor.Wait(expectant);
+                    }
                 }
             }
             ServerSendData.SendRockSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
@@ -497,6 +509,7 @@ namespace ElecyServer
                 if (received <= 0)
                 {
                     Global.serverForm.Debug("GamePlayer " + Nickname + " lost connection");
+                    PlayerClose();
                     Room.AbortGameSession(ID);
                 }
                 else
@@ -514,6 +527,7 @@ namespace ElecyServer
             catch
             {
                 Global.serverForm.Debug("GamePlayer " + Nickname + " lost connection");
+                PlayerClose();
                 Room.AbortGameSession(ID);
             }
         }
