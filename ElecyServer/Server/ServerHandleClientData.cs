@@ -83,10 +83,7 @@ namespace ElecyServer
             }
             buffer.Dispose();
             string nickname = Global.data.GetAccountNickname(username);
-            int[][] accountdata = Global.data.GetAccountData(nickname);
-            int playerIndex = ServerTCP.PlayerLogin(index, nickname, accountdata);
-            if (playerIndex != 0)
-                ServerSendData.SendLoginOk(index, playerIndex, nickname, accountdata);
+            ServerTCP.PlayerLogin(index, nickname, Global.data.GetAccountData(nickname));
         }
 
         private static void HandleAlert(int index, byte[] data) // DO IT!
@@ -94,7 +91,7 @@ namespace ElecyServer
             //Handle Alert
         }
 
-        private static void HandleClientClose(int index, byte[] data)
+        private static void HandleClientClose(int index, byte[] data) // Rewrite
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);

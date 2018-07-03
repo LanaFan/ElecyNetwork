@@ -160,12 +160,7 @@ namespace ElecyServer
         private void StartServer()
         {
             textBoxDebug.Clear();
-            ServerHandleClientData.InitializeNetworkPackages();
-            ServerHandlePlayerData.InitializeNetworkPackages();
-            ServerHandleRoomData.InitializeNetworkPackages();
-            Global.mysql.MySQLInit();
-            Global.data.InitDatabase();
-            ServerTCP.SetupServer();
+            Program.ServerStart();
             ptrRed.Hide();
             ptrGreen.Show();
         }

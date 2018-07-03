@@ -6,8 +6,8 @@ namespace ElecyServer
     public class MySQL
     {
 
-        public Recordset DB_RS;
-        public Connection DB_CONN;
+        public Recordset DB_RS { get; private set; }
+        public Connection DB_CONN { get; private set; }
 
         public void MySQLInit()
         {
@@ -20,16 +20,22 @@ namespace ElecyServer
                 DB_CONN.CursorLocation = CursorLocationEnum.adUseServer;
                 DB_CONN.Open();
                 Global.serverForm.Debug("Connection to MySQL server completed!");
-
-                var db = DB_RS;
-                {
-
-                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
-                Console.ReadLine();
+                Global.serverForm.Debug(ex + "");
+            }
+        }
+
+        public void MySQLClose()
+        {
+            try
+            {
+                DB_CONN.Close();
+            }
+            catch(Exception ex)
+            {
+                Global.serverForm.Debug(ex + "");
             }
         }
 

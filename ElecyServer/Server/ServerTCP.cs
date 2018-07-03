@@ -13,7 +13,6 @@ namespace ElecyServer
 
         private static Socket _serverSocket;
         private static byte[] _buffer;
-        private static Timer clientConnectTimer;
 
         public static void SetupServer()
         {
@@ -37,11 +36,10 @@ namespace ElecyServer
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
             _serverSocket.Listen(Constants.SERVER_LISTEN);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-            clientConnectTimer = new Timer(CheckClients, null, 0, 60000);
             Global.serverForm.Debug("Сервер запущен на порте " + Constants.PORT + ".");
         }
 
-        public static int PlayerLogin(int index, string nickname, int[][]accountdata)
+        public static void PlayerLogin(int index, string nickname, int[][]accountdata)
         {
             for(int i = 1; i < Constants.MAX_PLAYERS; i++)
             { 
@@ -49,10 +47,10 @@ namespace ElecyServer
                 {
                     Global.players[i].SetVar(Global.clients[index].Socket, i, Global.clients[index].IP, nickname, accountdata[0], accountdata[1]);
                     Global.serverForm.AddNetPlayer(Global.players[i]);
-                    return i;
+                    ServerSendData.SendLoginOk(index, i, nickname, accountdata);
+                    return;
                 }
             }
-            return 0;
         }
 
         public static void ServerClose()
@@ -60,12 +58,8 @@ namespace ElecyServer
             if (!Closed)
             {
                 Closed = true;
-                try
-                {
-                    clientConnectTimer.Dispose();
-                }
-                catch { }
                 Global.ThreadsStop();
+                Global.mysql.MySQLClose();
                 for (int i = 0; i < Constants.ARENA_SIZE; i++)
                 {
                     Global.arena[i].CloseRoom();
@@ -93,7 +87,7 @@ namespace ElecyServer
             {
                 if (Global.clients[i].Socket == null)
                 {
-                    Global.clients[i].SetVar(socket, socket.RemoteEndPoint.ToString(), i);
+                    Global.clients[i].SetVar(socket, (socket.RemoteEndPoint as IPEndPoint).Address.ToString(), i);
                     return i;
                 }
             }
@@ -111,7 +105,7 @@ namespace ElecyServer
                 {
                     if (Global.clients[i].Socket == null)
                     {
-                        Global.clients[i].SetVar(socket, socket.RemoteEndPoint.ToString(), i);
+                        Global.clients[i].SetVar(socket, (socket.RemoteEndPoint as IPEndPoint).Address.ToString(), i);
                         Global.clients[i].StartClient();
                         ServerSendData.SendClientConnetionOK(i);
                         return;
@@ -247,14 +241,6 @@ namespace ElecyServer
 
         #endregion
 
-        private static void CheckClients(object o)
-        {
-            for(int i = 1; i < Constants.MAX_CLIENTS; i++)
-            {
-                if (Global.clients[i].Socket != null)
-                    SendDataToClient(i, new byte[] { });
-            }
-        }
     }
 
     public class Client
@@ -320,7 +306,6 @@ namespace ElecyServer
                         if(!_closing)
                             Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), Socket);
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -345,7 +330,6 @@ namespace ElecyServer
         public bool Stopped { get; private set; }
 
         private byte[] _buffer;
-        private Timer connectTimer;
 
         public enum PlayerState
         {
@@ -374,7 +358,6 @@ namespace ElecyServer
         public void StartPlayer()
         { 
             Stopped = false;
-            connectTimer = new Timer(CheckNetPlayer, null, 0, 5000);
             State = PlayerState.InMainLobby;
             Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), Socket);
         }
@@ -408,11 +391,6 @@ namespace ElecyServer
         public void NetPlayerStop()
         {
             Stopped = true;
-            try
-            {
-                connectTimer.Dispose();
-            }
-            catch { }
         }
 
         public void ClosePlayer()
@@ -433,7 +411,6 @@ namespace ElecyServer
                 try
                 {
                     int received = Socket.EndReceive(ar);
-
                     if (received <= 0)
                     {
                         ClosePlayer();
@@ -453,11 +430,6 @@ namespace ElecyServer
                     ClosePlayer();
                 }
             }
-        }
-
-        private void CheckNetPlayer(object o)
-        {
-            ServerTCP.SendDataToPlayer(Index, new byte[] { });
         }
 
     }

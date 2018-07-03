@@ -16,7 +16,6 @@ namespace ElecyServer
         private int mapIndex;
         private Player player1;
         private Player player2;
-        private Timer timer;
         private Timer closeTimer;
         private Timer loadTimer;
         private bool p1Loaded;
@@ -38,7 +37,7 @@ namespace ElecyServer
         private Randoming _rockRandomed;
         private Randoming _treeRandomed;
 
-        object expectant = new object(); // list for multiple players
+        private object expectant; // list for multiple players
 
         #endregion
 
@@ -58,6 +57,7 @@ namespace ElecyServer
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
             _rockRandomed = Randoming.unrandomed;
             _treeRandomed = Randoming.unrandomed;
+            expectant = new object();
             p1Loaded = false;
             p2Loaded = false;
         }
@@ -102,7 +102,7 @@ namespace ElecyServer
 
         public void StartGame()
         {
-            //timer = new Timer(SendTransform, null, 0, 1000/Constants.UPDATE_RATE);
+            // Here was thansform timer
         }
 
         public void GameRoomInstatiate(int objectID, int instanceType, string objectPath, float[] pos, float[] rot)
@@ -124,21 +124,11 @@ namespace ElecyServer
             }
         }
 
-        public void StopTimer()
-        {
-            try
-            {
-                timer.Dispose();
-            }
-            catch { }
-        }
-
         public void AbortGameSession(int ID)
         {
             if (Status != RoomStatus.MatchEnded)
             {
                 Status = RoomStatus.MatchEnded;
-                StopTimer();
                 closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
                 if (ID == 1)
                 {
@@ -171,7 +161,6 @@ namespace ElecyServer
         public void Surrended(int ID)
         {
             Status = RoomStatus.MatchEnded;
-            StopTimer();
             if(ID == 1)
             {
                 ServerSendData.SendMatchEnded(RoomIndex, player2.Nickname);
@@ -225,8 +214,6 @@ namespace ElecyServer
 
         private void StopTimers()
         {
-            if (timer != null)
-                timer.Dispose();
             if (closeTimer != null)
                 closeTimer.Dispose();
         }
@@ -442,47 +429,24 @@ namespace ElecyServer
 
     public class Player
     {
-        #region Public Var
-
         public float[][] Transform
         {
             get { return new float[][] { _position, _rotation }; }
             set { _position = value[0]; _rotation = value[1]; }
         }
 
-        public float[] Position // do not used (can be deleted) P.S. check it, mb already used
-        {
-            get { return _position; }
-        }
-
-        public string Race
-        {
-            get { return _race; }
-        }
-
-        public float Load
-        {
-            get { return _load; }
-            set { _load = value; }
-        }
-
-        #endregion
-
-        #region Private Var
         public string Nickname { get; private set; }
         public int Index { get; private set; }
         public Socket Socket { get; private set; }
         public int ID { get; private set; }
         public GameRoom Room { get; private set; }
+        public string Race { get; private set; }
+        public float Load;
 
-        private float _load;
         private float[] _position;
         private float[] _rotation;
         private byte[] _buffer = new byte[Constants.BUFFER_SIZE];
         private bool _playing = false;
-        private string _race;
-
-        #endregion
 
         public Player(Socket socket, GameRoom room, int index, string nickname, int ID, float load, string race)
         {
@@ -491,8 +455,8 @@ namespace ElecyServer
             Nickname = nickname;
             Room = room;
             this.ID = ID;
-            _load = load;
-            _race = race;
+            Load = load;
+            Race = race;
         }
 
         public void StartPlay()

@@ -129,18 +129,18 @@ namespace ElecyServer
             {
                 var DB_RS = Global.mysql.DB_RS;
                 {
-                    DB_RS.Open("SELECT'" + username + "' FROM accounts WHERE Password='" + password + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    if (DB_RS.EOF)
+                    DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                    if (DB_RS.Fields["Password"].Value.ToString() == password)
                     {
                         DB_RS.Close();
                         CheckQueue(_accountsTable);
-                        return false;
+                        return true;
                     }
                     else
                     {
                         DB_RS.Close();
                         CheckQueue(_accountsTable);
-                        return true;
+                        return false;
                     }
                 }
             }

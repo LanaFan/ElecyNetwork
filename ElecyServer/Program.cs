@@ -12,5 +12,15 @@ namespace ElecyServer
             Global.serverForm = new Server();
             Application.Run(Global.serverForm);
         }
+
+        public static void ServerStart()
+        {
+            ServerHandleClientData.InitializeNetworkPackages();
+            ServerHandlePlayerData.InitializeNetworkPackages();
+            ServerHandleRoomData.InitializeNetworkPackages();
+            Global.mysql.MySQLInit();
+            Global.data.InitDatabase();
+            ServerTCP.SetupServer();
+        }
     }
 }
