@@ -51,7 +51,7 @@
         PQueueStop = 11,
         PAlert = 12,
         PStopPlayer = 17,
-        PLogOut = 23,
+        //PLogOut = 23,
         PGetSkillsBuild = 26,
         PSaveSkillsBuild = 27
     }

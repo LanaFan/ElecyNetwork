@@ -18,7 +18,6 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PQueueStart, HandleQueueStart },
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
                 {(int)NetPlayerPackets.PStopPlayer, HandlePlayerStop },
-                {(int)NetPlayerPackets.PLogOut, HandlePlayerLogOut },
                 {(int)NetPlayerPackets.PGetSkillsBuild, HandleGetSkillBuild },
                 {(int)NetPlayerPackets.PSaveSkillsBuild, HandleSaveSkillBuild }
             };
@@ -74,21 +73,6 @@ namespace ElecyServer
         private static void HandlePlayerStop(int index, byte[] data)
         {
             Global.arena[Global.players[index].RoomIndex].StartReceive(index);
-        }
-
-        private static void HandlePlayerLogOut(int index, byte[] data)
-        {
-            int cIndex = ServerTCP.AddClient(Global.players[index].Socket);
-            if (cIndex != 0)
-            {
-                ServerSendData.SendPlayerLogOut(index);
-                Global.players[index].ClosePlayer();
-                Global.clients[cIndex].StartClient();
-            }
-            else
-            {
-                ServerSendData.SendPlayerAlert(index, "No empty client slots. Try again later");
-            }
         }
 
         private static void HandleGetSkillBuild(int index, byte[] data)
