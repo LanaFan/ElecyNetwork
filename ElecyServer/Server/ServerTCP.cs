@@ -2,11 +2,9 @@
 using System.Net.Sockets;
 using System.Net;
 using Bindings;
-using System.Threading;
 
 namespace ElecyServer
 {
-
     class ServerTCP
     {
         public static bool Closed { get; private set; } = true;
@@ -17,7 +15,7 @@ namespace ElecyServer
         public static void SetupServer()
         {
             _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _buffer = new byte[Constants.BUFFER_SIZE];
+            _buffer = new byte[Constants.TCP_BUFFER_SIZE];
             Closed = false;
 
             for (int i = 0; i < Constants.MAX_CLIENTS; i++)
@@ -36,6 +34,7 @@ namespace ElecyServer
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
             _serverSocket.Listen(Constants.SERVER_LISTEN);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+            UDPConnector.WaitConnect();
             Global.serverForm.Debug("Сервер запущен на порте " + Constants.PORT + ".");
         }
 
@@ -76,6 +75,7 @@ namespace ElecyServer
                         Global.players[i].ClosePlayer();
                     Global.players[i] = null;
                 }
+                UDPConnector.Close();
                 _serverSocket.Dispose();
                 Global.serverForm.Debug("Server closed...");
             }
@@ -254,7 +254,7 @@ namespace ElecyServer
 
         public Client()
         {
-            _buffer = new byte[Constants.BUFFER_SIZE];
+            _buffer = new byte[Constants.TCP_BUFFER_SIZE];
         }
 
         public void SetVar(Socket socket, string ip, int index)
@@ -341,7 +341,7 @@ namespace ElecyServer
 
         public NetPlayer()
         {
-            _buffer = new byte[Constants.BUFFER_SIZE];
+            _buffer = new byte[Constants.TCP_BUFFER_SIZE];
             RoomIndex = 0;
         }
 

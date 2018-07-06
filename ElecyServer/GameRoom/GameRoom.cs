@@ -5,7 +5,6 @@ using System.Threading;
 
 namespace ElecyServer
 {
-
     public class GameRoom
     {
         public GameObjectList ObjectsList { get; private set; }
@@ -132,11 +131,13 @@ namespace ElecyServer
                 closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
                 if (ID == 1)
                 {
+                    player1.PlayerClose();
                     player1 = null;
                     ServerSendData.SendMatchEnded(2, RoomIndex, player2.Nickname);
                 }
                 else
                 {
+                    player2.PlayerClose();
                     player2 = null;
                     ServerSendData.SendMatchEnded(1, RoomIndex, player1.Nickname);
                 }
@@ -145,10 +146,12 @@ namespace ElecyServer
             {
                 if (ID == 1)
                 {
+                    player1.PlayerClose();
                     player1 = null;
                 }
                 else
                 {
+                    player2.PlayerClose();
                     player2 = null;
                 }
                 if(player1 == null && player2 == null)
@@ -443,9 +446,10 @@ namespace ElecyServer
         public string Race { get; private set; }
         public float Load;
 
+        private GamePlayerUDP playerUDP;
         private float[] _position;
         private float[] _rotation;
-        private byte[] _buffer = new byte[Constants.BUFFER_SIZE];
+        private byte[] _buffer = new byte[Constants.TCP_BUFFER_SIZE];
         private bool _playing = false;
 
         public Player(Socket socket, GameRoom room, int index, string nickname, int ID, float load, string race)
@@ -473,7 +477,6 @@ namespace ElecyServer
                 if (received <= 0)
                 {
                     Global.serverForm.Debug("GamePlayer " + Nickname + " lost connection");
-                    PlayerClose();
                     Room.AbortGameSession(ID);
                 }
                 else
@@ -491,7 +494,6 @@ namespace ElecyServer
             catch
             {
                 Global.serverForm.Debug("GamePlayer " + Nickname + " lost connection");
-                PlayerClose();
                 Room.AbortGameSession(ID);
             }
         }
@@ -503,10 +505,19 @@ namespace ElecyServer
 
         public void PlayerClose()
         {
+            PlayerStop();
+            //if(playerUDP != null)
+            //{
+            //    playerUDP.Closed();
+            //}
             Global.players[Index].ClosePlayer();
-            PlayerStop();   
         }
 
+        public void SetPlayerUDP(GamePlayerUDP player)
+        {
+            playerUDP = player;
+            //Start timer
+        }
     }
 
 }

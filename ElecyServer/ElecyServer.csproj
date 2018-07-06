@@ -50,11 +50,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArenaRandomGenerator.cs" />
-    <Compile Include="GameObjectList.cs" />
+    <Compile Include="GameRoom\ArenaRandomGenerator.cs" />
+    <Compile Include="GameRoom\GameObjectList.cs" />
+    <Compile Include="GameRoom\UDP\HandleDataUDP.cs" />
+    <Compile Include="GameRoom\UDP\SendDataUDP.cs" />
+    <Compile Include="GameRoom\UDP\SystemUDP.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="MySQL\Database.cs" />
-    <Compile Include="GameRoom.cs" />
+    <Compile Include="GameRoom\GameRoom.cs" />
     <Compile Include="MySQL\MySQL.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,7 +66,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Queue.cs" />
+    <Compile Include="GameRoom\Queue.cs" />
     <Compile Include="Server.cs">
       <SubType>Form</SubType>
     </Compile>

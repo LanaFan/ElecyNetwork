@@ -12,7 +12,9 @@
 
         public const int SERVER_LISTEN = 10; //Number of clients that server can listen
 
-        public const int BUFFER_SIZE = 1024; //Size of buffers (player, client, server)
+        public const int TCP_BUFFER_SIZE = 1024; //Size of buffers (player, client, server)
+
+        public const int UDP_BUFFER_SIZE = 1024;
 
         public const int ARENA_SIZE = 60;
 
