@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 using Bindings;
 
 namespace ElecyServer
@@ -49,7 +48,7 @@ namespace ElecyServer
             }
         }
 
-        private static GamePlayerUDP CheckIP(IPEndPoint ipEndPoint)
+            private static GamePlayerUDP CheckIP(IPEndPoint ipEndPoint)
         {
             foreach(GamePlayerUDP player in Global.playersUDP)
             {
@@ -73,7 +72,7 @@ namespace ElecyServer
             catch { }
         }
 
-        public static void Send(GamePlayerUDP player, byte[] data)
+        public static void SendConnect(GamePlayerUDP player, byte[] data)
         {
             try
             {
@@ -84,20 +83,6 @@ namespace ElecyServer
                 //Close
             }
         }
-
-        #region Packet lose test
-
-        public static void PacketTest(GamePlayerUDP player)
-        {
-            Timer timer = new Timer(TimerCallback, player, 0, 100);
-        }
-
-        private static void TimerCallback(object o)
-        {
-            SendDataUDP.SendPacketTest(o as GamePlayerUDP);
-        }
-
-        #endregion
     }
 
     public class GamePlayerUDP
