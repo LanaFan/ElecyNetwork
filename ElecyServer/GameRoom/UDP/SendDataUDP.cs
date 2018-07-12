@@ -12,6 +12,7 @@ namespace ElecyServer
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)UDPServerPackets.USConnectionOK);
+            buffer.WriteString("ты пидор");
             UDPConnector.SendConnect(player, buffer.ToArray());
             buffer.Dispose();
         }

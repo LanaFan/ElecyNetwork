@@ -16,11 +16,10 @@ namespace ElecyServer
             HandleDataUDP.InitializeNetworkPackages();
             try
             {
-                connectUDP = new UdpClient(Constants.UDP_PORT);
+                connectUDP = new UdpClient(Constants.PORT);
                 buffer = new byte[Constants.UDP_BUFFER_SIZE];
                 Global.serverForm.Debug("UDP система запущена и ожидает подключений.");
-                receive = true;
-                connectUDP.BeginReceive(new AsyncCallback(ReceiveCallback), connectUDP);
+                connectUDP.BeginReceive(new AsyncCallback(ReceiveCallback), null);
             }
             catch (SocketException ex)
             {
@@ -35,20 +34,20 @@ namespace ElecyServer
             {
                 try
                 {
-                    IPEndPoint ipEndpoint = new IPEndPoint(IPAddress.Any, 0);
+                    IPEndPoint ipEndpoint = null;
                     byte[] connectBuffer = connectUDP.EndReceive(ar, ref ipEndpoint);
                     HandleDataUDP.HandleNetworkInformation(CheckIP(ipEndpoint), connectBuffer);
                 }
                 catch (SocketException e)
                 {
-                    Global.serverForm.Debug(e.ErrorCode + "");
+                    // This happens when a client disconnects, as we fail to send to that port.
                 }
                 if(receive)
-                    connectUDP.BeginReceive(ReceiveCallback, connectUDP);
+                    connectUDP.BeginReceive(ReceiveCallback, null);
             }
         }
 
-            private static GamePlayerUDP CheckIP(IPEndPoint ipEndPoint)
+        private static GamePlayerUDP CheckIP(IPEndPoint ipEndPoint)
         {
             foreach(GamePlayerUDP player in Global.playersUDP)
             {
@@ -83,6 +82,19 @@ namespace ElecyServer
                 //Close
             }
         }
+
+        //public static void Send(int index, byte[] data)
+        //{
+        //    try
+        //    {
+        //        Global.playersUDP[index].Socket.Send(data);
+        //    }
+        //    catch
+        //    {
+        //        Global.playersUDP[index].Close();
+        //    }
+        //}
+
     }
 
     public class GamePlayerUDP

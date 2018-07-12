@@ -10,8 +10,6 @@
 
         public const int PORT = 24985; //Port that server and clients uses
 
-        public const int UDP_PORT = 24986;
-
         public const int SERVER_LISTEN = 10; //Number of clients that server can listen
 
         public const int TCP_BUFFER_SIZE = 1024; //Size of buffers (player, client, server)
