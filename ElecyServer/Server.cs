@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using Bindings;
 
 namespace ElecyServer
 {
     public partial class Server : Form
     {
-        delegate void StringArgReturningVoidDelegate(string text);
+        delegate void StringArgReturningVoidDelegate<T>(T o);
         Point lastPoint;
 
         public Server()
@@ -16,99 +17,72 @@ namespace ElecyServer
             ptrYellow.Hide();
         }   
 
-        public void AddClient(string ip)
+        public void AddClient(ClientTCP client)
         { 
             if (listClients.InvokeRequired)
             {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(AddClient);
-                Invoke(d, new object[] { ip });
+                StringArgReturningVoidDelegate<ClientTCP> d = new StringArgReturningVoidDelegate<ClientTCP>(AddClient);
+                Invoke(d, new object[] { client });
             }
             else
             {
-                listClients.Items.Add(ip);
+                listClients.Items.Add(client);
             }
         }
 
-        public void AddNetPlayer(NetPlayer player)
-        {
-            AddNetPlayer(player.Nickname);
-        }
-
-        public void AddGameRoom(string roomIndex)
+        public void AddGameRoom(GameRoom room)
         {
             if (listClients.InvokeRequired)
             {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(AddGameRoom);
-                Invoke(d, new object[] { roomIndex });
+                StringArgReturningVoidDelegate<GameRoom> d = new StringArgReturningVoidDelegate<GameRoom>(AddGameRoom);
+                Invoke(d, new object[] { room });
             }
             else
             {
-                listGameRooms.Items.Add(roomIndex);
+                listGameRooms.Items.Add(room);
             }
         }
 
-        public void RemoveClient(string ip)
+        public void RemoveClient(ClientTCP client)
         {
             if (listClients.InvokeRequired)
             {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(RemoveClient);
-                Invoke(d, new object[] { ip });
+                StringArgReturningVoidDelegate<ClientTCP> d = new StringArgReturningVoidDelegate<ClientTCP>(RemoveClient);
+                Invoke(d, new object[] { client });
             }
             else
             {
                 try
                 {
-                    if (listClients.SelectedItem.ToString() == ip)
+                    if (listClients.SelectedItem.Equals(client))
                     {
                         listClients.ClearSelected();
                         listData.Items.Clear();
                     }
                 } catch { }
-                listClients.Items.Remove(ip);
+                listClients.Items.Remove(client);
             }
         }
 
-        public void RemoveNetPlayer(string nick)
-        {
-            if(listNetPlayers.InvokeRequired)
-            {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(RemoveNetPlayer);
-                Invoke(d, new object[] { nick });
-            }
-            else
-            {
-                try
-                {
-                    if (listNetPlayers.SelectedItem.ToString() == nick)
-                    {
-                        listNetPlayers.ClearSelected();
-                        listData.Items.Clear();
-                    }
-                }
-                catch { }
-                listNetPlayers.Items.Remove(nick);
-            }
-        }
-
-        public void RemoveGameRoom(string roomIndex)
+        public void RemoveGameRoom(GameRoom room)
         {
             if (listClients.InvokeRequired)
             {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(RemoveGameRoom);
-                Invoke(d, new object[] { roomIndex });
+                StringArgReturningVoidDelegate<GameRoom> d = new StringArgReturningVoidDelegate<GameRoom>(RemoveGameRoom);
+                Invoke(d, new object[] { room });
             }
             else
             {
                 try
                 {
-                    if (listGameRooms.SelectedItem.ToString() == roomIndex)
+                    if (listGameRooms.SelectedItem.Equals(room))
                     {
                         listGameRooms.ClearSelected();
                         listData.Items.Clear();
                     }
                 }
                 catch { }
-                listGameRooms.Items.Remove(roomIndex);
+                listGameRooms.Items.Remove(room);
             }
         }
 
@@ -116,7 +90,7 @@ namespace ElecyServer
         {
             if (textBoxDebug.InvokeRequired)
             {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(Debug);
+                StringArgReturningVoidDelegate<string> d = new StringArgReturningVoidDelegate<string>(Debug);
                 Invoke(d, new object[] { msg });
             }
             else
@@ -135,25 +109,12 @@ namespace ElecyServer
         {
             if (txtBoxChat.InvokeRequired)
             {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(ShowChatMsg);
+                StringArgReturningVoidDelegate<string> d = new StringArgReturningVoidDelegate<string>(ShowChatMsg);
                 Invoke(d, new object[] { text });
             }
             else
             {
                 txtBoxChat.AppendText(text + "\n");
-            }
-        }
-
-        private void AddNetPlayer(string nick)
-        {
-            if (listNetPlayers.InvokeRequired)
-            {
-                StringArgReturningVoidDelegate d = new StringArgReturningVoidDelegate(AddNetPlayer);
-                Invoke(d, new object[] { nick });
-            }
-            else
-            {
-                listNetPlayers.Items.Add(nick);
             }
         }
 
@@ -171,7 +132,6 @@ namespace ElecyServer
             ptrGreen.Hide();
             ptrRed.Show();
             listClients.Items.Clear();
-            listNetPlayers.Items.Clear();
             listGameRooms.Items.Clear();
             listData.Items.Clear();
             txtBoxChat.Clear();
@@ -181,15 +141,14 @@ namespace ElecyServer
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            if (ServerTCP.Closed)
-            { 
+            if (ServerTCP.Closed) 
                 StartServer();
-            }
         }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            StopServer();
+            if (!ServerTCP.Closed)
+                StopServer();
         }
 
         private void btnRefresh_Click(object sender, EventArgs e)
@@ -204,7 +163,8 @@ namespace ElecyServer
 
         private void btnExit_Click(object sender, EventArgs e)
         {
-            ServerTCP.ServerClose();
+            if(!ServerTCP.Closed)
+                ServerTCP.ServerClose();
             Application.Exit();
         }
 
@@ -212,11 +172,10 @@ namespace ElecyServer
         {
             if (!ServerTCP.Closed)
             {
-                string msg = txtChat.Text;
-                txtChat.Text = "";
-                if (msg != "")
+                if (!String.IsNullOrEmpty(txtChat.Text))
                 {
-                    ServerSendData.SendGlChatMsg("Server", msg);
+                    ServerSendData.SendGlChatMsg("Server", txtChat.Text);
+                    txtChat.Text = "";
                 }
             }
         }
@@ -227,11 +186,10 @@ namespace ElecyServer
             {
                 if (!ServerTCP.Closed)
                 {
-                    string msg = txtChat.Text;
-                    txtChat.Text = "";
-                    if (msg != "")
+                    if (!String.IsNullOrEmpty(txtChat.Text))
                     {
-                        ServerSendData.SendGlChatMsg("Server", msg);
+                        ServerSendData.SendGlChatMsg("Server", txtChat.Text);
+                        txtChat.Text = "";
                     }
                 }
             }
@@ -264,7 +222,6 @@ namespace ElecyServer
                 {
                     listData.Items.Clear();
                     listGameRooms.ClearSelected();
-                    listNetPlayers.ClearSelected();
                 }
                 else
                 {
@@ -276,65 +233,31 @@ namespace ElecyServer
                 return;
             }
 
-            foreach (Client client in Global.clients)
-            {
-
-
-                try
-                {
-                    if (client.IP == listClients.SelectedItem.ToString())
-                    {
-                        listData.Items.Add("index: " + client.Index);
-                        listData.Items.Add("ip: " + client.IP);
-                        break;
-                    }
-                }
-                catch (NullReferenceException) { }
-            }
-        }
-
-        private void listNetPlayers_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                if(listNetPlayers.SelectedItem != null)
-                {
-                    listData.Items.Clear();
-                    listGameRooms.ClearSelected();
-                    listClients.ClearSelected();
-                }
-                else
-                {
-                    return;
-                }
-            }
-            catch (NullReferenceException)
-            {
-                return;
-            }
-
-            foreach (NetPlayer player in Global.players)
+            foreach (ClientTCP client in Global.clientList)
             {
                 try
                 {
-                    if (player.Nickname == listNetPlayers.SelectedItem.ToString())
+                    if (client.Equals(listClients.SelectedItem))
                     {
-                        listData.Items.Add("index: " + player.Index);
-                        listData.Items.Add("roomIndex: " + player.RoomIndex);
-                        listData.Items.Add("ip: " + player.IP);
-                        listData.Items.Add("nickname: " + player.Nickname);
-                        listData.Items.Add("closing: " + player.Stopped);
-                        listData.Items.Add("state: " + player.State);
-                        listData.Items.Add("Ignis level: " + player.levels[0]);
-                        listData.Items.Add("Terra level: " + player.levels[1]);
-                        listData.Items.Add("Caeli level: " + player.levels[2]);
-                        listData.Items.Add("Aqua level: " + player.levels[3]);
-                        listData.Items.Add("Primus level: " + player.levels[4]);
-                        listData.Items.Add("Ignis rank: " + player.ranks[0]);
-                        listData.Items.Add("Terra rank: " + player.ranks[1]);
-                        listData.Items.Add("Caeli rank: " + player.ranks[2]);
-                        listData.Items.Add("Aqua rank: " + player.ranks[3]);
-                        listData.Items.Add("Primus rank: " + player.ranks[4]);
+                        listData.Items.Add("ip: " + client.ip);
+                        listData.Items.Add("client state: " + client.clientState);
+                        if(client.clientState != ClientTCPState.Entrance)
+                        {
+                            listData.Items.Add("player state: " + client.playerState);
+                            listData.Items.Add("nickname: " + client.nickname);
+                            listData.Items.Add("Ignis level: " + client.levels[0]);
+                            listData.Items.Add("Terra level: " + client.levels[1]);
+                            listData.Items.Add("Caeli level: " + client.levels[2]);
+                            listData.Items.Add("Aqua level: " + client.levels[3]);
+                            listData.Items.Add("Primus level: " + client.levels[4]);
+                            listData.Items.Add("Ignis rank: " + client.ranks[0]);
+                            listData.Items.Add("Terra rank: " + client.ranks[1]);
+                            listData.Items.Add("Caeli rank: " + client.ranks[2]);
+                            listData.Items.Add("Aqua rank: " + client.ranks[3]);
+                            listData.Items.Add("Primus rank: " + client.ranks[4]);
+                            if (client.playerState != NetPlayerState.InMainLobby)
+                                listData.Items.Add("race: " + client.race);
+                        }
                         break;
                     }
                 }
@@ -350,32 +273,28 @@ namespace ElecyServer
                 {
                     listData.Items.Clear();
                     listClients.ClearSelected();
-                    listNetPlayers.ClearSelected();
                 }
                 else
                 {
                     return;
                 }
-
             }
             catch (NullReferenceException)
             {
                 return;
             }
 
-            foreach (GameRoom room in Global.arena)
+            foreach (GameRoom room in Global.roomsList)
             {
                 try
                 {
-                    if ((room.RoomIndex + "") == listGameRooms.SelectedItem.ToString())
+                    if (room.Equals(listGameRooms.SelectedItem))
                     {
-                        listData.Items.Add("roomIndex: " + room.RoomIndex);
-                        if (room.GetPlayer(1) != null)
-                            listData.Items.Add("player1: " + room.GetPlayer(1).Nickname);
-                        if (room.GetPlayer(2) != null)
-                            listData.Items.Add("player2: " + room.GetPlayer(2).Nickname);
-                        listData.Items.Add("size: " + room.Size);
-                        listData.Items.Add("status: " + room.Status);
+                        listData.Items.Add("State: " + room.Status);
+                        if (room.player1 != null)
+                            listData.Items.Add("player1: " + room.player1.nickname);
+                        if (room.player2 != null)
+                            listData.Items.Add("player2: " + room.player2.nickname);
                         break;
                     }
                 }

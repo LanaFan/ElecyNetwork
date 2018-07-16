@@ -5,6 +5,7 @@ using Bindings;
 
 namespace ElecyServer
 {
+
     class ServerTCP
     {
         public static bool Closed { get; private set; } = true;
@@ -14,42 +15,14 @@ namespace ElecyServer
 
         public static void SetupServer()
         {
-            _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _buffer = new byte[Constants.TCP_BUFFER_SIZE];
             Closed = false;
-
-            for (int i = 0; i < Constants.MAX_CLIENTS; i++)
-            {
-                Global.clients[i] = new Client();
-            }
-            for (int i = 0; i < Constants.MAX_PLAYERS; i++)
-            {
-                Global.players[i] = new NetPlayer();
-            }
-            for(int i = 0; i < Constants.ARENA_SIZE; i++)
-            {
-                Global.arena[i] = new GameRoom(i);
-            }
-
+            _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
             _serverSocket.Listen(Constants.SERVER_LISTEN);
             _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
             UDPConnector.WaitConnect();
-            Global.serverForm.Debug("Сервер запущен на порте " + Constants.PORT + ".");
-        }
-
-        public static void PlayerLogin(int index, string nickname, int[][]accountdata)
-        {
-            for(int i = 1; i < Constants.MAX_PLAYERS; i++)
-            { 
-                if (Global.players[i].Socket == null)
-                {
-                    Global.players[i].SetVar(Global.clients[index].Socket, i, Global.clients[index].IP, nickname, accountdata[0], accountdata[1]);
-                    Global.serverForm.AddNetPlayer(Global.players[i]);
-                    ServerSendData.SendLoginOk(index, i, nickname, accountdata);
-                    return;
-                }
-            }
+            Global.serverForm.Debug("Server started!");
         }
 
         public static void ServerClose()
@@ -59,39 +32,11 @@ namespace ElecyServer
                 Closed = true;
                 Global.ThreadsStop();
                 Global.mysql.MySQLClose();
-                for (int i = 0; i < Constants.ARENA_SIZE; i++)
-                {
-                    Global.arena[i].CloseRoom();
-                }
-                for (int i = 0; i < Constants.MAX_CLIENTS; i++)
-                {
-                    if (Global.clients[i].Socket != null)
-                        Global.clients[i].CloseClient();
-                    Global.clients[i] = null;
-                }
-                for (int i = 0; i < Constants.MAX_PLAYERS; i++)
-                {
-                    if (Global.players[i].Socket != null)
-                        Global.players[i].ClosePlayer();
-                    Global.players[i] = null;
-                }
+                Global.FinalGlobals();
                 UDPConnector.Close();
                 _serverSocket.Dispose();
                 Global.serverForm.Debug("Server closed...");
             }
-        }
-
-        public static int AddClient(Socket socket)
-        {
-            for (int i = 1; i < Constants.MAX_CLIENTS; i++)
-            {
-                if (Global.clients[i].Socket == null)
-                {
-                    Global.clients[i].SetVar(socket, (socket.RemoteEndPoint as IPEndPoint).Address.ToString(), i);
-                    return i;
-                }
-            }
-            return 0;
         }
 
         private static void AcceptCallback(IAsyncResult ar)
@@ -100,23 +45,15 @@ namespace ElecyServer
             {
                 Socket socket = _serverSocket.EndAccept(ar);
                 _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-
-                for (int i = 1; i < Constants.MAX_CLIENTS; i++)
-                {
-                    if (Global.clients[i].Socket == null)
-                    {
-                        Global.clients[i].SetVar(socket, (socket.RemoteEndPoint as IPEndPoint).Address.ToString(), i);
-                        Global.clients[i].StartClient();
-                        ServerSendData.SendClientConnetionOK(i);
-                        return;
-                    }
-                }
+                ClientTCP client = new ClientTCP(socket, (socket.RemoteEndPoint as IPEndPoint).Address);
+                Global.clientList.Add(client);
+                ServerSendData.SendClientConnetionOK(client);
             }
         }
 
-        #region Send to Client
+        #region SendData
 
-        public static void SendClientConnection(int index, byte[] data)
+        public static void SendClientConnection(ClientTCP client, byte[] data)
         {
             byte[] sizeinfo = new byte[4];
             sizeinfo[0] = (byte)data.Length;
@@ -126,311 +63,331 @@ namespace ElecyServer
 
             try
             {
-                Global.clients[index].Socket.Send(sizeinfo);
-                Global.clients[index].Socket.Send(data);
+                client.socket.Send(sizeinfo);
+                client.socket.Send(data);
             }
             catch
             {
-                Global.clients[index].CloseClient();
+                client.Close();
             }
         }
 
-        public static void SendDataToClient(int index, byte[] data)
+        public static void SendDataToClient(ClientTCP client, byte[] data)
         {
             try
             {
-                Global.clients[index].Socket.Send(data);
+                client.socket.Send(data);
             }
             catch
             {
-                Global.clients[index].CloseClient();
+                client.Close();
             }
         }
 
-        public static void SendDataToAllClient(byte[] data)
+        public static void SendDataToAllClients(byte[] data)
         {
-            foreach(Client client in Global.clients)
+            try
             {
-                if(client.Socket != null)
+                foreach(ClientTCP client in Global.clientList)
                 {
                     try
                     {
-                        client.Socket.Send(data);
+                        client.socket.Send(data);
                     }
                     catch
                     {
-                        client.CloseClient();
+                        client.Close();
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Global.serverForm.Debug(ex + "");
+            }
         }
 
-        #endregion
-
-        #region Send to Player
-
-        public static void SendDataToPlayer(int index, byte[] data)
+        public static void SendChatMsgToAllClients(byte[] data)
         {
             try
             {
-                Global.players[index].Socket.Send(data);
+                foreach(ClientTCP client in Global.clientList)
+                {
+                    try
+                    {
+                        if (client.clientState == ClientTCPState.MainLobby)
+                            client.socket.Send(data);
+                    }
+                    catch
+                    {
+                        client.Close();
+                    }
+                }
             }
-            catch
+            catch (Exception ex)
             {
-                Global.players[index].ClosePlayer();
+                Global.serverForm.Debug(ex + "");
             }
         }
 
-        public static void SendDataToAllPlayers(byte[] data)
+        public static void SendDataToBothClients(ClientTCP client1, ClientTCP client2, byte[] data)
         {
-            foreach (NetPlayer player in Global.players)
+            try
             {
                 try
                 {
-                    if (player.Socket != null)
-                    {
-                        try
-                        {
-                            player.Socket.Send(data);
-                        }
-                        catch
-                        {
-                            player.ClosePlayer();
-                        }
-                    }
-                } catch { }
+                    client1.socket.Send(data);
+                }
+                catch
+                {
+                    client1.Close();
+                    throw new Exception();
+                }
+                try
+                {
+                    client2.socket.Send(data);
+                }
+                catch
+                {
+                    client2.Close();
+                    throw new Exception();
+                }
+            }
+            catch
+            {
+
             }
         }
 
         #endregion
-
-        #region Send to GamePlayer
-
-        public static void SendDataToGamePlayer(int roomIndex, int ID, byte[] data)
-        {
-            try
-            {
-                Global.arena[roomIndex].GetSocket(ID).Send(data);
-            }
-            catch
-            {
-                Global.arena[roomIndex].AbortGameSession(ID);
-            }
-        }
-
-        public static void SendDataToGamePlayers(int roomIndex, byte[] data)
-        {
-            try
-            {
-                Global.arena[roomIndex].Player1Socket.Send(data);
-            }
-            catch
-            {
-                Global.arena[roomIndex].AbortGameSession(1);
-                return;
-            }
-            try
-            {
-                Global.arena[roomIndex].Player2Socket.Send(data);
-            }
-            catch
-            {
-                Global.arena[roomIndex].AbortGameSession(2);
-            }
-        }
-
-        #endregion
-
     }
 
-    public class Client
+    public class ClientTCP
     {
-        public Socket Socket { get; private set; }
-        public int Index { get; private set; }
-        public string IP { get; private set; }
 
-        private bool _closing;
+        #region Variables
+
+        public readonly Socket socket;
+        public readonly IPAddress ip;
+
+        public ClientTCPState clientState;
+        public NetPlayerState playerState;
+
+        public string nickname;
+        public int[] levels;
+        public int[] ranks;
+
+        public GameRoom room;
+        public GamePlayerUDP playerUDP;
+        public string race;
+        public float load;
+
         private byte[] _buffer;
 
-        public Client()
+        #endregion
+
+        #region Constructor
+
+        public ClientTCP(Socket socket, IPAddress ip)
         {
+            this.socket = socket;
+            this.ip = ip;
             _buffer = new byte[Constants.TCP_BUFFER_SIZE];
+
+            Receive(ClientTCPState.Entrance);
         }
 
-        public void SetVar(Socket socket, string ip, int index)
+        #endregion
+
+        #region Receive
+
+        public void Receive(ClientTCPState? state = null)
         {
-            Socket = socket;
-            IP = ip;
-            Index = index;
+            clientState = state ?? clientState;
+            switch(clientState)
+            {
+                case ClientTCPState.Sleep:
+                    break;
+                case ClientTCPState.Entrance:
+                    EntranceReceive();
+                    break;
+                case ClientTCPState.MainLobby:
+                    MainLobbyReceive();
+                    break;
+                case ClientTCPState.GameRoom:
+                    break;
+            }
         }
 
-        public void StartClient()
+        private void EntranceReceive()
         {
-            _closing = false;
-            Global.serverForm.AddClient(IP);
-            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), Socket);
+            Global.serverForm.AddClient(this);
+            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(EntranceReceiveCallback), null);
         }
 
-        public void CloseClient()
+        private void EntranceReceiveCallback(IAsyncResult ar)
         {
-            _closing = true;
-            Global.serverForm.Debug("Соединение от " + IP + " было разорвано.");
-            Global.serverForm.RemoveClient(IP);
-            Socket = null;
-        }
-
-        public void LogInClient(int pIndex)
-        {
-            _closing = true;
-            Global.serverForm.RemoveClient(IP);
-            Global.players[pIndex].StartPlayer();
-            Socket = null;
-        }
-
-        private void ReceiveCallback(IAsyncResult ar)
-        {
-            if (!_closing)
+            if(clientState == ClientTCPState.Entrance)
             {
                 try
-                {
-                    int received = Socket.EndReceive(ar);
+                { 
+                    int received = socket.EndReceive(ar);
                     if (received <= 0)
                     {
-                        CloseClient();
+                        Close();
                     }
                     else
                     {
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandleClientData.HandleNetworkInformation(Index, dataBuffer); 
-                        if(!_closing)
-                            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), Socket);
+                        ServerHandleData.HandleNetworkInformation(this, dataBuffer);
+                        if (clientState == ClientTCPState.Entrance)
+                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(EntranceReceiveCallback), null);
                     }
                 }
                 catch (Exception ex)
                 {
                     Global.serverForm.Debug(ex.Message + " " + ex.Source);
-                    CloseClient();
+                    Close();
                 }
             }
         }
-    }
 
-    public class NetPlayer
-    {
-        public int[] levels; // private set!
-        public int[] ranks; //  private set!
-
-        public int RoomIndex { get; private set; }
-        public PlayerState State { get; private set; } 
-        public int Index { get; private set; }
-        public Socket Socket { get; private set; }
-        public string IP { get; private set; }
-        public string Nickname { get; private set; }
-        public bool Stopped { get; private set; }
-
-        private byte[] _buffer;
-
-        public enum PlayerState
+        private void MainLobbyReceive()
         {
-            InMainLobby = 1,
-            SearchingForMatch = 2,
-            Playing = 3,
-            EndPlaying = 4
+            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(MainLobbyReceiveCallback), null);
         }
 
-        public NetPlayer()
+        private void MainLobbyReceiveCallback(IAsyncResult ar)
         {
-            _buffer = new byte[Constants.TCP_BUFFER_SIZE];
-            RoomIndex = 0;
-        }
-
-        public void SetVar(Socket socket, int index, string ip, string nickname, int[] levels, int[] ranks)
-        {
-            Socket = socket;
-            Index = index;
-            IP = ip;
-            Nickname = nickname;
-            this.levels = levels;
-            this.ranks = ranks;
-        }
-
-        public void StartPlayer()
-        { 
-            Stopped = false;
-            State = PlayerState.InMainLobby;
-            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), Socket);
-        }
-
-        #region States
-
-        public void Searching(int roomIndex)
-        {
-            State = PlayerState.SearchingForMatch;
-            RoomIndex = roomIndex;
-        }
-
-        public void Playing()
-        {
-            State = PlayerState.Playing;
-        }
-
-        public void EndPlaying(/* lvl, rating (to change) */)
-        {
-            State = PlayerState.EndPlaying;
-        }
-
-        public void InMainLobby()
-        {
-            State = PlayerState.InMainLobby;
-            RoomIndex = 0;
-        }
-
-        #endregion
-
-        public void NetPlayerStop()
-        {
-            Stopped = true;
-        }
-
-        public void ClosePlayer()
-        {
-            if (State == PlayerState.SearchingForMatch)
-                Global.arena[RoomIndex].DeletePlayer(Index);
-            NetPlayerStop();
-            Socket = null;
-            ServerSendData.SendGlChatMsg("Server", "Player " + Nickname + " disconnected");
-            Global.serverForm.Debug("Соединение от " + IP + " было разорвано.");
-            Global.serverForm.RemoveNetPlayer(Nickname);
-        }
-
-        private void PlayerReceiveCallback(IAsyncResult ar)
-        {
-            if (!Stopped)
+            if (clientState == ClientTCPState.MainLobby)
             {
                 try
                 {
-                    int received = Socket.EndReceive(ar);
+                    int received = socket.EndReceive(ar);
                     if (received <= 0)
                     {
-                        ClosePlayer();
+                        Close();
                     }
                     else
                     {
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandlePlayerData.HandleNetworkInformation(Index, dataBuffer);
-                        if (!Stopped)
-                            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallback), Socket);
+                        ServerHandleData.HandleNetworkInformation(this, dataBuffer);
+                        if (clientState == ClientTCPState.MainLobby)
+                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(MainLobbyReceiveCallback), null);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Global.serverForm.Debug(ex.Message + " " + ex.Source);
-                    ClosePlayer();
+                    Close();
                 }
             }
         }
+
+        private void GameRoomReceive()
+        {
+            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(GameRoomReceiveCallback), null);
+        }
+
+        private void GameRoomReceiveCallback(IAsyncResult ar)
+        {
+            if (clientState == ClientTCPState.GameRoom)
+            { 
+                try
+                {
+                    int received = socket.EndReceive(ar);
+                    if (received <= 0)
+                    {
+                        Close();
+                    }
+                    else
+                    {
+                        byte[] dataBuffer = new byte[received];
+                        Array.Copy(_buffer, dataBuffer, received);
+                        ServerHandleData.HandleNetworkInformation(this, dataBuffer);
+                        if (clientState == ClientTCPState.GameRoom)
+                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(GameRoomReceiveCallback), null);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Global.serverForm.Debug(ex + "");
+                    Close();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Transitions
+
+        public void LogIn(string username)
+        {
+            nickname = Global.data.GetAccountNickname(username);
+            int[][] data = Global.data.GetAccountData(nickname);
+            levels = data[0];
+            ranks = data[1];
+            playerState = NetPlayerState.InMainLobby;
+            Receive(ClientTCPState.MainLobby);
+            ServerSendData.SendLoginOk(nickname, data, this);
+        }
+
+        public void LeaveRoom()
+        {
+            playerState = NetPlayerState.InMainLobby;
+            Receive(ClientTCPState.MainLobby);
+            room.DeletePlayer(this);
+        }
+
+        public void Close()
+        {
+            if(clientState == ClientTCPState.Entrance)
+            {
+                try
+                {
+                    socket.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Global.serverForm.Debug(ex + "");
+                }
+                Global.clientList.Remove(this);
+            }
+            else if(clientState == ClientTCPState.MainLobby)
+            {
+                try
+                {
+                    socket.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Global.serverForm.Debug(ex + "");
+                }
+                Global.clientList.Remove(this);
+                ServerSendData.SendGlChatMsg("Server", $"Player { nickname } disconnected.");
+            }
+            else if(clientState == ClientTCPState.GameRoom)
+            {
+                if (playerState == NetPlayerState.SearchingForMatch)
+                {
+                    room.DeletePlayer(this);
+                }
+                else if(playerState == NetPlayerState.Playing)
+                {
+                    room.AbortGameSession(this);
+                }
+                else if(playerState == NetPlayerState.EndPlaying)
+                {
+                    room.LeaveRoom(this);
+                }
+                Global.serverForm.Debug($"GamePlayer {nickname} lost connection");
+                Global.clientList.Remove(this);
+            }
+            Global.serverForm.RemoveClient(this);
+        }
+
+        #endregion
 
     }
 

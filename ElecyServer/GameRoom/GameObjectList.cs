@@ -18,13 +18,13 @@ namespace ElecyServer
             Offset = 0;
         }
 
-        public void Add(NetworkGameObject.ObjectType type, int roomIndex)
+        public void Add(NetworkGameObject.ObjectType type, GameRoom room)
         {
             int number = Offset +  ArenaRandomGenerator.NumberOfObjects(type);
             ranges.Add(type, new int[] { Offset, number - 1 });
             while(Offset < number)
             {
-                objects[Offset] = new NetworkGameObject(Offset, type, roomIndex);
+                objects[Offset] = new NetworkGameObject(Offset, type, room);
                 CheckLength();
                 Offset++;
             }
@@ -67,7 +67,7 @@ namespace ElecyServer
         public float[] Rotation { get; private set; }
         public bool IsDestroyed { get; private set; }
         public int HP { get; private set; }
-        public int RoomIndex { get; private set; } // use 
+        public GameRoom Room { get; private set; } // use 
         public ObjectType Type { get; private set; } // use
 
         public enum ObjectType
@@ -78,19 +78,19 @@ namespace ElecyServer
             spell = 3,
         }
 
-        public NetworkGameObject(int index, ObjectType type, int roomIndex)
+        public NetworkGameObject(int index, ObjectType type, GameRoom room)
         {
             Index = index;
             Type = type;
-            RoomIndex = roomIndex;
+            Room = room;
             SetTransform();
             SetHP();
         }
 
         private void SetTransform()
         {
-            float[] pos = Global.arena[RoomIndex].Spawner.RandomPosition(Type);
-            float[] rot = Global.arena[RoomIndex].Spawner.RandomRotation();
+            float[] pos = Room.Spawner.RandomPosition(Type);
+            float[] rot = Room.Spawner.RandomRotation();
             Position = new float[] { pos[0], 0.5f, pos[1] };
             if(Type == ObjectType.tree)
             {

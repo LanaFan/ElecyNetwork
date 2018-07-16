@@ -5,35 +5,30 @@ namespace ElecyServer
     public static class Queue
     {
 
-        public static bool StartSearch(int index, int matchType, string race)
+        public static void StartSearch(ClientTCP client, int matchType, string race)
         {
             switch (matchType)
             {
                 case 0:
-                    for(int i = 1; i < Constants.ARENA_SIZE; i++)
+                    client.playerState = NetPlayerState.SearchingForMatch;
+                    client.race = race;
+                    foreach(GameRoom room in Global.roomsList)
                     {
-                        if (Global.arena[i].Status == GameRoom.RoomStatus.Searching)
+                        if (room.Status == RoomState.Searching)
                         {
-                            Global.arena[i].AddPlayer(Global.players[index], race);
-                            return true;
+                            room.AddPlayer(client);
+                            return;
                         }
                     }
-                    for(int i = 1; i < Constants.ARENA_SIZE; i++)
-                    {
-                        if(Global.arena[i].Status == GameRoom.RoomStatus.Empty)
-                        {
-                            Global.arena[i].AddPlayer(Global.players[index], race);
-                            return true;
-                        }
-                    }
+                    Global.roomsList.Add(new GameRoom(client));
                     break;
             }
-            return false;
         }
 
-        public static void StopSearch(int index, int roomIndex)
+        public static void StopSearch(ClientTCP client)
         {
-            Global.arena[roomIndex].DeletePlayer(index);
+            if(client.room != null)
+                client.room.DeletePlayer(client);
         }
 
     }

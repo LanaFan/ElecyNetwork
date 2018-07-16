@@ -19,7 +19,7 @@ namespace ElecyServer
             {
                 connectUDP = new UdpClient(Constants.UDP_PORT);
                 buffer = new byte[Constants.UDP_BUFFER_SIZE];
-                Global.serverForm.Debug("UDP система запущена и ожидает подключений.");
+                Global.serverForm.Debug("UDP system launched...");
                 receive = true;
                 connectUDP.BeginReceive(new AsyncCallback(ReceiveCallback), connectUDP);
             }

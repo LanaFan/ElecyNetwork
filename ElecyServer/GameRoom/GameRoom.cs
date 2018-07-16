@@ -1,28 +1,30 @@
 ﻿using System;
-using System.Net.Sockets;
-using Bindings;
 using System.Threading;
+using Bindings;
 
 namespace ElecyServer
 {
     public class GameRoom
     {
+
+        #region Variables
+
+        public ClientTCP player1;
+        public ClientTCP player2;
+
         public GameObjectList ObjectsList { get; private set; }
-        public int RoomIndex { get; private set; }
         public ArenaRandomGenerator Spawner { get; private set; }
-        public RoomStatus Status { get; private set; }
+        public RoomState Status { get; private set; }
 
         private int mapIndex;
-        private Player player1;
-        private Player player2;
         private Timer closeTimer;
         private Timer loadTimer;
         private bool p1Loaded;
         private bool p2Loaded;
         private float scaleX;
         private float scaleZ;
-        private float[] firstSpawnPointPos;
-        private float[] secondSpawnPointPos;
+        private float[][] firstPlayerSpawnTransform;
+        private float[][] secondPlayerSpawnTransform;
 
         #region Randomed
 
@@ -40,18 +42,15 @@ namespace ElecyServer
 
         #endregion
 
-        public enum RoomStatus
-        {
-            Empty = 1,
-            Searching = 2,
-            MatchEnded = 3,
-            Closed = 4
-        }
+        #endregion
 
-        public GameRoom(int roomIndex)
+        #region Initialization
+
+        public GameRoom(ClientTCP client)
         {
-            RoomIndex = roomIndex;
-            Status = RoomStatus.Empty;
+            Status = RoomState.Searching;
+            player1 = client;
+            player1.room = this;
             ObjectsList = new GameObjectList();
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
             _rockRandomed = Randoming.unrandomed;
@@ -59,223 +58,65 @@ namespace ElecyServer
             expectant = new object();
             p1Loaded = false;
             p2Loaded = false;
+            Global.serverForm.AddGameRoom(this);
         }
 
-        public void AddPlayer(NetPlayer player, string race)
+        public void AddPlayer(ClientTCP client)
         {
-            if (Status == RoomStatus.Empty)
-            {
-                player1 = new Player(player.Socket, this, player.Index, player.Nickname, 1, 0f, race);
-                player.Searching(RoomIndex);
-                Status = RoomStatus.Searching;
-                Global.serverForm.AddGameRoom(RoomIndex + "");
-            }
-            else if (Status == RoomStatus.Searching)
-            {
-                player2 = new Player(player.Socket, this, player.Index, player.Nickname, 2, 0f, race);
-                player.Searching(RoomIndex);
-                Status = RoomStatus.Closed;
-                ServerSendData.SendMatchFound(mapIndex, player1.Index, player2.Index, RoomIndex);
-            }
-            else
-                return; // Ubrat'
-                //Send alert
+            Status = RoomState.Closed;
+            player2 = client;
+            player2.room = this;
+            StartLoad();
         }
 
-        public void DeletePlayer(int index)
+        public void DeletePlayer(ClientTCP client)
         {
-            if (player1 != null && player1.Index == index)
-            {
+            client.race = null;
+            client.room = null;
+            if (player1 != null && client.Equals(player1))
                 player1 = null;
-                Global.players[index].InMainLobby();
-                Status = RoomStatus.Empty;
-                Global.serverForm.RemoveGameRoom(RoomIndex + "");
-            }
-            else if (player2 != null && player2.Index == index) 
-            {
+            else
                 player2 = null;
-                Global.players[index].InMainLobby();
-                Status = RoomStatus.Searching;
-            }
-        }
-
-        public void StartGame()
-        {
-            // Here was thansform timer
-        }
-
-        public void GameRoomInstatiate(int objectID, int instanceType, string objectPath, float[] pos, float[] rot)
-        {
-            ///Here comes the object adding to list and sent to players instantiate
-        }
-
-        public void StartReceive(int index)
-        {
-            if(index == player1.Index)
+            if (Status == RoomState.Searching)
             {
-                player1.StartPlay();
-                StopNetPlayer(index);
-            }
-            else
-            {
-                player2.StartPlay();
-                StopNetPlayer(index);
+                Global.serverForm.RemoveGameRoom(this);
+                Global.roomsList.Remove(this);
             }
         }
 
-        public void AbortGameSession(int ID)
+        private void StartLoad()
         {
-            if (Status != RoomStatus.MatchEnded)
-            {
-                Status = RoomStatus.MatchEnded;
-                closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
-                if (ID == 1)
-                {
-                    player1.PlayerClose();
-                    player1 = null;
-                    ServerSendData.SendMatchEnded(2, RoomIndex, player2.Nickname);
-                }
-                else
-                {
-                    player2.PlayerClose();
-                    player2 = null;
-                    ServerSendData.SendMatchEnded(1, RoomIndex, player1.Nickname);
-                }
-            }
-            else
-            {
-                if (ID == 1)
-                {
-                    player1.PlayerClose();
-                    player1 = null;
-                }
-                else
-                {
-                    player2.PlayerClose();
-                    player2 = null;
-                }
-                if(player1 == null && player2 == null)
-                {
-                    ClearRoom();
-                }
-            }
+            player1.Receive(ClientTCPState.GameRoom);
+            player2.Receive(ClientTCPState.GameRoom);
+            ServerSendData.SendMatchFound(mapIndex, player1, player2);
         }
 
-        public void Surrended(int ID)
-        {
-            Status = RoomStatus.MatchEnded;
-            if(ID == 1)
-            {
-                ServerSendData.SendMatchEnded(RoomIndex, player2.Nickname);
-            }
-            else
-            {
-                ServerSendData.SendMatchEnded(RoomIndex, player1.Nickname);
-            }
-        }
+        #endregion
 
-        public void BackToNetPlayer(int ID)
-        {
-            if(ID == 1)
-            {
-                Global.players[player1.Index].StartPlayer();
-                player1 = null;
-            }
-            else
-            {
-                Global.players[player2.Index].StartPlayer();
-                player2 = null;
-            }
-            if (player1 == null && player2 == null)
-            {
-                ClearRoom();
-            }
-        }
+        #region Loading
 
-        public void CloseRoom()
-        {
-            StopTimers();
-            if (player1 != null)
-                player1.PlayerClose();
-            if (player2 != null)
-                player2.PlayerClose();
-            Global.arena[RoomIndex] = null;
-        }
-
-        private void StopNetPlayer(int index)
-        {
-            Global.players[index].NetPlayerStop();
-        }
-
-        //private void SendTransform(Object o)
-        //{
-        //    float[][] p2transform = player2.Transform;
-        //    ServerSendData.SendTransform(1, RoomIndex, p2transform[0], p2transform[1]);
-        //    float[][] p1transform = player1.Transform;
-        //    ServerSendData.SendTransform(2, RoomIndex, p1transform[0], p1transform[1]);
-        //}
-
-        private void StopTimers()
-        {
-            if (closeTimer != null)
-                closeTimer.Dispose();
-        }
-
-        private void EndGameSession(Object o)
-        {
-            closeTimer.Dispose();
-            if (player1 != null)
-            {
-                ServerSendData.SendRoomLogOut(1, RoomIndex);
-                BackToNetPlayer(1);
-            }
-            if (player2 != null)
-            {
-                ServerSendData.SendRoomLogOut(2, RoomIndex);
-                BackToNetPlayer(2);
-            }
-            ClearRoom();
-        }
-
-        private void ClearRoom()
-        {
-            Global.serverForm.RemoveGameRoom(RoomIndex + "");
-            player1 = player2 = null;
-            Status = RoomStatus.Empty;
-            ObjectsList = new GameObjectList();
-            mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
-            _rockRandomed = Randoming.unrandomed;
-            _treeRandomed = Randoming.unrandomed;
-            p1Loaded = false;
-            p2Loaded = false;
-        }
-
-        #region Load
-
-        public void SetGameLoadData(int ID)
+        public void SetGameLoadData(ClientTCP client)
         {
             int[] scale = Global.data.GetMapScale(mapIndex);
             float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
             float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
 
-            if (ID == 1)
+            if (client.Equals(player1))
             {
-                SetTransform(ID, spawnPos[0], spawnRot[0]);
                 scaleX = scale[0] * 10f;
                 scaleZ = scale[1] * 10f;
-                firstSpawnPointPos = spawnPos[0];
-                secondSpawnPointPos = spawnPos[1];
-                Global.players[player1.Index].Playing();
+                firstPlayerSpawnTransform = new float[][] { spawnPos[0], spawnRot[0]};
+                secondPlayerSpawnTransform = new float[][] { spawnPos[1], spawnRot[1] };
+                client.playerState = NetPlayerState.Playing;
                 p1Loaded = true;
             }
             else
             {
-                SetTransform(ID, spawnPos[1], spawnRot[1]);
                 scaleX = scale[0] * 10f;
                 scaleZ = scale[1] * 10f;
-                firstSpawnPointPos = spawnPos[0];
-                secondSpawnPointPos = spawnPos[1];
-                Global.players[player2.Index].Playing();
+                firstPlayerSpawnTransform = new float[][] { spawnPos[0], spawnRot[0] };
+                secondPlayerSpawnTransform = new float[][] { spawnPos[1], spawnRot[1] };
+                client.playerState = NetPlayerState.Playing;
                 p2Loaded = true;
             }
 
@@ -284,70 +125,63 @@ namespace ElecyServer
                 p1Loaded = false;
                 p2Loaded = false;
                 loadTimer = new Timer(LoadPulse, null, 0, 1000);
-                Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstSpawnPointPos, secondSpawnPointPos);
-                ServerSendData.SendGameData(RoomIndex, player1.Nickname, player2.Nickname, spawnPos, spawnRot);
+                Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstPlayerSpawnTransform[0], secondPlayerSpawnTransform[0]);
+                ServerSendData.SendGameData(player1, player2, spawnPos, spawnRot);
             }
         }
 
-        public void SpawnTree(int ID)
+        public void SpawnRock(ClientTCP client)
         {
             lock (expectant)
             {
-                if (_treeRandomed != Randoming.randomed)
+                if(_rockRandomed == Randoming.unrandomed)
                 {
-                    if (_treeRandomed != Randoming.randoming)
-                    {
-                        _treeRandomed = Randoming.randoming;
-                        ObjectsList.Add(NetworkGameObject.ObjectType.tree, RoomIndex);
-                        _treeRandomed = Randoming.randomed;
-                        lock (expectant)
-                            Monitor.Pulse(expectant);
-                    }
-                    else
-                    {
-                        lock (expectant)
-                            Monitor.Wait(expectant);
-                    }
-
+                    _rockRandomed = Randoming.randoming;
+                    ObjectsList.Add(NetworkGameObject.ObjectType.rock, this);
+                    _rockRandomed = Randoming.randomed;
+                    lock (expectant)
+                        Monitor.Pulse(expectant);
+                }
+                else if (_rockRandomed == Randoming.randoming)
+                {
+                    lock (expectant)
+                        Monitor.Pulse(expectant);
                 }
             }
-            ServerSendData.SendTreeSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.tree));
+            ServerSendData.SendRockSpawned(client, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
         }
 
-        public void SpawnRock(int ID)
+        public void SpawnTree(ClientTCP client)
         {
             lock (expectant)
             {
-                if (_rockRandomed != Randoming.randomed)
+                if (_treeRandomed == Randoming.unrandomed)
                 {
-                    if (_rockRandomed != Randoming.randoming)
-                    {
-                        _rockRandomed = Randoming.randoming;
-                        ObjectsList.Add(NetworkGameObject.ObjectType.rock, RoomIndex);
-                        _rockRandomed = Randoming.randomed;
-                        lock (expectant)
-                            Monitor.Pulse(expectant);
-                    }
-                    else
-                    {
-                        lock (expectant)
-                            Monitor.Wait(expectant);
-                    }
+                    _treeRandomed = Randoming.randoming;
+                    ObjectsList.Add(NetworkGameObject.ObjectType.tree, this);
+                    _treeRandomed = Randoming.randomed;
+                    lock (expectant)
+                        Monitor.Pulse(expectant);
+                }
+                else if (_treeRandomed == Randoming.randoming)
+                {
+                    lock (expectant)
+                        Monitor.Pulse(expectant);
                 }
             }
-            ServerSendData.SendRockSpawned(ID, RoomIndex, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
+            ServerSendData.SendTreeSpawned(client, ObjectsList.GetRange(NetworkGameObject.ObjectType.tree));
         }
 
-        public void LoadSpells(int ID)
+        public void LoadSpells(ClientTCP client)
         {
-            int[] spellsToLoadFirst = Global.data.GetSkillBuildData(player1.Nickname, player1.Race);
-            int[] spellsToLoadSecond = Global.data.GetSkillBuildData(player2.Nickname, player2.Race);
-            ServerSendData.SendLoadSpells(ID, RoomIndex, spellsToLoadFirst, spellsToLoadSecond);
+            int[] spellsToLoadFirst = Global.data.GetSkillBuildData(client.nickname, client.race);
+            int[] spellsToLoadSecond = Global.data.GetSkillBuildData(client.nickname, client.race);
+            ServerSendData.SendLoadSpells(client, spellsToLoadFirst, spellsToLoadSecond);
         }
 
-        public void LoadComplete(int ID)
+        public void LoadComplete(ClientTCP client)
         {
-            if (ID == 1)
+            if (client.Equals(player1))
                 p1Loaded = true;
             else
                 p2Loaded = true;
@@ -357,8 +191,20 @@ namespace ElecyServer
                 p1Loaded = false;
                 p2Loaded = false;
                 loadTimer.Dispose();
-                ServerSendData.SendRoomStart(RoomIndex);
-                StartGame();
+                ServerSendData.SendRoomStart(player1, player2);
+                //Start UDP
+            }
+        }
+
+        public void SetLoadProgress(ClientTCP client, float loadProgress)
+        {
+            if(client.Equals(player1))
+            {
+                ServerSendData.SendEnemyProgress(player2, client.load = loadProgress);
+            }
+            else
+            {
+                ServerSendData.SendEnemyProgress(player1, client.load = loadProgress);
             }
         }
 
@@ -370,154 +216,110 @@ namespace ElecyServer
 
         #endregion
 
-        #region Gets And Sets
+        #region Finalization
 
-        // Get
-
-        public Player GetPlayer(int ID)
+        public void Surrended(ClientTCP client)
         {
-            return ID == 1 ? player1 : player2;
-        }
-
-        public Socket GetSocket(int ID)
-        {
-            return (ID == 1) ? player1.Socket : player2.Socket;
-        }
-
-        public Socket Player1Socket
-        {
-            get { return player1.Socket; }
-        }
-
-        public Socket Player2Socket
-        {
-            get { return player2.Socket; }
-        }
-
-        public string Size
-        {
-            get { return scaleX + "x" + scaleZ; }
-        }
-
-        // Set
-
-        public void SetTransform(int ID, float[] position, float[] rotation)
-        {
-            if (ID == 1)
+            Status = RoomState.MatchEnded;
+            player1.playerState = NetPlayerState.EndPlaying;
+            player2.playerState = NetPlayerState.EndPlaying;
+            closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
+            if (client.Equals(player1))
             {
-                player1.Transform = new float[][] { position, rotation };
+                ServerSendData.SendMatchEnded(player2, player1);
             }
             else
             {
-                player2.Transform = new float[][] { position, rotation };
+                ServerSendData.SendMatchEnded(player1, player2);
             }
         }
 
-        public void SetLoadProgress(int ID, float loadProgress)
+        public void AbortGameSession(ClientTCP client)
         {
-            if(ID == 1)
+            if (Status != RoomState.MatchEnded)
             {
-                player1.Load = loadProgress;
-                ServerSendData.SendEnemyProgress(1, RoomIndex, player2.Load);
-            } else
-            {
-                player2.Load = loadProgress;
-                ServerSendData.SendEnemyProgress(2, RoomIndex, player1.Load);
+                Status = RoomState.MatchEnded;
+                closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
+                if (client.Equals(player1))
+                {
+                    player1 = null;
+                    player2.playerState = NetPlayerState.EndPlaying;
+                    ServerSendData.SendMatchEnded(player2);
+                }
+                else
+                {
+                    player2 = null;
+                    player1.playerState = NetPlayerState.EndPlaying;
+                    ServerSendData.SendMatchEnded(player1);
+                }
             }
+            else
+            {
+                if (player1 == null)
+                {
+                    player2 = null;
+                }
+                else
+                {
+                    player1 = null;
+                }
+                if (player1 == null && player2 == null)
+                {
+                    CloseRoom();
+                }
+            }
+        }
+
+        public void LeaveRoom(ClientTCP client)
+        {
+            if(player1 != null && client.Equals(player1))
+            {
+                player1.LeaveRoom();
+            }
+            else
+            {
+                player2.LeaveRoom();
+            }
+
+            if(player1 == null && player2 == null)
+            {
+                CloseRoom();
+            }
+        }
+
+        public void CloseRoom()
+        {
+            StopTimers();
+            Global.serverForm.RemoveGameRoom(this);
+            Global.roomsList.Remove(this);
+        }
+
+        private void StopTimers()
+        {
+            if (closeTimer != null)
+                closeTimer.Dispose();
+            if (loadTimer != null)
+                loadTimer.Dispose();
+        }
+
+        private void EndGameSession(Object o)
+        {
+            closeTimer.Dispose();
+            if (player1 != null)
+            {
+                ServerSendData.SendRoomLogOut(player1);
+                LeaveRoom(player1);
+            }
+            if (player2 != null)
+            {
+                ServerSendData.SendRoomLogOut(player2);
+                LeaveRoom(player2);
+            }
+            CloseRoom();
         }
 
         #endregion
 
-    }
-
-    public class Player
-    {
-        public float[][] Transform
-        {
-            get { return new float[][] { _position, _rotation }; }
-            set { _position = value[0]; _rotation = value[1]; }
-        }
-
-        public string Nickname { get; private set; }
-        public int Index { get; private set; }
-        public Socket Socket { get; private set; }
-        public int ID { get; private set; }
-        public GameRoom Room { get; private set; }
-        public string Race { get; private set; }
-        public float Load;
-
-        private GamePlayerUDP playerUDP;
-        private float[] _position;
-        private float[] _rotation;
-        private byte[] _buffer = new byte[Constants.TCP_BUFFER_SIZE];
-        private bool _playing = false;
-
-        public Player(Socket socket, GameRoom room, int index, string nickname, int ID, float load, string race)
-        {
-            Socket = socket;
-            Index = index;
-            Nickname = nickname;
-            Room = room;
-            this.ID = ID;
-            Load = load;
-            Race = race;
-        }
-
-        public void StartPlay()
-        {
-            _playing = true;
-            Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), Socket);
-        }
-
-        private void PlayerReceiveCallBack(IAsyncResult ar)
-        {
-            try
-            {
-                int received = Socket.EndReceive(ar);
-                if (received <= 0)
-                {
-                    Global.serverForm.Debug("GamePlayer " + Nickname + " lost connection");
-                    Room.AbortGameSession(ID);
-                }
-                else
-                {
-                    byte[] dataBuffer = new byte[received];
-                    Array.Copy(_buffer, dataBuffer, received);
-                    if (_playing)
-                        Socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(PlayerReceiveCallBack), Socket);
-                    else
-                        return;
-                    ServerHandleRoomData.HandleNetworkInformation(ID, Room, dataBuffer);
-
-                }
-            }
-            catch
-            {
-                Global.serverForm.Debug("GamePlayer " + Nickname + " lost connection");
-                Room.AbortGameSession(ID);
-            }
-        }
-
-        public void PlayerStop()
-        {
-            _playing = false;
-        }
-
-        public void PlayerClose()
-        {
-            PlayerStop();
-            //if(playerUDP != null)
-            //{
-            //    playerUDP.Closed();
-            //}
-            Global.players[Index].ClosePlayer();
-        }
-
-        public void SetPlayerUDP(GamePlayerUDP player)
-        {
-            playerUDP = player;
-            //Start timer
-        }
     }
 
 }

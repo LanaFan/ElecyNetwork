@@ -15,9 +15,8 @@ namespace ElecyServer
 
         public static void ServerStart()
         {
-            ServerHandleClientData.InitializeNetworkPackages();
-            ServerHandlePlayerData.InitializeNetworkPackages();
-            ServerHandleRoomData.InitializeNetworkPackages();
+            ServerHandleData.InitializeNetworkPackages();
+            Global.InitGlobals();
             Global.mysql.MySQLInit();
             Global.data.InitDatabase();
             ServerTCP.SetupServer();

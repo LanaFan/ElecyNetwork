@@ -9,7 +9,7 @@
         SAlert = 4,
         SGlChatMsg = 5,
         SQueueStarted = 6,
-        SQueueContinue = 7,
+        //SQueueContinue = 7,
         SMatchFound = 8,
         SLoadStarted = 9,
         SRockSpawn = 10,
@@ -35,9 +35,9 @@
         CConnectComplite = 1,
         CRegisterTry = 2,
         CLoginTry = 3,
-        CAlert = 4,
-        CClose = 5,
-        CReconnectComplite = 6,
+        //CAlert = 4,
+        //CClose = 5,
+        //CReconnectComplite = 6,
     }
 
     //get send from player to server

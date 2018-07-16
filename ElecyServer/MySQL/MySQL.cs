@@ -19,7 +19,7 @@ namespace ElecyServer
                 DB_CONN.ConnectionString = "Driver={MySQL ODBC 3.51 Driver}; Server=localhost; Port=3306;Database=elecyproject;User=root;Password=;Option=3;";
                 DB_CONN.CursorLocation = CursorLocationEnum.adUseServer;
                 DB_CONN.Open();
-                Global.serverForm.Debug("Connection to MySQL server completed!");
+                Global.serverForm.Debug("Connection to MySQL server completed...");
             }
             catch (Exception ex)
             {
