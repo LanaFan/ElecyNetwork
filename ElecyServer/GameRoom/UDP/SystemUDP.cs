@@ -19,13 +19,13 @@ namespace ElecyServer
             {
                 connectUDP = new UdpClient(Constants.UDP_PORT);
                 buffer = new byte[Constants.UDP_BUFFER_SIZE];
-                Global.serverForm.Debug("UDP system launched...");
                 receive = true;
                 connectUDP.BeginReceive(new AsyncCallback(ReceiveCallback), connectUDP);
+                Global.serverForm.StatusIndicator(3);
             }
             catch (SocketException ex)
             {
-                Global.serverForm.Debug(ex.ErrorCode + "");
+                Global.serverForm.StatusIndicator(3, ex);
             }
 
         }
@@ -69,8 +69,12 @@ namespace ElecyServer
             try
             {
                 connectUDP.Close();
+                Global.serverForm.HidePtr(3);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Global.serverForm.StatusIndicator(3, ex);
+            }
         }
 
         public static void Send(GamePlayerUDP player, byte[] data)

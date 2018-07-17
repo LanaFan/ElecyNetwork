@@ -5,6 +5,7 @@ namespace ElecyServer
 {
     public class Program
     {
+        [STAThread]
         public static void Main(string[] args)
         {
             Application.EnableVisualStyles();
@@ -15,8 +16,16 @@ namespace ElecyServer
 
         public static void ServerStart()
         {
-            ServerHandleData.InitializeNetworkPackages();
-            Global.InitGlobals();
+            try
+            {
+                ServerHandleData.InitializeNetworkPackages();
+                Global.InitGlobals();
+                Global.serverForm.StatusIndicator(1);
+            }
+            catch (Exception ex)
+            {
+                Global.serverForm.StatusIndicator(1, ex);
+            }
             Global.mysql.MySQLInit();
             Global.data.InitDatabase();
             ServerTCP.SetupServer();

@@ -1,4 +1,5 @@
 ﻿using Bindings;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -39,9 +40,16 @@ namespace ElecyServer
         {
             mysql = null;
             data = null;
-            foreach(ClientTCP client in clientList.ToArray())
+            foreach (ClientTCP client in clientList.ToArray())
             {
-                client.Close();
+                try
+                {
+                    client.Close();
+                }
+                catch
+                {
+
+                }
             }
             clientList = null;
             foreach (GameRoom room in roomsList.ToArray())
@@ -54,7 +62,6 @@ namespace ElecyServer
                 playersUDP.Remove(player);
             }
             playersUDP = null;
-
         }
     }
 }

@@ -15,14 +15,21 @@ namespace ElecyServer
 
         public static void SetupServer()
         {
-            _buffer = new byte[Constants.TCP_BUFFER_SIZE];
-            Closed = false;
-            _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
-            _serverSocket.Listen(Constants.SERVER_LISTEN);
-            _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-            UDPConnector.WaitConnect();
-            Global.serverForm.Debug("Server started!");
+            try
+            {
+                _buffer = new byte[Constants.TCP_BUFFER_SIZE];
+                Closed = false;
+                _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                _serverSocket.Bind(new IPEndPoint(IPAddress.Any, Constants.PORT));
+                _serverSocket.Listen(Constants.SERVER_LISTEN);
+                _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
+                UDPConnector.WaitConnect();
+                Global.serverForm.StatusIndicator(4);
+            }
+            catch (Exception ex)
+            {
+                Global.serverForm.StatusIndicator(4, ex);
+            }
         }
 
         public static void ServerClose()
@@ -30,12 +37,28 @@ namespace ElecyServer
             if (!Closed)
             {
                 Closed = true;
-                Global.ThreadsStop();
                 Global.mysql.MySQLClose();
-                Global.FinalGlobals();
+                try
+                {
+                    Global.ThreadsStop();
+                    Global.FinalGlobals();
+                    Global.serverForm.HidePtr(1);
+                }
+                catch (Exception ex)
+                {
+                    Global.serverForm.StatusIndicator(1, ex);
+                }
                 UDPConnector.Close();
-                _serverSocket.Dispose();
-                Global.serverForm.Debug("Server closed...");
+                try
+                {
+                    _serverSocket.Dispose();
+                    Global.serverForm.HidePtr(4);
+                }
+                catch(Exception ex)
+                {
+                    Global.serverForm.StatusIndicator(4, ex);
+                }
+
             }
         }
 
@@ -342,49 +365,55 @@ namespace ElecyServer
 
         public void Close()
         {
-            if(clientState == ClientTCPState.Entrance)
+            if (clientState != ClientTCPState.Sleep)
             {
-                try
+                if (clientState == ClientTCPState.Entrance)
                 {
-                    socket.Dispose();
+                    clientState = ClientTCPState.Sleep;
+                    try
+                    {
+                        socket.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.serverForm.Debug(ex + "");
+                    }
+                    Global.clientList.Remove(this);
                 }
-                catch (Exception ex)
+                else if (clientState == ClientTCPState.MainLobby)
                 {
-                    Global.serverForm.Debug(ex + "");
+                    clientState = ClientTCPState.Sleep;
+                    try
+                    {
+                        socket.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.serverForm.Debug(ex + "");
+                    }
+                    Global.clientList.Remove(this);
+                    ServerSendData.SendGlChatMsg("Server", $"Player { nickname } disconnected.");
                 }
-                Global.clientList.Remove(this);
+                else if (clientState == ClientTCPState.GameRoom)
+                {
+                    clientState = ClientTCPState.Sleep;
+                    if (playerState == NetPlayerState.SearchingForMatch)
+                    {
+                        room.DeletePlayer(this);
+                    }
+                    else if (playerState == NetPlayerState.Playing)
+                    {
+                        room.AbortGameSession(this);
+                    }
+                    else if (playerState == NetPlayerState.EndPlaying)
+                    {
+                        room.LeaveRoom(this);
+                    }
+                    Global.serverForm.Debug($"GamePlayer {nickname} lost connection");
+                    Global.clientList.Remove(this);
+                }
+                Global.serverForm.RemoveClient(this);
             }
-            else if(clientState == ClientTCPState.MainLobby)
-            {
-                try
-                {
-                    socket.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    Global.serverForm.Debug(ex + "");
-                }
-                Global.clientList.Remove(this);
-                ServerSendData.SendGlChatMsg("Server", $"Player { nickname } disconnected.");
-            }
-            else if(clientState == ClientTCPState.GameRoom)
-            {
-                if (playerState == NetPlayerState.SearchingForMatch)
-                {
-                    room.DeletePlayer(this);
-                }
-                else if(playerState == NetPlayerState.Playing)
-                {
-                    room.AbortGameSession(this);
-                }
-                else if(playerState == NetPlayerState.EndPlaying)
-                {
-                    room.LeaveRoom(this);
-                }
-                Global.serverForm.Debug($"GamePlayer {nickname} lost connection");
-                Global.clientList.Remove(this);
-            }
-            Global.serverForm.RemoveClient(this);
         }
 
         #endregion
