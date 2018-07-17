@@ -86,8 +86,10 @@ namespace ElecyServer
 
         private void StartLoad()
         {
-            player1.Receive(ClientTCPState.GameRoom);
-            player2.Receive(ClientTCPState.GameRoom);
+            //player1.Receive(ClientTCPState.GameRoom);
+            player1.clientState = ClientTCPState.GameRoom;
+            //player2.Receive(ClientTCPState.GameRoom);
+            player2.clientState = ClientTCPState.GameRoom;
             ServerSendData.SendMatchFound(mapIndex, player1, player2);
         }
 

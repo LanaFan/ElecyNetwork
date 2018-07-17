@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Threading;
 using Bindings;
 
 namespace ElecyServer
@@ -120,6 +121,7 @@ namespace ElecyServer
 
         public void StatusIndicator(int index, Exception ex = null)
         {
+
             switch(index)
             {
                 case 1:
@@ -167,7 +169,8 @@ namespace ElecyServer
 
         public void HidePtr(int index = 0)
         {
-            switch(index)
+
+            switch (index)
             {
                 case 0:
                     ptrFour.Hide();
@@ -534,14 +537,14 @@ namespace ElecyServer
                 Clipboard.SetText(lastException);
         }
 
-
-        #endregion
-
         private void txtChat_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyData == (Keys.Control | Keys.V))
                 (sender as TextBox).Paste();
         }
+
+
+        #endregion
     }
         
 }

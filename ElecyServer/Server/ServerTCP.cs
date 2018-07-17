@@ -215,44 +215,30 @@ namespace ElecyServer
             this.socket = socket;
             this.ip = ip;
             _buffer = new byte[Constants.TCP_BUFFER_SIZE];
-
-            Receive(ClientTCPState.Entrance);
+            clientState = ClientTCPState.Entrance;
+            Receive();
         }
 
         #endregion
 
         #region Receive
 
-        public void Receive(ClientTCPState? state = null)
+        public void Receive()
         {
-            clientState = state ?? clientState;
-            switch(clientState)
+            if(clientState != ClientTCPState.Sleep)
             {
-                case ClientTCPState.Sleep:
-                    break;
-                case ClientTCPState.Entrance:
-                    EntranceReceive();
-                    break;
-                case ClientTCPState.MainLobby:
-                    MainLobbyReceive();
-                    break;
-                case ClientTCPState.GameRoom:
-                    break;
+                if (clientState == ClientTCPState.Entrance)
+                    Global.serverForm.AddClient(this);
+                socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
             }
         }
 
-        private void EntranceReceive()
+        private void ReceiveCallback(IAsyncResult ar)
         {
-            Global.serverForm.AddClient(this);
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(EntranceReceiveCallback), null);
-        }
-
-        private void EntranceReceiveCallback(IAsyncResult ar)
-        {
-            if(clientState == ClientTCPState.Entrance)
+            if(clientState != ClientTCPState.Sleep)
             {
                 try
-                { 
+                {
                     int received = socket.EndReceive(ar);
                     if (received <= 0)
                     {
@@ -263,79 +249,13 @@ namespace ElecyServer
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
                         ServerHandleData.HandleNetworkInformation(this, dataBuffer);
-                        if (clientState == ClientTCPState.Entrance)
-                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(EntranceReceiveCallback), null);
+                        if (clientState != ClientTCPState.Sleep)
+                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
                     }
                 }
                 catch (Exception ex)
                 {
                     Global.serverForm.Debug(ex.Message + " " + ex.Source);
-                    Close();
-                }
-            }
-        }
-
-        private void MainLobbyReceive()
-        {
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(MainLobbyReceiveCallback), null);
-        }
-
-        private void MainLobbyReceiveCallback(IAsyncResult ar)
-        {
-            if (clientState == ClientTCPState.MainLobby)
-            {
-                try
-                {
-                    int received = socket.EndReceive(ar);
-                    if (received <= 0)
-                    {
-                        Close();
-                    }
-                    else
-                    {
-                        byte[] dataBuffer = new byte[received];
-                        Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandleData.HandleNetworkInformation(this, dataBuffer);
-                        if (clientState == ClientTCPState.MainLobby)
-                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(MainLobbyReceiveCallback), null);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Global.serverForm.Debug(ex.Message + " " + ex.Source);
-                    Close();
-                }
-            }
-        }
-
-        private void GameRoomReceive()
-        {
-            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(GameRoomReceiveCallback), null);
-        }
-
-        private void GameRoomReceiveCallback(IAsyncResult ar)
-        {
-            if (clientState == ClientTCPState.GameRoom)
-            { 
-                try
-                {
-                    int received = socket.EndReceive(ar);
-                    if (received <= 0)
-                    {
-                        Close();
-                    }
-                    else
-                    {
-                        byte[] dataBuffer = new byte[received];
-                        Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandleData.HandleNetworkInformation(this, dataBuffer);
-                        if (clientState == ClientTCPState.GameRoom)
-                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(GameRoomReceiveCallback), null);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Global.serverForm.Debug(ex + "");
                     Close();
                 }
             }
@@ -352,14 +272,14 @@ namespace ElecyServer
             levels = data[0];
             ranks = data[1];
             playerState = NetPlayerState.InMainLobby;
-            Receive(ClientTCPState.MainLobby);
+            clientState = ClientTCPState.MainLobby;
             ServerSendData.SendLoginOk(nickname, data, this);
         }
 
         public void LeaveRoom()
         {
             playerState = NetPlayerState.InMainLobby;
-            Receive(ClientTCPState.MainLobby);
+            clientState = ClientTCPState.MainLobby;
             room.DeletePlayer(this);
         }
 
