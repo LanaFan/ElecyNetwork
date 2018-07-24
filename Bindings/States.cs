@@ -19,10 +19,12 @@
 
     public enum RoomState
     {
-        Empty = 1,
-        Searching = 2,
-        MatchEnded = 3,
-        Closed = 4
+        Empty,
+        Searching,
+        Loading,
+        Playing,
+        MatchEnded,
+        Closed,
     }
 
 }

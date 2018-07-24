@@ -11,14 +11,14 @@
         SQueueStarted = 6,
         //SQueueContinue = 7,
         SMatchFound = 8,
-        SLoadStarted = 9,
+        SPlayerSpawned = 9,
         SRockSpawn = 10,
         SRoomStart = 11,
         STransform = 12,
         STreeSpawn = 13,
         SEnemyLoadProgress = 14,
         SInstantiate = 15,
-        //SClientExit = 16,
+        SMapLoad = 16,
         //SNetPlayerExit = 17,
         //SPlayerExit = 18,
         SNetPlayerLogOut = 19,
@@ -58,16 +58,16 @@
     public enum RoomPackets
     {
         RConnectionComplite = 13,
-        RPlayerSpawned = 14,
-        RLoadComplite = 15,
-        //RTransform = 16,
-        RRockSpawned = 18,
-        RTreesSpawned = 19,
-        RInstantiate = 21,
+        RGetPlayers = 14,
+        RGetRocks = 15,
+        RGetTrees = 16,
+        RGetSpells = 18,
+        RLoadComplite = 19,
+        RInstantiate = 21, // Write
         RSurrender = 24,
         RRoomLeave = 25,
     }
-   
+
     public enum UDPRoomPackets
     {
         URConnectionComplite = 1,

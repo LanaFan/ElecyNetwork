@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ElecyServer
 {
     public class GameObjectList
     {
+
         NetworkGameObject[] objects;
         Dictionary<NetworkGameObject.ObjectType, int[]> ranges;
         public int Length { get; private set; }
@@ -18,13 +18,13 @@ namespace ElecyServer
             Offset = 0;
         }
 
-        public void Add(NetworkGameObject.ObjectType type, GameRoom room)
+        public void Add(NetworkGameObject.ObjectType type, GameRoom room, int count, bool big = false, bool medium = true, bool small = false)
         {
-            int number = Offset +  ArenaRandomGenerator.NumberOfObjects(type);
+            int number = Offset +  count;
             ranges.Add(type, new int[] { Offset, number - 1 });
             while(Offset < number)
             {
-                objects[Offset] = new NetworkGameObject(Offset, type, room);
+                objects[Offset] = new NetworkGameObject(Offset, type, room, room.Spawner.RandomHP(type, big, medium, small));
                 CheckLength();
                 Offset++;
             }
@@ -56,8 +56,10 @@ namespace ElecyServer
                 Length *= 2;
                 objects = new NetworkGameObject[Length];
                 oldObjects.CopyTo(objects, 0);
+                oldObjects = null;
             }
         }
+
     }
 
     public class NetworkGameObject
@@ -78,13 +80,13 @@ namespace ElecyServer
             spell = 3,
         }
 
-        public NetworkGameObject(int index, ObjectType type, GameRoom room)
+        public NetworkGameObject(int index, ObjectType type, GameRoom room, int hp)
         {
             Index = index;
             Type = type;
             Room = room;
+            HP = hp;
             SetTransform();
-            SetHP();
         }
 
         private void SetTransform()
@@ -102,19 +104,9 @@ namespace ElecyServer
             }
         }
 
-        private void SetHP()
+        public (int, float[], float[]) GetInfo()
         {
-            switch (Type)
-            {
-                case ObjectType.unsigned:
-                    break;
-                case ObjectType.tree:
-                    HP = 20;
-                    break;
-                case ObjectType.rock:
-                    HP = 30;
-                    break;
-            }
+            return (HP, Position, Rotation);
         }
 
     }

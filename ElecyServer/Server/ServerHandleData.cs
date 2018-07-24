@@ -25,10 +25,11 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PSaveSkillsBuild, HandleSaveSkillBuild },
 
                 {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
-                {(int)RoomPackets.RPlayerSpawned, HandlePlayerSpawn },
+                {(int)RoomPackets.RGetPlayers, HandlePlayerSpawn },
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
-                {(int)RoomPackets.RRockSpawned, HandleRockSpawned },
-                {(int)RoomPackets.RTreesSpawned, HandleTreesSpawned },
+                {(int)RoomPackets.RGetRocks, HandleRockSpawn },
+                {(int)RoomPackets.RGetTrees, HandleTreesSpawn },
+                {(int)RoomPackets.RGetSpells, HandleGetSpells },
                 //{(int)RoomPackets.RInstantiate, HandleInstantiate},
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
@@ -233,27 +234,27 @@ namespace ElecyServer
             buffer.ReadInteger();
             client.room.SetLoadProgress(client, buffer.ReadFloat());
             buffer.Dispose();
-            client.room.SpawnRock(client);
+            client.room.SpawnPlayers(client);
         }
 
-        private static void HandleRockSpawned(ClientTCP client, byte[] data)
+        private static void HandleRockSpawn(ClientTCP client, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             client.room.SetLoadProgress(client, buffer.ReadFloat());
+            client.room.SpawnRock(client, buffer.ReadInteger(), buffer.ReadBool(), buffer.ReadBool(), buffer.ReadBool());
             buffer.Dispose();
-            client.room.SpawnTree(client);
         }
 
-        private static void HandleTreesSpawned(ClientTCP client, byte[] data)
+        private static void HandleTreesSpawn(ClientTCP client, byte[] data)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             client.room.SetLoadProgress(client, buffer.ReadFloat());
+            client.room.SpawnTree(client, buffer.ReadInteger(), buffer.ReadBool(), buffer.ReadBool(), buffer.ReadBool());
             buffer.Dispose();
-            client.room.LoadSpells(client);
         }
 
         private static void HandleComplete(ClientTCP client, byte[] data)
@@ -264,6 +265,16 @@ namespace ElecyServer
             client.room.SetLoadProgress(client, buffer.ReadFloat());
             buffer.Dispose();
             client.room.LoadComplete(client);
+        }
+
+        private static void HandleGetSpells(ClientTCP client, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            client.room.SetLoadProgress(client, buffer.ReadFloat());
+            buffer.Dispose();
+            client.room.LoadSpells(client);
         }
 
         //private static void HandleInstantiate(int ID, GameRoom Room, byte[] data)

@@ -43,5 +43,21 @@
         }
 
         #endregion
+
+
+        #region GameObjects
+
+        public const int bRockHP = 40;
+        public const int mRockHP = 30;
+        public const int sRockHP = 20;
+        public const int rockDiff = 10;
+
+        public const int bTreeHP = 40;
+        public const int mTreeHP = 30;
+        public const int sTreeHP = 20;
+        public const int treeDiff = 10;
+
+        #endregion
+
     }
 }

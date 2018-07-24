@@ -30,3 +30,4 @@ D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServ
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.Properties.Resources.resources
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.Server.resources
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csproj.GenerateResource.Cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\ElecyServer.exe.config

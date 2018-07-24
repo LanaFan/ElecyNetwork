@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bindings;
 
 namespace ElecyServer
 {
@@ -66,6 +67,56 @@ namespace ElecyServer
             return rot;
         }
 
+        public int RandomHP(NetworkGameObject.ObjectType type, bool big, bool medium, bool small)
+        {
+            int min = 0;
+            int max = 0;
+            switch (type)
+            {
+                case NetworkGameObject.ObjectType.unsigned:
+                    break;
+                case NetworkGameObject.ObjectType.tree:
+                    if(big)
+                    {
+                        max = Constants.bTreeHP;
+                        min = Constants.bTreeHP - Constants.treeDiff;
+                    }
+                    if(medium)
+                    {
+                        if (!big)
+                            max = Constants.mTreeHP;
+                        min = Constants.mTreeHP - Constants.treeDiff;
+                    }
+                    if(small)
+                    {
+                        if (!big && !medium)
+                            max = Constants.sTreeHP;
+                        min = Constants.sTreeHP - Constants.treeDiff;
+                    }
+                    break;
+                case NetworkGameObject.ObjectType.rock:
+                    if (big)
+                    {
+                        max = Constants.bRockHP;
+                        min = Constants.bRockHP - Constants.rockDiff;
+                    }
+                    if (medium)
+                    {
+                        if (!big)
+                            max = Constants.mRockHP;
+                        min = Constants.mRockHP - Constants.rockDiff;
+                    }
+                    if (small)
+                    {
+                        if (!big && !medium)
+                            max = Constants.sRockHP;
+                        min = Constants.sRockHP - Constants.rockDiff;
+                    }
+                    break;
+            }
+            return rnd.Next(min, max);
+        }
+
         private void SetXRange(float size)
         {
             xRange = new float[2];
@@ -124,6 +175,7 @@ namespace ElecyServer
                     break;
             }
         }
+
     }
 
 }

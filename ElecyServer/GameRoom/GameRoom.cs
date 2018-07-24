@@ -28,17 +28,18 @@ namespace ElecyServer
 
         #region Randomed
 
-        private enum Randoming
+        private enum Spawned
         {
-            unrandomed = 0,
-            randoming = 1,
-            randomed = 2
+            unspawned = 0,
+            spawning = 1,
+            spawned = 2
         }
 
-        private Randoming _rockRandomed;
-        private Randoming _treeRandomed;
+        private Spawned _playersSpawned;
+        private Spawned _rockSpawned;
+        private Spawned _treeSpawned;
 
-        private object expectant; // list for multiple players
+        private object expectant;
 
         #endregion
 
@@ -53,8 +54,9 @@ namespace ElecyServer
             player1.room = this;
             ObjectsList = new GameObjectList();
             mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
-            _rockRandomed = Randoming.unrandomed;
-            _treeRandomed = Randoming.unrandomed;
+            _playersSpawned = Spawned.unspawned;
+            _rockSpawned = Spawned.unspawned;
+            _treeSpawned = Spawned.unspawned;
             expectant = new object();
             p1Loaded = false;
             p2Loaded = false;
@@ -86,10 +88,10 @@ namespace ElecyServer
 
         private void StartLoad()
         {
-            //player1.Receive(ClientTCPState.GameRoom);
             player1.clientState = ClientTCPState.GameRoom;
-            //player2.Receive(ClientTCPState.GameRoom);
+            player1.playerState = NetPlayerState.Playing;
             player2.clientState = ClientTCPState.GameRoom;
+            player2.playerState = NetPlayerState.Playing;
             ServerSendData.SendMatchFound(mapIndex, player1, player2);
         }
 
@@ -99,77 +101,84 @@ namespace ElecyServer
 
         public void SetGameLoadData(ClientTCP client)
         {
-            int[] scale = Global.data.GetMapScale(mapIndex);
-            float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
-            float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
+            lock(expectant)
+            {
+                if(Status != RoomState.Loading)
+                {
 
-            if (client.Equals(player1))
-            {
-                scaleX = scale[0] * 10f;
-                scaleZ = scale[1] * 10f;
-                firstPlayerSpawnTransform = new float[][] { spawnPos[0], spawnRot[0]};
-                secondPlayerSpawnTransform = new float[][] { spawnPos[1], spawnRot[1] };
-                client.playerState = NetPlayerState.Playing;
-                p1Loaded = true;
-            }
-            else
-            {
-                scaleX = scale[0] * 10f;
-                scaleZ = scale[1] * 10f;
-                firstPlayerSpawnTransform = new float[][] { spawnPos[0], spawnRot[0] };
-                secondPlayerSpawnTransform = new float[][] { spawnPos[1], spawnRot[1] };
-                client.playerState = NetPlayerState.Playing;
-                p2Loaded = true;
+                    int[] scale = Global.data.GetMapScale(mapIndex);
+
+                    scaleX = scale[0] * 10f;
+                    scaleZ = scale[1] * 10f;
+
+                    //loadTimer = new Timer(LoadPulse, null, 0, 1000);
+                    Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstPlayerSpawnTransform[0], secondPlayerSpawnTransform[0]);
+                    Status = RoomState.Loading;
+                }
+
             }
 
-            if (p1Loaded && p2Loaded)
-            {
-                p1Loaded = false;
-                p2Loaded = false;
-                loadTimer = new Timer(LoadPulse, null, 0, 1000);
-                Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstPlayerSpawnTransform[0], secondPlayerSpawnTransform[0]);
-                ServerSendData.SendGameData(player1, player2, spawnPos, spawnRot);
-            }
+            ServerSendData.SendMapData(mapIndex, client);
+
         }
 
-        public void SpawnRock(ClientTCP client)
+        public void SpawnPlayers(ClientTCP client)
+        {
+            lock(expectant)
+            {
+                if(_playersSpawned == Spawned.unspawned)
+                {
+                    float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
+                    float[][] spawnRot = Global.data.GetSpawnRot(mapIndex);
+
+                    firstPlayerSpawnTransform = new float[][] { spawnPos[0], spawnRot[0]};
+                    secondPlayerSpawnTransform = new float[][] { spawnPos[1], spawnRot[1] };
+
+                    _playersSpawned = Spawned.spawned;
+                }
+            }
+
+            ServerSendData.SendPlayersSpawned(client, player1.nickname, player2.nickname, firstPlayerSpawnTransform, secondPlayerSpawnTransform);
+        }
+
+        public void SpawnRock(ClientTCP client, int rockCount, bool bigRock, bool mediumRock, bool smallRock)
         {
             lock (expectant)
             {
-                if(_rockRandomed == Randoming.unrandomed)
+                if(_rockSpawned == Spawned.unspawned)
                 {
-                    _rockRandomed = Randoming.randoming;
-                    ObjectsList.Add(NetworkGameObject.ObjectType.rock, this);
-                    _rockRandomed = Randoming.randomed;
-                    lock (expectant)
-                        Monitor.Pulse(expectant);
+                    _rockSpawned = Spawned.spawning;
+                    ObjectsList.Add(NetworkGameObject.ObjectType.rock, this, rockCount, bigRock, mediumRock, smallRock);
+                    _rockSpawned = Spawned.spawned;
+                    //lock (expectant)
+                    //    Monitor.Pulse(expectant);
                 }
-                else if (_rockRandomed == Randoming.randoming)
-                {
-                    lock (expectant)
-                        Monitor.Pulse(expectant);
-                }
+                //else if (_rockRandomed == Randoming.randoming)
+                //{
+                //    lock (expectant)
+                //        Monitor.Pulse(expectant);
+                //}
             }
             ServerSendData.SendRockSpawned(client, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
         }
 
-        public void SpawnTree(ClientTCP client)
+        public void SpawnTree(ClientTCP client, int treeCount, bool bigTree, bool mediumTree, bool smallTree)
         {
             lock (expectant)
             {
-                if (_treeRandomed == Randoming.unrandomed)
+                if (_treeSpawned == Spawned.unspawned)
                 {
-                    _treeRandomed = Randoming.randoming;
-                    ObjectsList.Add(NetworkGameObject.ObjectType.tree, this);
-                    _treeRandomed = Randoming.randomed;
-                    lock (expectant)
-                        Monitor.Pulse(expectant);
+                    _treeSpawned = Spawned.spawning;
+                    ObjectsList.Add(NetworkGameObject.ObjectType.tree, this, treeCount, bigTree, mediumTree, smallTree);
+                    _treeSpawned = Spawned.spawned;
+                    //lock (expectant)
+                    //    Monitor.Pulse(expectant);
                 }
-                else if (_treeRandomed == Randoming.randoming)
-                {
-                    lock (expectant)
-                        Monitor.Pulse(expectant);
-                }
+                //else if (_treeRandomed == Randoming.randoming)
+                //{
+                //    lock (expectant)
+                //        Monitor.Pulse(expectant);
+                //}
             }
             ServerSendData.SendTreeSpawned(client, ObjectsList.GetRange(NetworkGameObject.ObjectType.tree));
         }

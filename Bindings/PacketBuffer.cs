@@ -75,7 +75,11 @@ namespace Bindings
             _bufferlist.AddRange(Encoding.UTF8.GetBytes(input));
             _buffupdate = true;
         }
-
+        public void WriteBoolean(bool input)
+        {
+            _bufferlist.Add(Convert.ToByte(input));
+            _buffupdate = true;
+        }
         #endregion
 
         #region Read
@@ -177,6 +181,29 @@ namespace Bindings
             }
             return value;   
         }
+        public bool ReadBool(bool peek = true)
+        {
+            if (_bufferlist.Count > _readpos)
+            {
+                if (_buffupdate)
+                {
+                    _readbuffer = _bufferlist.ToArray();
+                    _buffupdate = false;
+                }
+
+                bool value = BitConverter.ToBoolean(_readbuffer, _readpos);
+                if (peek & _bufferlist.Count > _readpos)
+                {
+                    _readpos += 1;
+                }
+                return value;
+            }
+            else
+            {
+                throw new Exception("(Ex) Buffer reached it's limit :(");
+            }
+        }
+
         #endregion
 
         #region Dispose

@@ -182,6 +182,20 @@ namespace ElecyServer
         #endregion
 
         #region Send to GameRoom
+        
+        /// <summary>
+        ///             Buffer:
+        ///                     int PacketNum;
+        ///                     int mapIndex;
+        /// </summary>
+        public static void SendMapData(int mapIndex, ClientTCP client)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SMapLoad);
+            buffer.WriteInteger(mapIndex);
+            ServerTCP.SendDataToClient(client, buffer.ToArray());
+            buffer.Dispose();
+        }
 
         /// <summary>
         ///             Buffer:
@@ -193,27 +207,27 @@ namespace ElecyServer
         ///                     float[4] firstPlayerRotation;
         ///                     float[4] secondPlayerRotation;
         /// </summary>
-        public static void SendGameData(ClientTCP client1, ClientTCP client2, float[][]positions, float[][]rotations)
+        public static void SendPlayersSpawned(ClientTCP client, string nickname1, string nickname2, float[][]firstPlayerTransform, float[][]secondPlayerTransform)
         {
             PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteInteger((int)ServerPackets.SLoadStarted);
-            buffer.WriteString(client1.nickname);
-            buffer.WriteString(client1.nickname);
-            buffer.WriteFloat(positions[0][0]);
-            buffer.WriteFloat(positions[0][1]);
-            buffer.WriteFloat(positions[0][2]);
-            buffer.WriteFloat(positions[1][0]);
-            buffer.WriteFloat(positions[1][1]);
-            buffer.WriteFloat(positions[1][2]);
-            buffer.WriteFloat(rotations[0][0]);
-            buffer.WriteFloat(rotations[0][1]);
-            buffer.WriteFloat(rotations[0][2]);
-            buffer.WriteFloat(rotations[0][3]);
-            buffer.WriteFloat(rotations[1][0]);
-            buffer.WriteFloat(rotations[1][1]);
-            buffer.WriteFloat(rotations[1][2]);
-            buffer.WriteFloat(rotations[1][3]);
-            ServerTCP.SendDataToBothClients(client1, client2, buffer.ToArray());
+            buffer.WriteInteger((int)ServerPackets.SPlayerSpawned);
+            buffer.WriteString(nickname1);
+            buffer.WriteString(nickname2);
+            buffer.WriteFloat(firstPlayerTransform[0][0]);
+            buffer.WriteFloat(firstPlayerTransform[0][1]);
+            buffer.WriteFloat(firstPlayerTransform[0][2]);
+            buffer.WriteFloat(secondPlayerTransform[0][0]);
+            buffer.WriteFloat(secondPlayerTransform[0][1]);
+            buffer.WriteFloat(secondPlayerTransform[0][2]);
+            buffer.WriteFloat(firstPlayerTransform[1][0]);
+            buffer.WriteFloat(firstPlayerTransform[1][1]);
+            buffer.WriteFloat(firstPlayerTransform[1][2]);
+            buffer.WriteFloat(firstPlayerTransform[1][3]);
+            buffer.WriteFloat(secondPlayerTransform[1][0]);
+            buffer.WriteFloat(secondPlayerTransform[1][1]);
+            buffer.WriteFloat(secondPlayerTransform[1][2]);
+            buffer.WriteFloat(secondPlayerTransform[1][3]);
+            ServerTCP.SendDataToClient(client, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -224,6 +238,7 @@ namespace ElecyServer
         ///                     for(rockCount)
         ///                     {
         ///                         int Index;
+        ///                         int Health;
         ///                         float[3] pos;
         ///                         float[4] rot;
         ///                     }
@@ -238,16 +253,16 @@ namespace ElecyServer
             buffer.WriteInteger(end - start);
             while(start <= end)
             {
-                float[] pos = client.room.ObjectsList.Get(start).Position;
-                float[] rot = client.room.ObjectsList.Get(start).Rotation;
+                var k = client.room.ObjectsList.Get(start).GetInfo();
                 buffer.WriteInteger(start);
-                buffer.WriteFloat(pos[0]);
-                buffer.WriteFloat(pos[1]);
-                buffer.WriteFloat(pos[2]);
-                buffer.WriteFloat(rot[0]);
-                buffer.WriteFloat(rot[1]);
-                buffer.WriteFloat(rot[2]);
-                buffer.WriteFloat(rot[3]);
+                buffer.WriteInteger(k.Item1);
+                buffer.WriteFloat(k.Item2[0]);
+                buffer.WriteFloat(k.Item2[1]);
+                buffer.WriteFloat(k.Item2[2]);
+                buffer.WriteFloat(k.Item3[0]);
+                buffer.WriteFloat(k.Item3[1]);
+                buffer.WriteFloat(k.Item3[2]);
+                buffer.WriteFloat(k.Item3[3]);
                 start++;
             }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
@@ -261,6 +276,7 @@ namespace ElecyServer
         ///                     for(treeCount)
         ///                     {
         ///                         int Index;
+        ///                         int Health;
         ///                         float[3] pos;
         ///                         float[4] rot;
         ///                     }
@@ -275,16 +291,16 @@ namespace ElecyServer
             buffer.WriteInteger(end - start);
             while (start <= end)
             {
-                float[] pos = client.room.ObjectsList.Get(start).Position;
-                float[] rot = client.room.ObjectsList.Get(start).Rotation;
+                var k = client.room.ObjectsList.Get(start).GetInfo();
                 buffer.WriteInteger(start);
-                buffer.WriteFloat(pos[0]);
-                buffer.WriteFloat(pos[1]);
-                buffer.WriteFloat(pos[2]);
-                buffer.WriteFloat(rot[0]);
-                buffer.WriteFloat(rot[1]);
-                buffer.WriteFloat(rot[2]);
-                buffer.WriteFloat(rot[3]);
+                buffer.WriteInteger(k.Item1);
+                buffer.WriteFloat(k.Item2[0]);
+                buffer.WriteFloat(k.Item2[1]);
+                buffer.WriteFloat(k.Item2[2]);
+                buffer.WriteFloat(k.Item3[0]);
+                buffer.WriteFloat(k.Item3[1]);
+                buffer.WriteFloat(k.Item3[2]);
+                buffer.WriteFloat(k.Item3[3]);
                 start++;
             }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
