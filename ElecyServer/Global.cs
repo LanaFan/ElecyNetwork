@@ -13,6 +13,7 @@ namespace ElecyServer
         public static List<GamePlayerUDP> playersUDP;
         public static List<ClientTCP> clientList; 
         public static List<GameRoom> roomsList;
+        public static List<GameRoom> roomsUDP;
 
         public static Server serverForm;
 
@@ -34,6 +35,7 @@ namespace ElecyServer
             clientList = new List<ClientTCP>();
             roomsList = new List<GameRoom>();
             playersUDP = new List<GamePlayerUDP>();
+            roomsUDP = new List<GameRoom>();
         }
 
         public static void FinalGlobals()

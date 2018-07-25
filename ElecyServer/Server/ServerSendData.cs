@@ -123,11 +123,10 @@ namespace ElecyServer
         ///                     int PacketNum;
         ///                     int mapIndex;
         /// </summary>
-        public static void SendMatchFound(int mapIndex, ClientTCP client1, ClientTCP client2)
+        public static void SendMatchFound(ClientTCP client1, ClientTCP client2)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SMatchFound);
-            buffer.WriteInteger(mapIndex);
             ServerTCP.SendDataToBothClients(client1, client2, buffer.ToArray());
             buffer.Dispose();
         }

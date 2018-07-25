@@ -12,13 +12,14 @@ namespace ElecyServer
         public ClientTCP player1;
         public ClientTCP player2;
 
+        public GamePlayerUDP playerUDP1;
+        public GamePlayerUDP playerUDP2;
         public GameObjectList ObjectsList { get; private set; }
         public ArenaRandomGenerator Spawner { get; private set; }
         public RoomState Status { get; private set; }
 
         private int mapIndex;
         private Timer closeTimer;
-        private Timer loadTimer;
         private bool p1Loaded;
         private bool p2Loaded;
         private float scaleX;
@@ -53,7 +54,7 @@ namespace ElecyServer
             player1 = client;
             player1.room = this;
             ObjectsList = new GameObjectList();
-            mapIndex = new Random().Next(3, 2 + Constants.MAPS_COUNT);
+            mapIndex = new Random().Next(1, 1/*2 + Constants.MAPS_COUNT*/);
             _playersSpawned = Spawned.unspawned;
             _rockSpawned = Spawned.unspawned;
             _treeSpawned = Spawned.unspawned;
@@ -92,7 +93,7 @@ namespace ElecyServer
             player1.playerState = NetPlayerState.Playing;
             player2.clientState = ClientTCPState.GameRoom;
             player2.playerState = NetPlayerState.Playing;
-            ServerSendData.SendMatchFound(mapIndex, player1, player2);
+            ServerSendData.SendMatchFound(player1, player2);
         }
 
         #endregion
@@ -105,21 +106,15 @@ namespace ElecyServer
             {
                 if(Status != RoomState.Loading)
                 {
-
                     int[] scale = Global.data.GetMapScale(mapIndex);
 
                     scaleX = scale[0] * 10f;
                     scaleZ = scale[1] * 10f;
 
-                    //loadTimer = new Timer(LoadPulse, null, 0, 1000);
-                    Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstPlayerSpawnTransform[0], secondPlayerSpawnTransform[0]);
                     Status = RoomState.Loading;
                 }
-
             }
-
             ServerSendData.SendMapData(mapIndex, client);
-
         }
 
         public void SpawnPlayers(ClientTCP client)
@@ -133,11 +128,10 @@ namespace ElecyServer
 
                     firstPlayerSpawnTransform = new float[][] { spawnPos[0], spawnRot[0]};
                     secondPlayerSpawnTransform = new float[][] { spawnPos[1], spawnRot[1] };
-
+                    Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstPlayerSpawnTransform[0], secondPlayerSpawnTransform[0]);
                     _playersSpawned = Spawned.spawned;
                 }
             }
-
             ServerSendData.SendPlayersSpawned(client, player1.nickname, player2.nickname, firstPlayerSpawnTransform, secondPlayerSpawnTransform);
         }
 
@@ -185,8 +179,8 @@ namespace ElecyServer
 
         public void LoadSpells(ClientTCP client)
         {
-            int[] spellsToLoadFirst = Global.data.GetSkillBuildData(client.nickname, client.race);
-            int[] spellsToLoadSecond = Global.data.GetSkillBuildData(client.nickname, client.race);
+            int[] spellsToLoadFirst = Global.data.GetSkillBuildData(client.room.player1.nickname, client.room.player1.race);
+            int[] spellsToLoadSecond = Global.data.GetSkillBuildData(client.room.player2.nickname, client.room.player2.race);
             ServerSendData.SendLoadSpells(client, spellsToLoadFirst, spellsToLoadSecond);
         }
 
@@ -201,7 +195,7 @@ namespace ElecyServer
             {
                 p1Loaded = false;
                 p2Loaded = false;
-                loadTimer.Dispose();
+                //loadTimer.Dispose();
                 ServerSendData.SendRoomStart(player1, player2);
                 //Start UDP
             }
@@ -309,8 +303,8 @@ namespace ElecyServer
         {
             if (closeTimer != null)
                 closeTimer.Dispose();
-            if (loadTimer != null)
-                loadTimer.Dispose();
+            //if (loadTimer != null)
+            //    loadTimer.Dispose();
         }
 
         private void EndGameSession(Object o)

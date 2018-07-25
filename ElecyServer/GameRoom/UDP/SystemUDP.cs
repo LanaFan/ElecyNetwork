@@ -51,16 +51,35 @@ namespace ElecyServer
 
         private static GamePlayerUDP CheckIP(IPEndPoint ipEndPoint)
         {
-            foreach(GamePlayerUDP player in Global.playersUDP)
+            foreach (GamePlayerUDP player in Global.playersUDP)
             {
-                if (player.ip == ipEndPoint)
+                if (player.ip.Equals(ipEndPoint))
                 {
                     return player;
                 }
             }
-            GamePlayerUDP playerUDP = new GamePlayerUDP(ipEndPoint);
-            Global.playersUDP.Add(playerUDP);
-            return playerUDP;
+            foreach (GameRoom room in Global.roomsList)
+            {
+                if (room.Status == RoomState.Loading)
+                {
+                    if (room.player1.ip.Equals(ipEndPoint.Address))
+                    {
+                        Global.playersUDP.Add(room.playerUDP1 = new GamePlayerUDP(ipEndPoint, 0, room));
+                        if (room.playerUDP2 != null)
+                            Global.roomsUDP.Add(room);
+                        return room.playerUDP1;
+                    }
+                    else if (room.player2.ip.Equals(ipEndPoint.Address))
+                    {
+                        Global.playersUDP.Add(room.playerUDP2 = new GamePlayerUDP(ipEndPoint, 1, room));
+                        if (room.playerUDP1 != null)
+                            Global.roomsUDP.Add(room);
+                        return room.playerUDP2;
+                    }
+
+                }
+            }
+            return null;
         }
 
         public static void Close()
@@ -88,20 +107,6 @@ namespace ElecyServer
                 //Close
             }
         }
-
-        #region Packet lose test
-
-        public static void PacketTest(GamePlayerUDP player)
-        {
-            Timer timer = new Timer(TimerCallback, player, 0, 100);
-        }
-
-        private static void TimerCallback(object o)
-        {
-            SendDataUDP.SendPacketTest(o as GamePlayerUDP);
-        }
-
-        #endregion
     }
 
     public class GamePlayerUDP
@@ -110,9 +115,12 @@ namespace ElecyServer
         public int ID { get; private set; }
         public GameRoom room { get; private set; }
 
-        public GamePlayerUDP(IPEndPoint ipEndpoint)
+        public GamePlayerUDP(IPEndPoint ipEndpoint, int id, GameRoom gameRoom)
         {
             ip = ipEndpoint;
+            ID = id;
+            room = gameRoom;
+            SendDataUDP.SendConnectionOK(this);
         }
 
         public void SetValues(int id, GameRoom gameRoom)
