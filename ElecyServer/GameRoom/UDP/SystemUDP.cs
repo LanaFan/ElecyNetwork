@@ -27,7 +27,6 @@ namespace ElecyServer
             {
                 Global.serverForm.StatusIndicator(3, ex);
             }
-
         }
 
         private static void ReceiveCallback(IAsyncResult ar)
@@ -36,16 +35,17 @@ namespace ElecyServer
             {
                 try
                 {
+                    UdpClient _client = (UdpClient)ar.AsyncState;
                     IPEndPoint ipEndpoint = new IPEndPoint(IPAddress.Any, 0);
-                    byte[] connectBuffer = connectUDP.EndReceive(ar, ref ipEndpoint);
+                    byte[] connectBuffer = _client.EndReceive(ar, ref ipEndpoint);
                     HandleDataUDP.HandleNetworkInformation(CheckIP(ipEndpoint), connectBuffer);
+                    if (receive)
+                        _client.BeginReceive(ReceiveCallback, _client);
                 }
                 catch (SocketException e)
                 {
                     Global.serverForm.Debug(e.ErrorCode + "");
                 }
-                if(receive)
-                    connectUDP.BeginReceive(ReceiveCallback, connectUDP);
             }
         }
 

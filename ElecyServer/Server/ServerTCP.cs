@@ -100,6 +100,7 @@ namespace ElecyServer
             try
             {
                 client.socket.Send(data);
+
             }
             catch
             {
@@ -246,11 +247,11 @@ namespace ElecyServer
                     }
                     else
                     {
+                        if (clientState != ClientTCPState.Sleep)
+                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
                         ServerHandleData.HandleNetworkInformation(this, dataBuffer);
-                        if (clientState != ClientTCPState.Sleep)
-                            socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
                     }
                 }
                 catch (Exception ex)

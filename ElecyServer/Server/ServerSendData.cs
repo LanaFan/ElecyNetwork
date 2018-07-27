@@ -249,7 +249,7 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SRockSpawn);
             int start = ranges[0];
             int end = ranges[1];
-            buffer.WriteInteger(end - start);
+            buffer.WriteInteger(end - start+1);
             while(start <= end)
             {
                 var k = client.room.ObjectsList.Get(start).GetInfo();
@@ -287,7 +287,7 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.STreeSpawn);
             int start = ranges[0];
             int end = ranges[1];
-            buffer.WriteInteger(end - start);
+            buffer.WriteInteger(end - start+1);
             while (start <= end)
             {
                 var k = client.room.ObjectsList.Get(start).GetInfo();
