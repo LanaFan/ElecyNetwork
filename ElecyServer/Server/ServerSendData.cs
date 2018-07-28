@@ -193,6 +193,7 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SMapLoad);
             buffer.WriteInteger(mapIndex);
             ServerTCP.SendDataToClient(client, buffer.ToArray());
+            Global.serverForm.Debug("MapIndex Sended " + client.nickname);
             buffer.Dispose();
         }
 
@@ -227,6 +228,7 @@ namespace ElecyServer
             buffer.WriteFloat(secondPlayerTransform[1][2]);
             buffer.WriteFloat(secondPlayerTransform[1][3]);
             ServerTCP.SendDataToClient(client, buffer.ToArray());
+            Global.serverForm.Debug("Player Spawn Sended " + client.nickname);
             buffer.Dispose();
         }
 
@@ -329,6 +331,7 @@ namespace ElecyServer
                 buffer.WriteInteger(spellsNumberSecond[i]);
             }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
+            Global.serverForm.Debug("Spells Sended " + client.nickname);
             buffer.Dispose();
         }
 
@@ -341,6 +344,7 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRoomStart);
             ServerTCP.SendDataToBothClients(client1, client2, buffer.ToArray());
+            Global.serverForm.Debug("Room start sended");
             buffer.Dispose();
         }
 

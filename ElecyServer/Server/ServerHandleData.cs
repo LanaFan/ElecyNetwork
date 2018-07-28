@@ -259,6 +259,7 @@ namespace ElecyServer
 
         private static void HandleComplete(ClientTCP client, byte[] data)
         {
+            Global.serverForm.Debug("HAndle complite " + client.nickname);
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
@@ -269,6 +270,7 @@ namespace ElecyServer
 
         private static void HandleGetSpells(ClientTCP client, byte[] data)
         {
+            Global.serverForm.Debug("Get Spells Handled " + client.nickname);
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();

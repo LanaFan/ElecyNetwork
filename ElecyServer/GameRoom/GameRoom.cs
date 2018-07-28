@@ -102,8 +102,10 @@ namespace ElecyServer
 
         public void SetGameLoadData(ClientTCP client)
         {
+
             lock(expectant)
             {
+                Global.serverForm.Debug("Enter Room Handled " + client.nickname);
                 if(Status != RoomState.Loading)
                 {
                     int[] scale = Global.data.GetMapScale(mapIndex);
@@ -115,12 +117,14 @@ namespace ElecyServer
                 }
             }
             ServerSendData.SendMapData(mapIndex, client);
+
         }
 
         public void SpawnPlayers(ClientTCP client)
         {
             lock(expectant)
             {
+                Global.serverForm.Debug("Player Spawn Handled " + client.nickname);
                 if(_playersSpawned == Spawned.unspawned)
                 {
                     float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
@@ -133,6 +137,7 @@ namespace ElecyServer
                 }
             }
             ServerSendData.SendPlayersSpawned(client, player1.nickname, player2.nickname, firstPlayerSpawnTransform, secondPlayerSpawnTransform);
+
         }
 
         public void SpawnRock(ClientTCP client, int rockCount, bool bigRock, bool mediumRock, bool smallRock)
@@ -187,9 +192,15 @@ namespace ElecyServer
         public void LoadComplete(ClientTCP client)
         {
             if (client.Equals(player1))
+            {
                 p1Loaded = true;
+                Global.serverForm.Debug(client.nickname + "loaded");
+            }
             else
+            {
                 p2Loaded = true;
+                Global.serverForm.Debug(client.nickname + "loaded");
+            }
 
             if(p1Loaded && p2Loaded)
             {

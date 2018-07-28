@@ -176,9 +176,9 @@ namespace ElecyServer
                     throw new Exception();
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                Global.serverForm.Debug(ex + "");
             }
         }
 
