@@ -14,7 +14,6 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)UDPServerPackets.USConnectionOK);
             UDPConnector.Send(player, buffer.ToArray());
-            Global.serverForm.Debug("Udp connection ok Sended "+ player.ip);
             buffer.Dispose();
         }
     }

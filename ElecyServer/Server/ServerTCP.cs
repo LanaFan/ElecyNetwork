@@ -160,7 +160,6 @@ namespace ElecyServer
                 try
                 {
                     client1.socket.Send(data);
-                    Global.serverForm.Debug("First player sended");
                 }
                 catch
                 {
@@ -170,7 +169,6 @@ namespace ElecyServer
                 try
                 {
                     client2.socket.Send(data);
-                    Global.serverForm.Debug("Second player sended");
                 }
                 catch
                 {

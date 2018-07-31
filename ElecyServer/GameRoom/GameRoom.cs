@@ -105,7 +105,6 @@ namespace ElecyServer
 
             lock(expectant)
             {
-                Global.serverForm.Debug("Enter Room Handled " + client.nickname);
                 if(Status != RoomState.Loading)
                 {
                     int[] scale = Global.data.GetMapScale(mapIndex);
@@ -124,7 +123,6 @@ namespace ElecyServer
         {
             lock(expectant)
             {
-                Global.serverForm.Debug("Player Spawn Handled " + client.nickname);
                 if(_playersSpawned == Spawned.unspawned)
                 {
                     float[][] spawnPos = Global.data.GetSpawnPos(mapIndex);
@@ -194,12 +192,10 @@ namespace ElecyServer
             if (client.Equals(player1))
             {
                 p1Loaded = true;
-                Global.serverForm.Debug(client.nickname + "loaded");
             }
             else
             {
                 p2Loaded = true;
-                Global.serverForm.Debug(client.nickname + "loaded");
             }
 
             if(p1Loaded && p2Loaded)

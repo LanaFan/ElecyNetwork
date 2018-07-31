@@ -20,17 +20,15 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PGlChatMsg, HandleGlChatMsg },
                 {(int)NetPlayerPackets.PQueueStart, HandleQueueStart },
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
-                {(int)NetPlayerPackets.PStopPlayer, HandlePlayerStop },
                 {(int)NetPlayerPackets.PGetSkillsBuild, HandleGetSkillBuild },
                 {(int)NetPlayerPackets.PSaveSkillsBuild, HandleSaveSkillBuild },
 
                 {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
                 {(int)RoomPackets.RGetPlayers, HandlePlayerSpawn },
-                {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RGetRocks, HandleRockSpawn },
                 {(int)RoomPackets.RGetTrees, HandleTreesSpawn },
                 {(int)RoomPackets.RGetSpells, HandleGetSpells },
-                //{(int)RoomPackets.RInstantiate, HandleInstantiate},
+                {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
             };
@@ -167,16 +165,6 @@ namespace ElecyServer
             Queue.StopSearch(client);
         }
 
-
-        /// <summary>
-        ///             Buffer:
-        ///                     int PacketNum;
-        /// </summary>
-        private static void HandlePlayerStop(ClientTCP client, byte[] data) // rewrite (uncorrect use)
-        {
-            //Global.arena[player.RoomIndex].StartReceive(player);
-        }
-
         /// <summary>
         ///             Buffer:
         ///                     int PacketNum;
@@ -259,7 +247,6 @@ namespace ElecyServer
 
         private static void HandleComplete(ClientTCP client, byte[] data)
         {
-            Global.serverForm.Debug("HAndle complite " + client.nickname);
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
@@ -270,7 +257,6 @@ namespace ElecyServer
 
         private static void HandleGetSpells(ClientTCP client, byte[] data)
         {
-            Global.serverForm.Debug("Get Spells Handled " + client.nickname);
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
@@ -278,38 +264,6 @@ namespace ElecyServer
             buffer.Dispose();
             client.room.LoadSpells(client);
         }
-
-        //private static void HandleInstantiate(int ID, GameRoom Room, byte[] data)
-        //{
-        //    float[] pos = new float[3];
-        //    float[] rot = new float[4];
-        //    PacketBuffer buffer = new PacketBuffer();
-        //    buffer.WriteBytes(data);
-        //    buffer.ReadInteger();
-        //    int objId = buffer.ReadInteger();
-        //    int instanseType = buffer.ReadInteger();
-        //    string objectReference = buffer.ReadString();
-        //    pos[0] = buffer.ReadFloat();
-        //    pos[1] = buffer.ReadFloat();
-        //    pos[2] = buffer.ReadFloat();
-        //    rot[0] = buffer.ReadFloat();
-        //    rot[1] = buffer.ReadFloat();
-        //    rot[2] = buffer.ReadFloat();
-        //    rot[3] = buffer.ReadFloat();
-        //    buffer.Dispose();
-        //    //adding the object to array for start to observe
-        //}
-
-        //private static void HandleTransform(int ID, GameRoom Room, byte[] data)
-        //{
-        //    PacketBuffer buffer = new PacketBuffer();
-        //    buffer.WriteBytes(data);
-        //    buffer.ReadInteger();
-        //    float[] pos = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat()};
-        //    float[] rot = new float[] { buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat(), buffer.ReadFloat()};
-        //    buffer.Dispose();
-        //    Room.SetTransform(ID, pos, rot);
-        //}
 
         private static void HandleSurrender(ClientTCP client, byte[] data)
         {
@@ -321,7 +275,6 @@ namespace ElecyServer
             ServerSendData.SendRoomLogOut(client);
             client.room.LeaveRoom(client);
         }
-
 
         #endregion
     }

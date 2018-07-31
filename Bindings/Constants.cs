@@ -24,6 +24,12 @@
 
         public const int MAPS_COUNT = 1;
 
+        #region Packets enum
+
+        public const int clientPacketsCount = sizeof(ClientPackets);
+
+        #endregion
+
         #region DataBase
 
         public const string FIRST_RACE_NAME = "Ignis";

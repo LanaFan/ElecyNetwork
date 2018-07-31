@@ -42,7 +42,6 @@ namespace ElecyServer
             buffer.ReadInteger();
             //player.SetValues(buffer.ReadInteger(), Global.arena[buffer.ReadInteger()]);
             buffer.Dispose();
-            Global.serverForm.Debug("UDP Connection Ok Handled " + player.ip);
         }
     }
 }
