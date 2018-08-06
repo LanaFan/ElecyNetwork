@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50505
 File Encoding         : 65001
 
-Date: 2018-06-20 21:28:44
+Date: 2018-08-06 15:52:32
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -38,4 +38,5 @@ CREATE TABLE `accountsparameters` (
 -- Records of accountsparameters
 -- ----------------------------
 INSERT INTO `accountsparameters` VALUES ('Ludaris', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0');
+INSERT INTO `accountsparameters` VALUES ('Onn', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0');
 INSERT INTO `accountsparameters` VALUES ('Tarkes', '1', '1', '1', '1', '1', '0', '0', '0', '0', '0');

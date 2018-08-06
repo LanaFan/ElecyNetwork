@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50505
 File Encoding         : 65001
 
-Date: 2018-06-20 21:28:57
+Date: 2018-08-06 15:52:40
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -24,10 +24,8 @@ CREATE TABLE `mapsinfo` (
   `MapLenght` int(3) NOT NULL,
   `MapWidth` int(3) NOT NULL,
   `FirstSpawnPointX` float(5,2) NOT NULL,
-  `FirstSpawnPointY` float(5,2) NOT NULL,
   `FirstSpawnPointZ` float(5,2) NOT NULL,
   `SecondSpawnPointX` float(5,2) NOT NULL,
-  `SecondSpawnPointY` float(5,2) NOT NULL,
   `SecondSpawnPointZ` float(5,2) NOT NULL,
   `FirstSpawnPointRotX` float(5,2) NOT NULL,
   `FirstSpawnPointRotY` float(5,2) NOT NULL,
@@ -43,5 +41,4 @@ CREATE TABLE `mapsinfo` (
 -- ----------------------------
 -- Records of mapsinfo
 -- ----------------------------
-INSERT INTO `mapsinfo` VALUES ('2', '5', '5', '-10.00', '0.50', '0.00', '10.00', '0.50', '0.00', '0.00', '90.00', '0.00', '0.00', '0.00', '-90.00', '0.00', '1.00');
-INSERT INTO `mapsinfo` VALUES ('3', '8', '8', '-34.50', '0.50', '0.00', '34.50', '0.50', '0.00', '0.00', '90.00', '0.00', '0.00', '0.00', '-90.00', '0.00', '1.00');
+INSERT INTO `mapsinfo` VALUES ('1', '8', '8', '-34.50', '0.00', '34.50', '0.00', '0.00', '90.00', '0.00', '0.00', '0.00', '-90.00', '0.00', '1.00');

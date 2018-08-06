@@ -362,17 +362,15 @@ namespace ElecyServer
             try
             {
                 float[][] spawnPos = new float[2][];
-                float[] firstSpawnPos = new float[3];
-                float[] secondSpawnPos = new float[3];
+                float[] firstSpawnPos = new float[2];
+                float[] secondSpawnPos = new float[2];
                 var DB_RS = Global.mysql.DB_RS;
                 {
                     DB_RS.Open("SELECT * FROM MapsInfo WHERE MapNumber ='" + mapIndex + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
                     firstSpawnPos[0] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointX"].Value);
-                    firstSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointY"].Value);
-                    firstSpawnPos[2] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointZ"].Value);
+                    firstSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointZ"].Value);
                     secondSpawnPos[0] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointX"].Value);
-                    secondSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointY"].Value);
-                    secondSpawnPos[2] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointZ"].Value);
+                    secondSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointZ"].Value);
                     DB_RS.Close();
                     CheckQueue(_mapsInfoTable);
                 }

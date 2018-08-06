@@ -382,7 +382,7 @@ namespace ElecyServer
 
             if (_currentIndex < Index)
             {
-                if (positionUpdate.Count >= 20)
+                if (positionUpdate.Count > 20)
                 {
                     MovementUpdate buffer = positionUpdate[0];
                     positionUpdate.Clear();

@@ -214,10 +214,8 @@ namespace ElecyServer
             buffer.WriteString(nickname2);
             buffer.WriteFloat(firstPlayerTransform[0][0]);
             buffer.WriteFloat(firstPlayerTransform[0][1]);
-            buffer.WriteFloat(firstPlayerTransform[0][2]);
             buffer.WriteFloat(secondPlayerTransform[0][0]);
             buffer.WriteFloat(secondPlayerTransform[0][1]);
-            buffer.WriteFloat(secondPlayerTransform[0][2]);
             buffer.WriteFloat(firstPlayerTransform[1][0]);
             buffer.WriteFloat(firstPlayerTransform[1][1]);
             buffer.WriteFloat(firstPlayerTransform[1][2]);
