@@ -69,6 +69,7 @@
     public enum UDPRoomPackets
     {
         URConnectionComplite = 1,
+        URTransformUpdate,
         URTransformStepback,
     }
 
@@ -76,7 +77,6 @@
     {
         USConnectionOK = 1,
         USTransformUpdate,
-
     }
 
     #endregion

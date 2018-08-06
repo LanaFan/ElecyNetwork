@@ -15,8 +15,7 @@ namespace ElecyServer
 
         public GamePlayerUDP playerUDP1;
         public GamePlayerUDP playerUDP2;
-        public RoomPlayer roomPlayer1;
-        public RoomPlayer roomPlayer2;
+        public RoomPlayer[] roomPlayers = new RoomPlayer[2];
         public GameObjectList ObjectsList { get; private set; }
         public ArenaRandomGenerator Spawner { get; private set; }
         public RoomState Status { get; private set; }
@@ -134,8 +133,8 @@ namespace ElecyServer
 
                     firstPlayerSpawnTransform = new float[][] { spawnPos[0], spawnRot[0]};
                     secondPlayerSpawnTransform = new float[][] { spawnPos[1], spawnRot[1] };
-                    roomPlayer1 = new RoomPlayer(firstPlayerSpawnTransform[0]);
-                    roomPlayer2 = new RoomPlayer(secondPlayerSpawnTransform[0]);
+                    roomPlayers[0] = new RoomPlayer(firstPlayerSpawnTransform[0]);
+                    roomPlayers[1] = new RoomPlayer(secondPlayerSpawnTransform[0]);
                     Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstPlayerSpawnTransform[0], secondPlayerSpawnTransform[0]);
                     _playersSpawned = Spawned.spawned;
                 }
@@ -243,8 +242,8 @@ namespace ElecyServer
 
         public void UpdateTimerCallback(object o)
         {
-            roomPlayer1.Update(playerUDP1);
-            roomPlayer2.Update(playerUDP2);
+            roomPlayers[0].Update(playerUDP1);
+            roomPlayers[1].Update(playerUDP2);
         }
 
         #region Finalization
@@ -402,6 +401,23 @@ namespace ElecyServer
         public void Update(GamePlayerUDP player)
         {
             SendDataUDP.SendTransformUpdate(player, 1, player.ID, _currentPosition, _currentIndex);
+        }
+
+        public void UdpateStepBack(int Index)
+        {
+            MovementUpdate buffer = positionUpdate[0];
+            if(positionUpdate.ContainsKey(Index))
+            {
+                MovementUpdate StepBackBuffer = positionUpdate[Index];
+                _currentIndex = Index;
+                positionUpdate.Clear();
+                positionUpdate[0] = buffer;
+                positionUpdate[Index] = StepBackBuffer;
+            }
+            else
+            {
+                Global.serverForm.Debug("Pizdets, netu takogo y menia, otvalite, syka, debili blyat!");
+            }
         }
     }
 

@@ -13,6 +13,8 @@ namespace ElecyServer
             Packets = new Dictionary<int, Packet_>
             {
                 {(int)UDPRoomPackets.URConnectionComplite, HandleConnectionComplite },
+                {(int)UDPRoomPackets.URTransformUpdate, HandleTransformUpdate },
+                {(int)UDPRoomPackets.URTransformStepback, HandleTransformStepback }
             };
         }
 
@@ -28,7 +30,6 @@ namespace ElecyServer
             }
         }
 
-
         /// <summary>
         /// Buffer: 
         ///         int PacketNum;
@@ -42,6 +43,27 @@ namespace ElecyServer
             buffer.ReadInteger();
             //player.SetValues(buffer.ReadInteger(), Global.arena[buffer.ReadInteger()]);
             buffer.Dispose();
+        }
+
+        private static void HandleTransformUpdate(GamePlayerUDP player, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            int UpdateIndex = buffer.ReadInteger();
+            float[] pos = new float[2];
+            pos[0] = buffer.ReadFloat();
+            pos[1] = buffer.ReadFloat();
+            player.room.roomPlayers[player.ID].SetPosition(pos, UpdateIndex);
+            buffer.Dispose();
+        }
+
+        private static void HandleTransformStepback(GamePlayerUDP player, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            player.room.roomPlayers[player.ID].
         }
     }
 }
