@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Bindings;
 
@@ -14,12 +15,15 @@ namespace ElecyServer
 
         public GamePlayerUDP playerUDP1;
         public GamePlayerUDP playerUDP2;
+        public RoomPlayer roomPlayer1;
+        public RoomPlayer roomPlayer2;
         public GameObjectList ObjectsList { get; private set; }
         public ArenaRandomGenerator Spawner { get; private set; }
         public RoomState Status { get; private set; }
 
         private int mapIndex;
         private Timer closeTimer;
+        private Timer _updateTimer;
         private bool p1Loaded;
         private bool p2Loaded;
         private float scaleX;
@@ -130,6 +134,8 @@ namespace ElecyServer
 
                     firstPlayerSpawnTransform = new float[][] { spawnPos[0], spawnRot[0]};
                     secondPlayerSpawnTransform = new float[][] { spawnPos[1], spawnRot[1] };
+                    roomPlayer1 = new RoomPlayer(firstPlayerSpawnTransform[0]);
+                    roomPlayer2 = new RoomPlayer(secondPlayerSpawnTransform[0]);
                     Spawner = new ArenaRandomGenerator(scaleX, scaleZ, firstPlayerSpawnTransform[0], secondPlayerSpawnTransform[0]);
                     _playersSpawned = Spawned.spawned;
                 }
@@ -205,6 +211,8 @@ namespace ElecyServer
                 //loadTimer.Dispose();
                 ServerSendData.SendRoomStart(player1, player2);
                 //Start UDP
+                Thread.Sleep(5000);
+                StartUpdate();
             }
         }
 
@@ -227,6 +235,17 @@ namespace ElecyServer
         }
 
         #endregion
+
+        public void StartUpdate()
+        {
+            _updateTimer = new Timer(UpdateTimerCallback, null, 0, 1000 / Constants.UPDATE_RATE);
+        }
+
+        public void UpdateTimerCallback(object o)
+        {
+            roomPlayer1.Update(playerUDP1);
+            roomPlayer2.Update(playerUDP2);
+        }
 
         #region Finalization
 
@@ -334,4 +353,60 @@ namespace ElecyServer
 
     }
 
+    public class RoomPlayer
+    {
+        float[] _currentPosition;
+        int _currentIndex;
+
+        protected Dictionary<int, MovementUpdate> positionUpdate = new Dictionary<int, MovementUpdate>();
+
+        public RoomPlayer(float[] StartPosition)
+        {
+            positionUpdate[0] = new MovementUpdate(StartPosition);
+        }
+
+        protected struct MovementUpdate
+        {
+            float[] position;
+            bool sent;
+
+            public MovementUpdate(float[] Position)
+            {
+                position = Position;
+                sent = false;
+            }
+        }
+
+        public void SetPosition(float[] Position, int Index)
+        {
+
+            if (_currentIndex < Index)
+            {
+                if (positionUpdate.Count >= 20)
+                {
+                    MovementUpdate buffer = positionUpdate[0];
+                    positionUpdate.Clear();
+                    positionUpdate[0] = buffer;
+                }
+                _currentIndex = Index;
+                _currentPosition[0] = Position[0];
+                _currentPosition[1] = Position[1];
+                positionUpdate.Add(_currentIndex, new MovementUpdate(_currentPosition));
+            }
+            else
+            {
+                positionUpdate.Add(Index, new MovementUpdate(Position));
+            }
+        }
+
+        public void Update(GamePlayerUDP player)
+        {
+            SendDataUDP.SendTransformUpdate(player, 1, player.ID, _currentPosition, _currentIndex);
+        }
+    }
+
+    public class RoomObject
+    {
+
+    }
 }

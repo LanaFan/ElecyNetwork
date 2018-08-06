@@ -107,6 +107,20 @@ namespace ElecyServer
                 //Close
             }
         }
+
+        public static void SendToBothClient(GamePlayerUDP player, byte[] data)
+        {
+            try
+            {
+                connectUDP.Send(data, data.Length, player.room.playerUDP1.ip);
+            }
+            catch { }
+            try
+            {
+                connectUDP.Send(data, data.Length, player.room.playerUDP2.ip);
+            }
+            catch { }
+        }
     }
 
     public class GamePlayerUDP
