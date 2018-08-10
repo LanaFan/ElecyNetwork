@@ -355,13 +355,14 @@ namespace ElecyServer
     public class RoomPlayer
     {
         float[] _currentPosition;
-        int _currentIndex;
+        int _currentIndex = 1;
 
         protected Dictionary<int, MovementUpdate> positionUpdate = new Dictionary<int, MovementUpdate>();
 
         public RoomPlayer(float[] StartPosition)
         {
-            positionUpdate[0] = new MovementUpdate(StartPosition);
+            positionUpdate.Add(1, new MovementUpdate(StartPosition));
+            _currentPosition = StartPosition;
         }
 
         protected struct MovementUpdate
@@ -378,14 +379,17 @@ namespace ElecyServer
 
         public void SetPosition(float[] Position, int Index)
         {
-
             if (_currentIndex < Index)
             {
                 if (positionUpdate.Count > 20)
                 {
-                    MovementUpdate buffer = positionUpdate[0];
-                    positionUpdate.Clear();
-                    positionUpdate[0] = buffer;
+                    if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
+                    {
+                        positionUpdate.Clear();
+                        positionUpdate.Add(1, buffer);
+                    }
+                    else
+                        Global.serverForm.Debug("There is no start position in memory");
                 }
                 _currentIndex = Index;
                 _currentPosition[0] = Position[0];
@@ -405,18 +409,24 @@ namespace ElecyServer
 
         public void UdpateStepBack(int Index)
         {
-            MovementUpdate buffer = positionUpdate[0];
-            if(positionUpdate.ContainsKey(Index))
+            if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
             {
-                MovementUpdate StepBackBuffer = positionUpdate[Index];
-                _currentIndex = Index;
-                positionUpdate.Clear();
-                positionUpdate[0] = buffer;
-                positionUpdate[Index] = StepBackBuffer;
+                if (positionUpdate.TryGetValue(Index, out MovementUpdate stepBackBuffer))
+                {
+                    _currentIndex = Index;
+                    positionUpdate.Clear();
+                    positionUpdate.Add(1, buffer);
+                    positionUpdate.Add(Index, stepBackBuffer);
+                }
+                else
+                {
+                    Global.serverForm.Debug("There is no stepback point");
+                }
+
             }
             else
             {
-                Global.serverForm.Debug("Pizdets, netu takogo y menia, otvalite, syka, debili blyat!");
+                Global.serverForm.Debug("There is no start point");
             }
         }
     }

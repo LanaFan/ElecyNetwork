@@ -63,7 +63,9 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
-            player.room.roomPlayers[player.ID].
+            int StepBackIndex = buffer.ReadInteger();
+            player.room.roomPlayers[player.ID].UdpateStepBack(StepBackIndex);
+            buffer.Dispose();
         }
     }
 }
