@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50505
 File Encoding         : 65001
 
-Date: 2018-08-14 15:21:21
+Date: 2018-08-14 15:31:46
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -36,6 +36,6 @@ CREATE TABLE `skillbuilds` (
 -- ----------------------------
 -- Records of skillbuilds
 -- ----------------------------
-INSERT INTO `skillbuilds` VALUES ('Ludaris', '3', '3', '4', '5', '6', '7', '8', '9', '10');
-INSERT INTO `skillbuilds` VALUES ('Onn', '0', '0', '0', '0', '0', '0', '0', '0', '0');
-INSERT INTO `skillbuilds` VALUES ('Tarkes', '0', '5', '1', '3', '0', '2', '6', '7', '0');
+INSERT INTO `skillbuilds` VALUES ('Ludaris', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000');
+INSERT INTO `skillbuilds` VALUES ('Onn', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000');
+INSERT INTO `skillbuilds` VALUES ('Tarkes', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000', '00000000');
