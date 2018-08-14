@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50505
 File Encoding         : 65001
 
-Date: 2018-08-06 15:52:47
+Date: 2018-08-14 15:21:21
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -21,15 +21,15 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `skillbuilds`;
 CREATE TABLE `skillbuilds` (
   `Nickname` varchar(25) NOT NULL,
-  `Ignis 0 Spell` int(5) DEFAULT NULL,
-  `Ignis 1 Spell` int(5) DEFAULT NULL,
-  `Ignis 2 Spell` int(5) DEFAULT NULL,
-  `Ignis 3 Spell` int(5) DEFAULT NULL,
-  `Ignis 4 Spell` int(5) DEFAULT NULL,
-  `Ignis 5 Spell` int(5) DEFAULT NULL,
-  `Ignis 6 Spell` int(5) DEFAULT NULL,
-  `Ignis 7 Spell` int(5) DEFAULT NULL,
-  `Ignis 8 Spell` int(5) DEFAULT NULL,
+  `Ignis 0 Spell` varchar(8) DEFAULT NULL,
+  `Ignis 1 Spell` varchar(8) DEFAULT NULL,
+  `Ignis 2 Spell` varchar(8) DEFAULT NULL,
+  `Ignis 3 Spell` varchar(8) DEFAULT NULL,
+  `Ignis 4 Spell` varchar(8) DEFAULT NULL,
+  `Ignis 5 Spell` varchar(8) DEFAULT NULL,
+  `Ignis 6 Spell` varchar(8) DEFAULT NULL,
+  `Ignis 7 Spell` varchar(8) DEFAULT NULL,
+  `Ignis 8 Spell` varchar(8) DEFAULT NULL,
   PRIMARY KEY (`Nickname`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
