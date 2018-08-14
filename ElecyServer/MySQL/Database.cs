@@ -489,10 +489,10 @@ namespace ElecyServer
                 }
                 var DB_RS = Global.mysql.DB_RS;
                 {
-                    DB_RS.Open("Select * FROM " + tableName + " WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    foreach (string i in skillsIndexes)
+                    DB_RS.Open("Select * FROM "+ tableName +" WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                    for (int i = 0; i < (int)Constants.SPELLCOUNT.Ignis; i++)
                     {
-                        DB_RS.Fields[raceName + " " + Array.IndexOf(skillsIndexes, i).ToString() + " Spell"].Value = skillsIndexes[Array.IndexOf(skillsIndexes, i)];
+                        DB_RS.Fields[raceName + " " + i.ToString() + " Spell"].Value = skillsIndexes[i];
                     }
                     DB_RS.Update();
                     DB_RS.Close();

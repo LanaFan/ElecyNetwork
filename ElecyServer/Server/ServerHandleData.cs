@@ -198,7 +198,17 @@ namespace ElecyServer
             string[] spellBuild = new string[spellCount];
             for (int i = 0; i < spellCount; i++)
             {
-                spellBuild[i] = buffer.ReadShort() + "" + buffer.ReadShort();
+                string spellIndex = "" + buffer.ReadShort();
+                while (spellIndex.Length != 4)
+                {
+                    spellIndex = "0" + spellIndex;
+                }
+                string spellType = "" + buffer.ReadShort();
+                while (spellType.Length != 4)
+                {
+                    spellType = "0" + spellType;
+                }
+                spellBuild[i] = spellIndex + "" + spellType;
             }
             buffer.Dispose();
             Global.data.SetSkillBuildData(client.nickname, race, spellBuild);
