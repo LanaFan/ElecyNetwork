@@ -152,14 +152,7 @@ namespace ElecyServer
                     _rockSpawned = Spawned.spawning;
                     ObjectsList.Add(NetworkGameObject.ObjectType.rock, this, rockCount, bigRock, mediumRock, smallRock);
                     _rockSpawned = Spawned.spawned;
-                    //lock (expectant)
-                    //    Monitor.Pulse(expectant);
                 }
-                //else if (_rockRandomed == Randoming.randoming)
-                //{
-                //    lock (expectant)
-                //        Monitor.Pulse(expectant);
-                //}
             }
             ServerSendData.SendRockSpawned(client, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
         }
@@ -173,22 +166,15 @@ namespace ElecyServer
                     _treeSpawned = Spawned.spawning;
                     ObjectsList.Add(NetworkGameObject.ObjectType.tree, this, treeCount, bigTree, mediumTree, smallTree);
                     _treeSpawned = Spawned.spawned;
-                    //lock (expectant)
-                    //    Monitor.Pulse(expectant);
                 }
-                //else if (_treeRandomed == Randoming.randoming)
-                //{
-                //    lock (expectant)
-                //        Monitor.Pulse(expectant);
-                //}
             }
             ServerSendData.SendTreeSpawned(client, ObjectsList.GetRange(NetworkGameObject.ObjectType.tree));
         }
 
         public void LoadSpells(ClientTCP client)
         {
-            int[] spellsToLoadFirst = Global.data.GetSkillBuildData(client.room.player1.nickname, client.room.player1.race);
-            int[] spellsToLoadSecond = Global.data.GetSkillBuildData(client.room.player2.nickname, client.room.player2.race);
+            short[] spellsToLoadFirst = Global.data.GetSkillBuildData(client.room.player1.nickname, client.room.player1.race);
+            short[] spellsToLoadSecond = Global.data.GetSkillBuildData(client.room.player2.nickname, client.room.player2.race);
             ServerSendData.SendLoadSpells(client, spellsToLoadFirst, spellsToLoadSecond);
         }
 
@@ -207,9 +193,7 @@ namespace ElecyServer
             {
                 p1Loaded = false;
                 p2Loaded = false;
-                //loadTimer.Dispose();
                 ServerSendData.SendRoomStart(player1, player2);
-                //Start UDP
                 Thread.Sleep(5000);
                 StartUpdate();
             }
@@ -328,8 +312,6 @@ namespace ElecyServer
         {
             if (closeTimer != null)
                 closeTimer.Dispose();
-            //if (loadTimer != null)
-            //    loadTimer.Dispose();
         }
 
         private void EndGameSession(Object o)

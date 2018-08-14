@@ -442,7 +442,7 @@ namespace ElecyServer
                     DB_RS.Fields["Nickname"].Value = nickname;
                     for (int i = 0; i < (int)Constants.SPELLCOUNT.Ignis; i++)
                     {
-                        DB_RS.Fields[Constants.FIRST_RACE_NAME+ " " + i.ToString() + " Spell"].Value = 0;
+                        DB_RS.Fields[Constants.FIRST_RACE_NAME+ " " + i.ToString() + " Spell"].Value = "00000000";
                     }
                     DB_RS.Update();
                     DB_RS.Close();
@@ -461,14 +461,36 @@ namespace ElecyServer
             }
         }
 
-        public void SetSkillBuildData(string nickname, string raceName, int[] skillsIndexes)
+        public void SetSkillBuildData(string nickname, string raceName, string[] skillsIndexes)
         {
             try
             {
+                string tableName;
+                switch (raceName)
+                {
+                    case "Ignis":
+                        tableName = "SkillBuilds";
+                        break;
+
+                    case "Terra":
+                        tableName = "SkillBuilds";
+                        break;
+
+                    case "Caeli":
+                        tableName = "SkillBuilds";
+                        break;
+
+                    case "Aqua":
+                        tableName = "SkillBuilds";
+                        break;
+                    default:
+                        tableName = "Poshel ti naxer!!!";
+                        break;
+                }
                 var DB_RS = Global.mysql.DB_RS;
                 {
-                    DB_RS.Open("Select * FROM SkillBuilds WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    foreach (int i in skillsIndexes)
+                    DB_RS.Open("Select * FROM " + tableName + " WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
+                    foreach (string i in skillsIndexes)
                     {
                         DB_RS.Fields[raceName + " " + Array.IndexOf(skillsIndexes, i).ToString() + " Spell"].Value = skillsIndexes[Array.IndexOf(skillsIndexes, i)];
                     }
@@ -489,7 +511,7 @@ namespace ElecyServer
             }
         }
 
-        public int[] GetSkillBuildData(string nickname, string raceName)
+        public short[] GetSkillBuildData(string nickname, string raceName)
         {
             try
             {
@@ -516,13 +538,16 @@ namespace ElecyServer
                         skillCount = 0;
                         break;
                 }
-                int[] skillsNumbers = new int[skillCount];
+                short[] skillsNumbers = new short[skillCount*2];
+                int index = 0;
                 var DB_RS = Global.mysql.DB_RS;
                 {
                     DB_RS.Open("SELECT * FROM SkillBuilds WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    for(int i = 0; i < skillCount; i++)
+                    for (int i = 0; i < skillCount; i++, index += 2)
                     {
-                        skillsNumbers[i] = Convert.ToInt32(DB_RS.Fields[raceName + " " + i.ToString() + " Spell"].Value);
+                        string n = DB_RS.Fields[raceName + " " + i.ToString() + " Spell"].Value.ToString();
+                        skillsNumbers[index] = Convert.ToInt16(n.Substring(0, 4));
+                        skillsNumbers[index + 1] = Convert.ToInt16(n.Substring(4, 4));
                     }
                     DB_RS.Close();
                     CheckQueue(_skillBuildsTable);

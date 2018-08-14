@@ -152,7 +152,7 @@ namespace ElecyServer
         ///                     int spellCount;
         ///                     int[spellCount] spellIndex;
         /// </summary>
-        public static void SendSkillBuild(ClientTCP client, int[] spellIndexes, string race)
+        public static void SendSkillBuild(ClientTCP client, short[] spellIndexes, string race)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SBuildInfo);
@@ -160,7 +160,7 @@ namespace ElecyServer
             buffer.WriteInteger(spellIndexes.Length);
             for(int i = 0; i < spellIndexes.Length; i++)
             {
-                buffer.WriteInteger(spellIndexes[i]);
+                buffer.WriteShort(spellIndexes[i]);
             }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
             buffer.Dispose();
@@ -309,10 +309,10 @@ namespace ElecyServer
         ///                     int PacketNum;
         ///                     int firstPlayerSpellCount;
         ///                     int secondPlayerSpellCount;
-        ///                     int[firstPlayerSpellCount] spellNumber;
-        ///                     int[secondPlayerSpellCount] spellNumber;
+        ///                     short[firstPlayerSpellCount] spellNumber;
+        ///                     short[secondPlayerSpellCount] spellNumber;
         /// </summary>
-        public static void SendLoadSpells(ClientTCP client, int[] spellsNumberFirst, int[] spellsNumberSecond)
+        public static void SendLoadSpells(ClientTCP client, short[] spellsNumberFirst, short[] spellsNumberSecond)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SSpellLoaded);
@@ -320,11 +320,11 @@ namespace ElecyServer
             buffer.WriteInteger(spellsNumberSecond.Length);
             for(int i = 0; i < spellsNumberFirst.Length; i++)
             {
-                buffer.WriteInteger(spellsNumberFirst[i]);
+                buffer.WriteShort(spellsNumberFirst[i]);
             }
             for(int i = 0; i < spellsNumberSecond.Length; i++)
             {
-                buffer.WriteInteger(spellsNumberSecond[i]);
+                buffer.WriteShort(spellsNumberSecond[i]);
             }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
             buffer.Dispose();

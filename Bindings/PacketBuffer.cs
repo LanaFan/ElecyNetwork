@@ -64,6 +64,11 @@ namespace Bindings
             _bufferlist.AddRange(BitConverter.GetBytes(input));
             _buffupdate = true;
         }
+        public void WriteShort(short input)
+        {
+            _bufferlist.AddRange(BitConverter.GetBytes(input));
+            _buffupdate = true;
+        }
         public void WriteFloat(float input)
         {
             _bufferlist.AddRange(BitConverter.GetBytes(input));
@@ -84,6 +89,28 @@ namespace Bindings
 
         #region Read
 
+        public short ReadShort(bool peek = true)
+        {
+            if(_bufferlist.Count > _readpos)
+            {
+                if(_buffupdate)
+                {
+                    _readbuffer = _bufferlist.ToArray();
+                    _buffupdate = false;
+                }
+
+                short value = BitConverter.ToInt16(_readbuffer, _readpos);
+                if(peek & _bufferlist.Count > _readpos)
+                {
+                    _readpos += 2;
+                }
+                return value;
+            }
+            else
+            {
+                throw new Exception("(Ex) Buffer reached it's limit :(");
+            }
+        }
         public int ReadInteger(bool peek = true)
         {
             if(_bufferlist.Count > _readpos)
