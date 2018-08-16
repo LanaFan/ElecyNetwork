@@ -201,7 +201,6 @@ namespace ElecyServer
         public int[] ranks;
 
         public GameRoom room;
-        public GamePlayerUDP playerUDP;
         public string race;
         public float load;
 

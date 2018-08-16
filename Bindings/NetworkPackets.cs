@@ -23,6 +23,7 @@
         SMatchResult,
         SBuildInfo,
         SBuildSaved,
+        SInstantiate,
     }
 
     #endregion
@@ -60,6 +61,7 @@
         RLoadComplite,
         RSurrender,
         RRoomLeave,
+        RInstantiate,
     }
 
     #endregion

@@ -6,10 +6,15 @@ namespace Bindings
 {
     public class PacketBuffer : IDisposable
     {
+
+        #region Variables
+
         List<byte> _bufferlist;
         byte[] _readbuffer;
         int _readpos;
         bool _buffupdate = false;
+
+        #endregion
 
         #region Commands
 

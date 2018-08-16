@@ -16,7 +16,8 @@ namespace ElecyServer
         public GamePlayerUDP playerUDP1;
         public GamePlayerUDP playerUDP2;
         public RoomPlayer[] roomPlayers = new RoomPlayer[2];
-        public GameObjectList ObjectsList { get; private set; }
+        public DynamicObjectList DynamicList { get; private set; }
+        public StaticObjectList StaticList { get; private set; }
         public ArenaRandomGenerator Spawner { get; private set; }
         public RoomState Status { get; private set; }
 
@@ -56,7 +57,8 @@ namespace ElecyServer
             Status = RoomState.Searching;
             player1 = client;
             player1.room = this;
-            ObjectsList = new GameObjectList();
+            StaticList = new StaticObjectList();
+            DynamicList = new DynamicObjectList();
             mapIndex = new Random().Next(1, 1/*2 + Constants.MAPS_COUNT*/);
             _playersSpawned = Spawned.unspawned;
             _rockSpawned = Spawned.unspawned;
@@ -150,11 +152,11 @@ namespace ElecyServer
                 if(_rockSpawned == Spawned.unspawned)
                 {
                     _rockSpawned = Spawned.spawning;
-                    ObjectsList.Add(NetworkGameObject.ObjectType.rock, this, rockCount, bigRock, mediumRock, smallRock);
+                    StaticList.Add(ObjectType.rock, this, rockCount, bigRock, mediumRock, smallRock);
                     _rockSpawned = Spawned.spawned;
                 }
             }
-            ServerSendData.SendRockSpawned(client, ObjectsList.GetRange(NetworkGameObject.ObjectType.rock));
+            ServerSendData.SendRockSpawned(client, StaticList.GetRange(ObjectType.rock));
         }
 
         public void SpawnTree(ClientTCP client, int treeCount, bool bigTree, bool mediumTree, bool smallTree)
@@ -164,11 +166,11 @@ namespace ElecyServer
                 if (_treeSpawned == Spawned.unspawned)
                 {
                     _treeSpawned = Spawned.spawning;
-                    ObjectsList.Add(NetworkGameObject.ObjectType.tree, this, treeCount, bigTree, mediumTree, smallTree);
+                    StaticList.Add(ObjectType.tree, this, treeCount, bigTree, mediumTree, smallTree);
                     _treeSpawned = Spawned.spawned;
                 }
             }
-            ServerSendData.SendTreeSpawned(client, ObjectsList.GetRange(NetworkGameObject.ObjectType.tree));
+            ServerSendData.SendTreeSpawned(client, StaticList.GetRange(ObjectType.tree));
         }
 
         public void LoadSpells(ClientTCP client)

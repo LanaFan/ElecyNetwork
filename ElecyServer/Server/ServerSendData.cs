@@ -250,7 +250,7 @@ namespace ElecyServer
             buffer.WriteInteger(end - start+1);
             while(start <= end)
             {
-                var k = client.room.ObjectsList.Get(start).GetInfo();
+                var k = client.room.StaticList.Get(start).GetInfo();
                 buffer.WriteInteger(start);
                 buffer.WriteInteger(k.Item1);
                 buffer.WriteFloat(k.Item2[0]);
@@ -288,7 +288,7 @@ namespace ElecyServer
             buffer.WriteInteger(end - start+1);
             while (start <= end)
             {
-                var k = client.room.ObjectsList.Get(start).GetInfo();
+                var k = client.room.StaticList.Get(start).GetInfo();
                 buffer.WriteInteger(start);
                 buffer.WriteInteger(k.Item1);
                 buffer.WriteFloat(k.Item2[0]);
@@ -394,6 +394,38 @@ namespace ElecyServer
             buffer.WriteString(client1.nickname);
             ServerTCP.SendDataToBothClients(client1, client2, buffer.ToArray());
             buffer.Dispose();
+        }
+
+        /// <summary>
+        ///             Buffer:
+        ///                     int PacketNum;
+        ///                     int SpellIndex; (index in client's spell array)
+        ///                     int DynamicIndex; (index in dynamicObjects list)
+        ///                     int parentIndex;
+        ///                     float[3] position;
+        ///                     float[4] rotation;
+        ///                     int hp;
+        ///                     string nickname; (nickname of master-client)
+        /// </summary>
+        public static void SendInstantiate(GameRoom room, int spellIndex, int dynamicIndex, int parentIndex, float[] pos, float[] rot, int hp, string nickname)
+        {
+            using (PacketBuffer buffer = new PacketBuffer())
+            {
+                buffer.WriteInteger((int)ServerPackets.SInstantiate);
+                buffer.WriteInteger(spellIndex);
+                buffer.WriteInteger(dynamicIndex);
+                buffer.WriteInteger(parentIndex);
+                buffer.WriteFloat(pos[0]);
+                buffer.WriteFloat(pos[1]);
+                buffer.WriteFloat(pos[2]);
+                buffer.WriteFloat(rot[0]);
+                buffer.WriteFloat(rot[1]);
+                buffer.WriteFloat(rot[2]);
+                buffer.WriteFloat(rot[3]);
+                buffer.WriteInteger(hp);
+                buffer.WriteString(nickname);
+                ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
+            }
         }
 
         #endregion

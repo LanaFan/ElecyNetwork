@@ -31,6 +31,7 @@ namespace ElecyServer
                 {(int)RoomPackets.RLoadComplite, HandleComplete },
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
+                {(int)RoomPackets.RInstantiate, HandleInstantiate },
             };
         }
 
@@ -284,6 +285,42 @@ namespace ElecyServer
         {
             ServerSendData.SendRoomLogOut(client);
             client.room.LeaveRoom(client);
+        }
+
+        /// <summary>
+        ///             Buffer:
+        ///                     int PacketNum;
+        ///                     int SpellIndex; (index in client's spell array)
+        ///                     int ParentIndex;
+        ///                     float[3] position;
+        ///                     float[4] rotation;
+        ///                     int hp;
+        /// </summary>
+        private static void HandleInstantiate(ClientTCP client, byte[] data)
+        {
+            using (PacketBuffer buffer = new PacketBuffer())
+            {
+                buffer.WriteBytes(data);
+                buffer.ReadInteger();
+                client.room.DynamicList.Add(
+                                            client.room,
+                                            buffer.ReadInteger(),
+                                            buffer.ReadInteger(),
+                                            new float[] {
+                                                        buffer.ReadFloat(),
+                                                        buffer.ReadFloat(),
+                                                        buffer.ReadFloat()
+                                                        },
+                                            new float[] {
+                                                        buffer.ReadFloat(),
+                                                        buffer.ReadFloat(),
+                                                        buffer.ReadFloat(),
+                                                        buffer.ReadFloat()
+                                                        },
+                                            buffer.ReadInteger(),
+                                            client.nickname
+                                            );
+            }
         }
 
         #endregion
