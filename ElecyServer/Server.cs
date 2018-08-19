@@ -8,19 +8,22 @@ namespace ElecyServer
 {
     public partial class Server : Form
     {
-        delegate void StringArgReturningVoidDelegate<T>(T o);
-        Point lastPoint;
 
-        #region Exceptions
+        #region Variables
 
-        Exception ex1;
-        Exception ex2;
-        Exception ex3;
-        Exception ex4;
+        private delegate void StringArgReturningVoidDelegate<T>(T o);
+        private Point lastPoint;
 
-        string lastException;
+        private Exception ex1;
+        private Exception ex2;
+        private Exception ex3;
+        private Exception ex4;
+
+        private string lastException;
 
         #endregion
+
+        #region Commands
 
         public Server()
         {
@@ -121,8 +124,7 @@ namespace ElecyServer
 
         public void StatusIndicator(int index, Exception ex = null)
         {
-
-            switch(index)
+            switch (index)
             {
                 case 1:
                     ptrUnactiveOne.Hide();
@@ -169,7 +171,6 @@ namespace ElecyServer
 
         public void HidePtr(int index = 0)
         {
-
             switch (index)
             {
                 case 0:
@@ -209,6 +210,10 @@ namespace ElecyServer
             }
         }
 
+        #endregion
+
+        #region Private Commands
+
         private void ShowChatMsg(string text)
         {
             if (txtBoxChat.InvokeRequired)
@@ -237,7 +242,9 @@ namespace ElecyServer
             txtBoxChat.Clear();
         }
 
-        #region Elements
+        #endregion
+
+        #region Events
 
         private void btnStart_Click(object sender, EventArgs e)
         {
@@ -324,6 +331,145 @@ namespace ElecyServer
         private void btnClear_Click(object sender, EventArgs e)
         {
             textBoxDebug.Clear();
+        }
+
+        private void btnHide_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        private void btnCopy_Click(object sender, EventArgs e)
+        {
+            if(lastException != null)
+                Clipboard.SetText(lastException);
+        }
+
+        private void txtChat_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyData == (Keys.Control | Keys.V))
+                (sender as TextBox).Paste();
+        }
+
+        #region Indicators
+
+        private void ptrErrorOne_DoubleClick(object sender, EventArgs e)
+        {
+            Debug(ex1 + "");
+        }
+
+        private void ptrErrorTwo_Click(object sender, EventArgs e)
+        {
+            Debug(ex2 + "");
+        }
+
+        private void ptrErrorThree_Click(object sender, EventArgs e)
+        {
+            Debug(ex3 + "");
+        }
+
+        private void ptrErrorFour_DoubleClick(object sender, EventArgs e)
+        {
+            Debug(ex4 + "");
+        }
+
+        #endregion
+
+        #region Button animation
+
+        private void btnStart_MouseEnter(object sender, EventArgs e)
+        {
+            btnStart.ForeColor = Color.FromArgb(0, 0, 0);
+        }
+
+        private void btnStart_MouseLeave(object sender, EventArgs e)
+        {
+            btnStart.ForeColor = Color.FromArgb(38, 144, 11);
+        }
+
+        private void btnExit_MouseEnter(object sender, EventArgs e)
+        {
+            btnExit.ForeColor = Color.FromArgb(0, 0, 0);
+        }
+
+        private void btnExit_MouseLeave(object sender, EventArgs e)
+        {
+            btnExit.ForeColor = Color.FromArgb(38, 144, 11);
+        }
+
+        private void btnRefresh_MouseEnter(object sender, EventArgs e)
+        {
+            btnRefresh.ForeColor = Color.FromArgb(0, 0, 0);
+        }
+
+        private void btnRefresh_MouseLeave(object sender, EventArgs e)
+        {
+            btnRefresh.ForeColor = Color.FromArgb(38, 144, 11);
+        }
+
+        private void btnStop_MouseEnter(object sender, EventArgs e)
+        {
+            btnStop.ForeColor = Color.FromArgb(0, 0, 0);
+        }
+
+        private void btnStop_MouseLeave(object sender, EventArgs e)
+        {
+            btnStop.ForeColor = Color.FromArgb(38, 144, 11);
+        }
+
+        private void btnHide_MouseEnter(object sender, EventArgs e)
+        {
+            btnHide.ForeColor = Color.FromArgb(0, 0, 0);
+        }
+
+        private void btnHide_MouseLeave(object sender, EventArgs e)
+        {
+            btnHide.ForeColor = Color.FromArgb(38, 144, 11);
+        }
+
+        #endregion
+
+        #region Select Item
+
+        private void listClients_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            e.DrawBackground();
+
+            bool isItemSelected = ((e.State & DrawItemState.Selected) == DrawItemState.Selected);
+            int itemIndex = e.Index;
+            if (itemIndex >= 0 && itemIndex < listClients.Items.Count)
+            {
+                Graphics g = e.Graphics;
+                SolidBrush backgroundColorBrush = new SolidBrush((isItemSelected) ? Color.FromArgb(38,144,11) : Color.Transparent);
+                g.FillRectangle(backgroundColorBrush, e.Bounds);
+                string itemText = listClients.Items[itemIndex].ToString();
+                SolidBrush itemTextColorBrush = (isItemSelected) ? new SolidBrush(Color.Black) : new SolidBrush(Color.FromArgb(38, 144, 11));
+                g.DrawString(itemText, e.Font, itemTextColorBrush, listClients.GetItemRectangle(itemIndex).Location);
+                backgroundColorBrush.Dispose();
+                itemTextColorBrush.Dispose();
+            }
+
+            e.DrawFocusRectangle();
+        }
+
+        private void listGameRooms_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            e.DrawBackground();
+
+            bool isItemSelected = ((e.State & DrawItemState.Selected) == DrawItemState.Selected);
+            int itemIndex = e.Index;
+            if (itemIndex >= 0 && itemIndex < listClients.Items.Count)
+            {
+                Graphics g = e.Graphics;
+                SolidBrush backgroundColorBrush = new SolidBrush((isItemSelected) ? Color.FromArgb(38, 144, 11) : Color.Transparent);
+                g.FillRectangle(backgroundColorBrush, e.Bounds);
+                string itemText = listClients.Items[itemIndex].ToString();
+                SolidBrush itemTextColorBrush = (isItemSelected) ? new SolidBrush(Color.Black) : new SolidBrush(Color.FromArgb(38, 144, 11));
+                g.DrawString(itemText, e.Font, itemTextColorBrush, listClients.GetItemRectangle(itemIndex).Location);
+                backgroundColorBrush.Dispose();
+                itemTextColorBrush.Dispose();
+            }
+
+            e.DrawFocusRectangle();
         }
 
         private void listClients_SelectedIndexChanged(object sender, EventArgs e)
@@ -414,137 +560,10 @@ namespace ElecyServer
             }
         }
 
-        private void ptrErrorOne_DoubleClick(object sender, EventArgs e)
-        {
-            Debug(ex1 + "");
-        }
-
-        private void ptrErrorTwo_Click(object sender, EventArgs e)
-        {
-            Debug(ex2 + "");
-        }
-
-        private void ptrErrorThree_Click(object sender, EventArgs e)
-        {
-            Debug(ex3 + "");
-        }
-
-        private void ptrErrorFour_DoubleClick(object sender, EventArgs e)
-        {
-            Debug(ex4 + "");
-        }
-
-        private void btnStart_MouseEnter(object sender, EventArgs e)
-        {
-            btnStart.ForeColor = Color.FromArgb(0, 0, 0);
-        }
-
-        private void btnStart_MouseLeave(object sender, EventArgs e)
-        {
-            btnStart.ForeColor = Color.FromArgb(38, 144, 11);
-        }
-
-        private void btnExit_MouseEnter(object sender, EventArgs e)
-        {
-            btnExit.ForeColor = Color.FromArgb(0, 0, 0);
-        }
-
-        private void btnExit_MouseLeave(object sender, EventArgs e)
-        {
-            btnExit.ForeColor = Color.FromArgb(38, 144, 11);
-        }
-
-        private void btnRefresh_MouseEnter(object sender, EventArgs e)
-        {
-            btnRefresh.ForeColor = Color.FromArgb(0, 0, 0);
-        }
-
-        private void btnRefresh_MouseLeave(object sender, EventArgs e)
-        {
-            btnRefresh.ForeColor = Color.FromArgb(38, 144, 11);
-        }
-
-        private void btnStop_MouseEnter(object sender, EventArgs e)
-        {
-            btnStop.ForeColor = Color.FromArgb(0, 0, 0);
-        }
-
-        private void btnStop_MouseLeave(object sender, EventArgs e)
-        {
-            btnStop.ForeColor = Color.FromArgb(38, 144, 11);
-        }
-
-        private void btnHide_Click(object sender, EventArgs e)
-        {
-            this.WindowState = FormWindowState.Minimized;
-        }
-
-        private void btnHide_MouseEnter(object sender, EventArgs e)
-        {
-            btnHide.ForeColor = Color.FromArgb(0, 0, 0);
-        }
-
-        private void btnHide_MouseLeave(object sender, EventArgs e)
-        {
-            btnHide.ForeColor = Color.FromArgb(38, 144, 11);
-        }
-
-        private void listClients_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            e.DrawBackground();
-
-            bool isItemSelected = ((e.State & DrawItemState.Selected) == DrawItemState.Selected);
-            int itemIndex = e.Index;
-            if (itemIndex >= 0 && itemIndex < listClients.Items.Count)
-            {
-                Graphics g = e.Graphics;
-                SolidBrush backgroundColorBrush = new SolidBrush((isItemSelected) ? Color.FromArgb(38,144,11) : Color.Transparent);
-                g.FillRectangle(backgroundColorBrush, e.Bounds);
-                string itemText = listClients.Items[itemIndex].ToString();
-                SolidBrush itemTextColorBrush = (isItemSelected) ? new SolidBrush(Color.Black) : new SolidBrush(Color.FromArgb(38, 144, 11));
-                g.DrawString(itemText, e.Font, itemTextColorBrush, listClients.GetItemRectangle(itemIndex).Location);
-                backgroundColorBrush.Dispose();
-                itemTextColorBrush.Dispose();
-            }
-
-            e.DrawFocusRectangle();
-        }
-
-        private void listGameRooms_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            e.DrawBackground();
-
-            bool isItemSelected = ((e.State & DrawItemState.Selected) == DrawItemState.Selected);
-            int itemIndex = e.Index;
-            if (itemIndex >= 0 && itemIndex < listClients.Items.Count)
-            {
-                Graphics g = e.Graphics;
-                SolidBrush backgroundColorBrush = new SolidBrush((isItemSelected) ? Color.FromArgb(38, 144, 11) : Color.Transparent);
-                g.FillRectangle(backgroundColorBrush, e.Bounds);
-                string itemText = listClients.Items[itemIndex].ToString();
-                SolidBrush itemTextColorBrush = (isItemSelected) ? new SolidBrush(Color.Black) : new SolidBrush(Color.FromArgb(38, 144, 11));
-                g.DrawString(itemText, e.Font, itemTextColorBrush, listClients.GetItemRectangle(itemIndex).Location);
-                backgroundColorBrush.Dispose();
-                itemTextColorBrush.Dispose();
-            }
-
-            e.DrawFocusRectangle();
-        }
-
-        private void btnCopy_Click(object sender, EventArgs e)
-        {
-            if(lastException != null)
-                Clipboard.SetText(lastException);
-        }
-
-        private void txtChat_KeyUp(object sender, KeyEventArgs e)
-        {
-            if (e.KeyData == (Keys.Control | Keys.V))
-                (sender as TextBox).Paste();
-        }
-
+        #endregion
 
         #endregion
+
     }
         
 }
