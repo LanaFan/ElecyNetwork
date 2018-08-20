@@ -428,6 +428,16 @@ namespace ElecyServer
             }
         }
 
+        public static void SendDestroy(GameRoom room, int spellIndex)
+        {
+            using (PacketBuffer buffer = new PacketBuffer()) 
+            {
+                buffer.WriteInteger((int)RoomPackets.RDestroy);
+                buffer.WriteInteger(spellIndex);
+                ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
+            }
+        }
+
         #endregion
 
     }

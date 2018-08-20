@@ -32,6 +32,7 @@ namespace ElecyServer
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
                 {(int)RoomPackets.RInstantiate, HandleInstantiate },
+                {(int)RoomPackets.RDestroy, HandleDestroy }
             };
         }
 
@@ -220,7 +221,6 @@ namespace ElecyServer
 
         #region GameRoom
 
-
         private static void HandleRoomConnect(ClientTCP client, byte[] data)
         {
             client.room.SetGameLoadData(client);
@@ -320,6 +320,16 @@ namespace ElecyServer
                                             buffer.ReadInteger(),
                                             client.nickname
                                             );
+            }
+        }
+
+        private static void HandleDestroy(ClientTCP client, byte[] data)
+        {
+            using (PacketBuffer buffer = new PacketBuffer())
+            {
+                buffer.WriteBytes(data);
+                buffer.ReadInteger();
+                client.room.DynamicList.Destroy(buffer.ReadInteger());
             }
         }
 

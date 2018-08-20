@@ -58,7 +58,7 @@ namespace ElecyServer
             player1 = client;
             player1.room = this;
             StaticList = new StaticObjectList();
-            DynamicList = new DynamicObjectList();
+            DynamicList = new DynamicObjectList(this);
             mapIndex = new Random().Next(1, 1/*2 + Constants.MAPS_COUNT*/);
             _playersSpawned = Spawned.unspawned;
             _rockSpawned = Spawned.unspawned;
