@@ -432,7 +432,7 @@ namespace ElecyServer
         {
             using (PacketBuffer buffer = new PacketBuffer()) 
             {
-                buffer.WriteInteger((int)RoomPackets.RDestroy);
+                buffer.WriteInteger((int)ServerPackets.SDestroy);
                 buffer.WriteInteger(spellIndex);
                 ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
             }
