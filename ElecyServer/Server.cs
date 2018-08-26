@@ -546,15 +546,15 @@ namespace ElecyServer
             {
                 try
                 {
-                    if (room.Equals(listGameRooms.SelectedItem))
-                    {
-                        listData.Items.Add("State: " + room.Status);
-                        if (room.player1 != null)
-                            listData.Items.Add("player1: " + room.player1.nickname);
-                        if (room.player2 != null)
-                            listData.Items.Add("player2: " + room.player2.nickname);
-                        break;
-                    }
+                    //if (room.Equals(listGameRooms.SelectedItem))
+                    //{
+                    //    listData.Items.Add("State: " + room.Status);
+                    //    if (room.player1 != null)
+                    //        listData.Items.Add("player1: " + room.player1.nickname);
+                    //    if (room.player2 != null)
+                    //        listData.Items.Add("player2: " + room.player2.nickname);
+                    //    break;
+                    //}
                 }
                 catch (NullReferenceException) { }
             }

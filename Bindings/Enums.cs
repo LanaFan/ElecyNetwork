@@ -34,4 +34,10 @@
         rock = 2,
         spell = 3,
     }
+
+    public enum RoomTypes
+    {
+        GameRoom = 2,
+        TestRoom = 3,
+    }
 }

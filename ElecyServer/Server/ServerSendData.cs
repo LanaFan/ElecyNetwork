@@ -121,13 +121,14 @@ namespace ElecyServer
         /// <summary>
         ///             Buffer:
         ///                     int PacketNum;
-        ///                     int mapIndex;
+        ///                     int sceneIndex;
         /// </summary>
-        public static void SendMatchFound(ClientTCP client1, ClientTCP client2)
+        public static void SendMatchFound(BaseGameRoom room)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SMatchFound);
-            ServerTCP.SendDataToBothClients(client1, client2, buffer.ToArray());
+            buffer.WriteInteger((int)room.roomType);
+            ServerTCP.SendDataToRoomPlayers(room, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -206,24 +207,21 @@ namespace ElecyServer
         ///                     float[4] firstPlayerRotation;
         ///                     float[4] secondPlayerRotation;
         /// </summary>
-        public static void SendPlayersSpawned(ClientTCP client, string nickname1, string nickname2, float[][]firstPlayerTransform, float[][]secondPlayerTransform)
+        public static void SendPlayersSpawned(ClientTCP client, BaseGameRoom room)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SPlayerSpawned);
-            buffer.WriteString(nickname1);
-            buffer.WriteString(nickname2);
-            buffer.WriteFloat(firstPlayerTransform[0][0]);
-            buffer.WriteFloat(firstPlayerTransform[0][1]);
-            buffer.WriteFloat(secondPlayerTransform[0][0]);
-            buffer.WriteFloat(secondPlayerTransform[0][1]);
-            buffer.WriteFloat(firstPlayerTransform[1][0]);
-            buffer.WriteFloat(firstPlayerTransform[1][1]);
-            buffer.WriteFloat(firstPlayerTransform[1][2]);
-            buffer.WriteFloat(firstPlayerTransform[1][3]);
-            buffer.WriteFloat(secondPlayerTransform[1][0]);
-            buffer.WriteFloat(secondPlayerTransform[1][1]);
-            buffer.WriteFloat(secondPlayerTransform[1][2]);
-            buffer.WriteFloat(secondPlayerTransform[1][3]);
+            buffer.WriteInteger(room.PlayersCount);
+            for(int i = 0; i < room.PlayersCount; i++)
+            {
+                buffer.WriteString(room.playersTCP[i].nickname);
+                buffer.WriteFloat(room.spawnTransforms[i][0][0]);
+                buffer.WriteFloat(room.spawnTransforms[i][0][1]);
+                buffer.WriteFloat(room.spawnTransforms[i][1][0]);
+                buffer.WriteFloat(room.spawnTransforms[i][1][1]);
+                buffer.WriteFloat(room.spawnTransforms[i][1][2]);
+                buffer.WriteFloat(room.spawnTransforms[i][1][3]);
+            }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
             buffer.Dispose();
         }
@@ -250,7 +248,7 @@ namespace ElecyServer
             buffer.WriteInteger(end - start+1);
             while(start <= end)
             {
-                var k = client.room.StaticList.Get(start).GetInfo();
+                var k = client.room.staticObjectsList.Get(start).GetInfo();
                 buffer.WriteInteger(start);
                 buffer.WriteInteger(k.Item1);
                 buffer.WriteFloat(k.Item2[0]);
@@ -288,7 +286,7 @@ namespace ElecyServer
             buffer.WriteInteger(end - start+1);
             while (start <= end)
             {
-                var k = client.room.StaticList.Get(start).GetInfo();
+                var k = client.room.staticObjectsList.Get(start).GetInfo();
                 buffer.WriteInteger(start);
                 buffer.WriteInteger(k.Item1);
                 buffer.WriteFloat(k.Item2[0]);
@@ -307,24 +305,23 @@ namespace ElecyServer
         /// <summary>
         ///             Buffer:
         ///                     int PacketNum;
-        ///                     int firstPlayerSpellCount;
-        ///                     int secondPlayerSpellCount;
-        ///                     short[firstPlayerSpellCount] spellNumber;
-        ///                     short[secondPlayerSpellCount] spellNumber;
+        ///                     int amount of spellBuilds (number of players)
+        ///                     for(amount of spellBuilds)
+        ///                         int spellBuildLength
+        ///                         short[spellBuildLength] spellBuild
         /// </summary>
-        public static void SendLoadSpells(ClientTCP client, short[] spellsNumberFirst, short[] spellsNumberSecond)
+        public static void SendLoadSpells(ClientTCP client, short[][] spellBuilds, int totalNumberOfSpells) // Нужно согласовать как будет эта херь выглядеть (избавится от инта)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SSpellLoaded);
-            buffer.WriteInteger(spellsNumberFirst.Length);
-            buffer.WriteInteger(spellsNumberSecond.Length);
-            for(int i = 0; i < spellsNumberFirst.Length; i++)
+            buffer.WriteInteger(spellBuilds.Length);
+            buffer.WriteInteger(totalNumberOfSpells);
+            foreach(short[] spellBuild in spellBuilds)
             {
-                buffer.WriteShort(spellsNumberFirst[i]);
-            }
-            for(int i = 0; i < spellsNumberSecond.Length; i++)
-            {
-                buffer.WriteShort(spellsNumberSecond[i]);
+                for(int i = 0; i < spellBuild.Length; i++)
+                {
+                    buffer.WriteShort(spellBuild[i]);
+                }
             }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
             buffer.Dispose();
@@ -334,11 +331,11 @@ namespace ElecyServer
         ///             Buffer:
         ///                     int PacketNum;
         /// </summary>
-        public static void SendRoomStart(ClientTCP client1, ClientTCP client2)
+        public static void SendRoomStart(BaseGameRoom room)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SRoomStart);
-            ServerTCP.SendDataToBothClients(client1, client2, buffer.ToArray());
+            ServerTCP.SendDataToRoomPlayers(room, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -347,12 +344,12 @@ namespace ElecyServer
         ///                     int PacketNum;
         ///                     float loadProgress;
         /// </summary>
-        public static void SendEnemyProgress(ClientTCP client, float loadProgress)
+        public static void SendEnemyProgress(BaseGameRoom room, ClientTCP client, float loadProgress)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SEnemyLoadProgress);
             buffer.WriteFloat(loadProgress);
-            ServerTCP.SendDataToClient(client, buffer.ToArray());
+            ServerTCP.SendDataToRoomPlayers(room, client, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -387,12 +384,12 @@ namespace ElecyServer
         ///                     int PacketNum;
         ///                     string winnerNickname;
         /// </summary>
-        public static void SendMatchEnded(ClientTCP client1, ClientTCP client2)
+        public static void SendMatchEnded(string nickname, BaseGameRoom room)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SMatchResult);
-            buffer.WriteString(client1.nickname);
-            ServerTCP.SendDataToBothClients(client1, client2, buffer.ToArray());
+            buffer.WriteString(nickname);
+            ServerTCP.SendDataToRoomPlayers(room, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -424,7 +421,7 @@ namespace ElecyServer
                 buffer.WriteFloat(rot[3]);
                 buffer.WriteInteger(hp);
                 buffer.WriteString(nickname);
-                ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
+                //ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
             }
         }
 
@@ -434,7 +431,7 @@ namespace ElecyServer
             {
                 buffer.WriteInteger((int)ServerPackets.SDestroy);
                 buffer.WriteInteger(spellIndex);
-                ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
+                //ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
             }
         }
 

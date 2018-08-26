@@ -10,9 +10,10 @@ namespace ElecyServer
         public static MySQL mysql;
         public static Database data;
         public static GameRoom[] arena = new GameRoom[Constants.ARENA_SIZE];
-        public static List<GamePlayerUDP> playersUDP;
+        public static List<GamePlayerUDP> connectedPlayersUDP;
+        public static List<GamePlayerUDP> unconectedPlayersUDP;
         public static List<ClientTCP> clientList; 
-        public static List<GameRoom> roomsList;
+        public static List<BaseGameRoom> roomsList;
         public static List<GameRoom> roomsUDP;
 
         public static Server serverForm;
@@ -33,8 +34,9 @@ namespace ElecyServer
             mysql = new MySQL();
             data = new Database();
             clientList = new List<ClientTCP>();
-            roomsList = new List<GameRoom>();
-            playersUDP = new List<GamePlayerUDP>();
+            roomsList = new List<BaseGameRoom>();
+            connectedPlayersUDP = new List<GamePlayerUDP>();
+            unconectedPlayersUDP = new List<GamePlayerUDP>();
             roomsUDP = new List<GameRoom>();
         }
 
@@ -59,11 +61,11 @@ namespace ElecyServer
                 room.CloseRoom();
             }
             roomsList = null;
-            foreach (GamePlayerUDP player in playersUDP.ToArray())
+            foreach (GamePlayerUDP player in connectedPlayersUDP.ToArray())
             {
-                playersUDP.Remove(player);
+                connectedPlayersUDP.Remove(player);
             }
-            playersUDP = null;
+            connectedPlayersUDP = null;
         }
     }
 }

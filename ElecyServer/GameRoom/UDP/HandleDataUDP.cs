@@ -41,7 +41,7 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
-            //player.SetValues(buffer.ReadInteger(), Global.arena[buffer.ReadInteger()]);
+            player.Connected();
             buffer.Dispose();
         }
 

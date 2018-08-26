@@ -9,7 +9,7 @@ namespace ElecyServer
     {
         public readonly int index;
         public readonly int maxHP;
-        public readonly GameRoom room;
+        public readonly BaseGameRoom room;
         public readonly ObjectType type;
 
         public float[] position;
@@ -17,7 +17,7 @@ namespace ElecyServer
         public bool isDestroyed;
         public int currHP;
 
-        public NetworkGameObject(int index, ObjectType type, GameRoom room, int hp, float[] position = null, float[] rotation = null)
+        public NetworkGameObject(int index, ObjectType type, BaseGameRoom room, int hp, float[] position = null, float[] rotation = null)
         {
             this.index = index;
             this.type = type;
@@ -25,8 +25,8 @@ namespace ElecyServer
             maxHP = currHP = hp;
             isDestroyed = false;
 
-            float[] pos = room.Spawner.RandomPosition(type);
-            float[] rot = room.Spawner.RandomRotation();
+            float[] pos = room.randomer.RandomPosition(type);
+            float[] rot = room.randomer.RandomRotation();
             this.position = position ?? new float[] { pos[0], 0.5f, pos[1] };
 
             if (type == ObjectType.tree)

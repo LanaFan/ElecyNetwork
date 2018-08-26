@@ -5,6 +5,7 @@ using Bindings;
 
 namespace ElecyServer
 {
+
     public class ArenaRandomGenerator
     {
         private float[] xRange;
@@ -12,14 +13,16 @@ namespace ElecyServer
         private List<Space> spaces;
         private Random rnd;
 
-        public ArenaRandomGenerator(float scaleX, float scaleZ, float[] player1Pos, float[] player2Pos)
+        public ArenaRandomGenerator(float scaleX, float scaleZ, float[][] positions)
         {
             rnd = new Random();
             spaces = new List<Space>();
             SetXRange(scaleX);
             SetZRange(scaleZ);
-            spaces.Add(new Space(player1Pos[0], player1Pos[1], 0));
-            spaces.Add(new Space(player2Pos[0], player2Pos[1], 0));
+            foreach(float[] pos in positions)
+            {
+                spaces.Add(new Space(pos[0], pos[1], 0));
+            }
         }
 
         public static int NumberOfObjects(ObjectType type)

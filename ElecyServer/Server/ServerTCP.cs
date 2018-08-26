@@ -68,7 +68,7 @@ namespace ElecyServer
             {
                 Socket socket = _serverSocket.EndAccept(ar);
                 _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
-                ClientTCP client = new ClientTCP(socket, (socket.RemoteEndPoint as IPEndPoint).Address);
+                ClientTCP client = new ClientTCP(socket, socket.RemoteEndPoint as IPEndPoint);
                 Global.clientList.Add(client);
                 ServerSendData.SendClientConnetionOK(client);
             }
@@ -153,30 +153,49 @@ namespace ElecyServer
             }
         }
 
-        public static void SendDataToBothClients(ClientTCP client1, ClientTCP client2, byte[] data)
+        public static void SendDataToRoomPlayers(BaseGameRoom room, byte[] data)
         {
             try
             {
-                try
+                for(int i = 0; i < room.PlayersCount; i++)
                 {
-                    client1.socket.Send(data);
-                }
-                catch
-                {
-                    client1.Close();
-                    throw new Exception();
-                }
-                try
-                {
-                    client2.socket.Send(data);
-                }
-                catch
-                {
-                    client2.Close();
-                    throw new Exception();
+                    try
+                    {
+                        if (room.playersTCP[i] != null)
+                            room.playersTCP[i].socket.Send(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        room.playersTCP[i].Close();
+                        throw ex;
+                    }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                Global.serverForm.Debug(ex + "");
+            }
+        }
+
+        public static void SendDataToRoomPlayers(BaseGameRoom room, ClientTCP exceptClient, byte[] data)
+        {
+            try
+            {
+                for (int i = 0; i < room.PlayersCount; i++)
+                {
+                    try
+                    {
+                        if (room.playersTCP[i] != null && !exceptClient.Equals(room.playersTCP[i]))
+                            room.playersTCP[i].socket.Send(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        room.playersTCP[i].Close();
+                        throw ex;
+                    }
+                }
+            }
+            catch (Exception ex)
             {
                 Global.serverForm.Debug(ex + "");
             }
@@ -191,7 +210,7 @@ namespace ElecyServer
         #region Variables
 
         public readonly Socket socket;
-        public readonly IPAddress ip;
+        public readonly IPEndPoint ip;
 
         public ClientTCPState clientState;
         public NetPlayerState playerState;
@@ -200,7 +219,9 @@ namespace ElecyServer
         public int[] levels;
         public int[] ranks;
 
-        public GameRoom room;
+        public BaseGameRoom room;
+        public GamePlayerUDP playerUDP;
+        public int ID;
         public string race;
         public float load;
 
@@ -210,7 +231,7 @@ namespace ElecyServer
 
         #region Constructor
 
-        public ClientTCP(Socket socket, IPAddress ip)
+        public ClientTCP(Socket socket, IPEndPoint ip)
         {
             this.socket = socket;
             this.ip = ip;
@@ -276,11 +297,20 @@ namespace ElecyServer
             ServerSendData.SendLoginOk(nickname, data, this);
         }
 
+        public void EnterRoom(BaseGameRoom room, GamePlayerUDP playerUDP, int ID)
+        {
+            this.room = room;
+            this.playerUDP = playerUDP;
+            this.ID = ID;
+            Global.unconectedPlayersUDP.Add(playerUDP);
+        }
+
         public void LeaveRoom()
         {
             playerState = NetPlayerState.InMainLobby;
             clientState = ClientTCPState.MainLobby;
-            room.DeletePlayer(this);
+            race = null;
+            room = null;
         }
 
         public void Close()
@@ -327,7 +357,7 @@ namespace ElecyServer
                     }
                     else if (playerState == NetPlayerState.EndPlaying)
                     {
-                        room.LeaveRoom(this);
+                        room.DeletePlayer(this);
                     }
                     Global.serverForm.Debug($"GamePlayer {nickname} lost connection");
                     Global.clientList.Remove(this);

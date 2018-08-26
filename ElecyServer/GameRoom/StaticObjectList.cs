@@ -32,16 +32,18 @@ namespace ElecyServer
 
         #region Commands
 
-        public void Add(ObjectType type, GameRoom room, int count, bool big, bool medium, bool small)
+        public int[] Add(ObjectType type, BaseGameRoom room, int count, bool big, bool medium, bool small)
         {
             int number = Offset +  count;
+            int[] ranges = new int[] { Offset, number - 1 };
             ChangeLength(number);
-            _ranges.Add(type, new int[] { Offset, number - 1 });
+            _ranges.Add(type, ranges);
             while(Offset < number)
             {
-                _list[Offset] = new NetworkGameObject(Offset, type, room, room.Spawner.RandomHP(type, big, medium, small));
+                _list[Offset] = new NetworkGameObject(Offset, type, room, room.randomer.RandomHP(type, big, medium, small));
                 Offset++;
             }
+            return ranges;
         }
 
         public NetworkGameObject Get(int index)
@@ -49,9 +51,9 @@ namespace ElecyServer
             return _list[index];
         }
 
-        public int[] GetRange(ObjectType type)
+        public bool GetRange(ObjectType type, out int[] ranges)
         {
-            return _ranges[type];
+            return _ranges.TryGetValue(type, out ranges);
         }
 
         public void Clear()

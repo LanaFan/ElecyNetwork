@@ -22,6 +22,7 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PQueueStop, HandleQueueStop },
                 {(int)NetPlayerPackets.PGetSkillsBuild, HandleGetSkillBuild },
                 {(int)NetPlayerPackets.PSaveSkillsBuild, HandleSaveSkillBuild },
+                {(int)NetPlayerPackets.PTestRoom, HandleTestRoom },
 
                 {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
                 {(int)RoomPackets.RGetPlayers, HandlePlayerSpawn },
@@ -217,13 +218,24 @@ namespace ElecyServer
             ServerSendData.SendBuildSaved(client);
         }
 
+        private static void HandleTestRoom(ClientTCP client, byte[] data)
+        {
+            using (PacketBuffer buffer = new PacketBuffer())
+            {
+                buffer.WriteBytes(data);
+                buffer.ReadInteger();
+                int mapIndex = buffer.ReadInteger();
+                Global.roomsList.Add(new TestRoom(client, mapIndex));
+            }
+        }
+
         #endregion
 
         #region GameRoom
 
         private static void HandleRoomConnect(ClientTCP client, byte[] data)
         {
-            client.room.SetGameLoadData(client);
+            client.room.SetGameArea(client);
         }
 
         private static void HandlePlayerSpawn(ClientTCP client, byte[] data)
@@ -233,7 +245,7 @@ namespace ElecyServer
             buffer.ReadInteger();
             client.room.SetLoadProgress(client, buffer.ReadFloat());
             buffer.Dispose();
-            client.room.SpawnPlayers(client);
+            client.room.SetPlayers(client);
         }
 
         private static void HandleRockSpawn(ClientTCP client, byte[] data)
@@ -263,7 +275,7 @@ namespace ElecyServer
             buffer.ReadInteger();
             client.room.SetLoadProgress(client, buffer.ReadFloat());
             buffer.Dispose();
-            client.room.LoadComplete(client);
+            client.room.LoadComplite(client);
         }
 
         private static void HandleGetSpells(ClientTCP client, byte[] data)
@@ -284,7 +296,7 @@ namespace ElecyServer
         private static void HandleRoomLeave(ClientTCP client, byte[] data)
         {
             ServerSendData.SendRoomLogOut(client);
-            client.room.LeaveRoom(client);
+            client.room.DeletePlayer(client);
         }
 
         /// <summary>
@@ -302,7 +314,7 @@ namespace ElecyServer
             {
                 buffer.WriteBytes(data);
                 buffer.ReadInteger();
-                client.room.DynamicList.Add(
+                client.room.dynamicObjectsList.Add(
                                             client.room,
                                             buffer.ReadInteger(),
                                             buffer.ReadInteger(),
@@ -329,7 +341,7 @@ namespace ElecyServer
             {
                 buffer.WriteBytes(data);
                 buffer.ReadInteger();
-                client.room.DynamicList.Destroy(buffer.ReadInteger());
+                client.room.dynamicObjectsList.Destroy(buffer.ReadInteger());
             }
         }
 

@@ -51,32 +51,18 @@ namespace ElecyServer
 
         private static GamePlayerUDP CheckIP(IPEndPoint ipEndPoint)
         {
-            foreach (GamePlayerUDP player in Global.playersUDP)
+            foreach (GamePlayerUDP player in Global.connectedPlayersUDP)
             {
-                if (player.ip.Equals(ipEndPoint))
+                if (player.ip.Address.Equals(ipEndPoint.Address))
                 {
                     return player;
                 }
             }
-            foreach (GameRoom room in Global.roomsList)
+            foreach(GamePlayerUDP player in Global.unconectedPlayersUDP)
             {
-                if (room.Status == RoomState.Loading)
+                if(player.ip.Address.Equals(ipEndPoint.Address))
                 {
-                    if (room.player1.ip.Equals(ipEndPoint.Address))
-                    {
-                        Global.playersUDP.Add(room.playerUDP1 = new GamePlayerUDP(ipEndPoint, 0, room));
-                        if (room.playerUDP2 != null)
-                            Global.roomsUDP.Add(room);
-                        return room.playerUDP1;
-                    }
-                    else if (room.player2.ip.Equals(ipEndPoint.Address))
-                    {
-                        Global.playersUDP.Add(room.playerUDP2 = new GamePlayerUDP(ipEndPoint, 1, room));
-                        if (room.playerUDP1 != null)
-                            Global.roomsUDP.Add(room);
-                        return room.playerUDP2;
-                    }
-
+                    return player;
                 }
             }
             return null;
@@ -108,18 +94,28 @@ namespace ElecyServer
             }
         }
 
-        public static void SendToBothClient(GamePlayerUDP player, byte[] data)
+        public static void SendToRoomPlayers(BaseGameRoom room, byte[] data)
         {
             try
             {
-                connectUDP.Send(data, data.Length, player.room.playerUDP1.ip);
+                for (int i = 0; i < room.PlayersCount; i++)
+                {
+                    try
+                    {
+                        if (room.playersUDP[i] != null)
+                            connectUDP.Send(data, data.Length, room.playersUDP[i].ip);
+                    }
+                    catch (Exception ex)
+                    {
+                        //room.playersUDP[i].Close();
+                        throw ex;
+                    }
+                }
             }
-            catch { }
-            try
+            catch (Exception ex)
             {
-                connectUDP.Send(data, data.Length, player.room.playerUDP2.ip);
+                Global.serverForm.Debug(ex + "");
             }
-            catch { }
         }
     }
 
@@ -127,21 +123,21 @@ namespace ElecyServer
     {
         public readonly IPEndPoint ip;
         public int ID { get; private set; }
-        public GameRoom room { get; private set; }
+        public BaseGameRoom room { get; private set; }
 
-        public GamePlayerUDP(IPEndPoint ipEndpoint, int id, GameRoom gameRoom)
+        public GamePlayerUDP(IPEndPoint ipEndpoint, int id, BaseGameRoom gameRoom)
         {
             ip = ipEndpoint;
             ID = id;
             room = gameRoom;
-            SendDataUDP.SendConnectionOK(this);
         }
 
-        public void SetValues(int id, GameRoom gameRoom)
+        public void Connected()
         {
-            ID = id;
-            room = gameRoom;
+            room.UDPConnected(ID);
             SendDataUDP.SendConnectionOK(this);
+            Global.unconectedPlayersUDP.Remove(this);
+            Global.connectedPlayersUDP.Add(this);
         }
         
     }

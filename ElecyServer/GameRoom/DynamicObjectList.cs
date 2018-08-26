@@ -10,7 +10,7 @@ namespace ElecyServer
         #region Variables
 
         private NetworkGameObject[] _list;
-        private GameRoom _room;
+        private BaseGameRoom _room;
 
         public int Length { get; private set; }
 
@@ -18,7 +18,7 @@ namespace ElecyServer
 
         #region Constructor
 
-        public DynamicObjectList(GameRoom room)
+        public DynamicObjectList(BaseGameRoom room)
         {
             Length = 10;
             _list = new NetworkGameObject[Length];
@@ -29,10 +29,10 @@ namespace ElecyServer
 
         #region Commands
 
-        public void Add(GameRoom room, int spellIndex, int parentIndex, float[] pos, float[] rot, int hp, string nickname)
+        public void Add(BaseGameRoom room, int spellIndex, int parentIndex, float[] pos, float[] rot, int hp, string nickname)
         {
             int index = Add(room, hp, pos, rot);
-            ServerSendData.SendInstantiate(room, spellIndex, index, parentIndex, pos, rot, hp, nickname);
+            //ServerSendData.SendInstantiate(room, spellIndex, index, parentIndex, pos, rot, hp, nickname);
         }
 
         public void Destroy(int index)
@@ -44,7 +44,7 @@ namespace ElecyServer
                     if(!_list[index].Equals(default(NetworkGameObject)))
                     {
                         _list[index] = new NetworkGameObject();
-                        ServerSendData.SendDestroy(_room, index);
+                        //ServerSendData.SendDestroy(_room, index);
                     }
                 }
                 catch(IndexOutOfRangeException) { }
@@ -55,7 +55,7 @@ namespace ElecyServer
 
         #region Private Commands
 
-        private int Add(GameRoom room, int hp, float[] pos, float[] rot)
+        private int Add(BaseGameRoom room, int hp, float[] pos, float[] rot)
         {
             lock (_list)
             {

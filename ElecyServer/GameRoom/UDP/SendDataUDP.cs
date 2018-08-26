@@ -17,7 +17,7 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendTransformUpdate(GamePlayerUDP player, byte ObjectType, int ObjectIndex, float[] Position, int UpdateIndex)
+        public static void SendTransformUpdate(BaseGameRoom room, byte ObjectType, int ObjectIndex, float[] Position, int UpdateIndex)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)UDPServerPackets.USTransformUpdate);
@@ -26,7 +26,7 @@ namespace ElecyServer
             buffer.WriteInteger(UpdateIndex);
             buffer.WriteFloat(Position[0]);
             buffer.WriteFloat(Position[1]);
-            UDPConnector.SendToBothClient(player, buffer.ToArray());
+            UDPConnector.SendToRoomPlayers(room, buffer.ToArray());
             buffer.Dispose();
         }
     }
