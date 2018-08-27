@@ -40,11 +40,21 @@ namespace ElecyServer
                     byte[] connectBuffer = _client.EndReceive(ar, ref ipEndpoint);
                     HandleDataUDP.HandleNetworkInformation(CheckIP(ipEndpoint), connectBuffer);
                     if (receive)
-                        _client.BeginReceive(ReceiveCallback, _client);
+                        _client.BeginReceive(new AsyncCallback(ReceiveCallback), _client);
                 }
                 catch (SocketException e)
                 {
-                    Global.serverForm.Debug(e.ErrorCode + "");
+                    //try
+                    //{
+                    //    connectUDP.BeginReceive(new AsyncCallback(ReceiveCallback), connectUDP);
+                    //    Global.serverForm.Debug("Flawless victory");
+                    //}
+                    //catch
+                    //{
+                        Global.serverForm.Debug(e + "");
+                    //}
+
+
                 }
             }
         }
@@ -53,7 +63,7 @@ namespace ElecyServer
         {
             foreach (GamePlayerUDP player in Global.connectedPlayersUDP)
             {
-                if (player.ip.Address.Equals(ipEndPoint.Address))
+                if (player.ip.Equals(ipEndPoint))
                 {
                     return player;
                 }
@@ -62,6 +72,7 @@ namespace ElecyServer
             {
                 if(player.ip.Address.Equals(ipEndPoint.Address))
                 {
+                    player.ip = ipEndPoint;
                     return player;
                 }
             }
@@ -121,7 +132,7 @@ namespace ElecyServer
 
     public class GamePlayerUDP
     {
-        public readonly IPEndPoint ip;
+        public IPEndPoint ip;
         public int ID { get; private set; }
         public BaseGameRoom room { get; private set; }
 
