@@ -32,7 +32,7 @@ namespace ElecyServer
         public void Add(BaseGameRoom room, int spellIndex, int parentIndex, float[] pos, float[] rot, int hp, string nickname)
         {
             int index = Add(room, hp, pos, rot);
-            //ServerSendData.SendInstantiate(room, spellIndex, index, parentIndex, pos, rot, hp, nickname);
+            ServerSendData.SendInstantiate(room, spellIndex, index, parentIndex, pos, rot, hp, nickname);
         }
 
         public void Destroy(int index)
@@ -44,7 +44,7 @@ namespace ElecyServer
                     if(!_list[index].Equals(default(NetworkGameObject)))
                     {
                         _list[index] = new NetworkGameObject();
-                        //ServerSendData.SendDestroy(_room, index);
+                        ServerSendData.SendDestroy(_room, index);
                     }
                 }
                 catch(IndexOutOfRangeException) { }

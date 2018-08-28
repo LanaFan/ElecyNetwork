@@ -225,6 +225,7 @@ namespace ElecyServer
                 buffer.WriteBytes(data);
                 buffer.ReadInteger();
                 int mapIndex = buffer.ReadInteger();
+                client.race = buffer.ReadString(); 
                 Global.roomsList.Add(new TestRoom(client, mapIndex));
             }
         }

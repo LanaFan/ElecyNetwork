@@ -229,7 +229,7 @@ namespace ElecyServer
 
         public void StartUpdate()
         {
-            _updateTimer = new Timer(UpdateTimerCallback, null, 0, 1000 / Constants.UPDATE_RATE);
+            _updateTimer = new Timer(UpdateTimerCallback, null, 5000, 1000 / Constants.UPDATE_RATE);
         }
 
         public void UpdateTimerCallback(object o)
@@ -243,10 +243,14 @@ namespace ElecyServer
             }
             for (int i = 0; i < dynamicObjectsList.Length; i++)
             {
-                if (dynamicObjectsList.Get(i).GetPosition(out MovementUpdate update, out int index))
+                if(!dynamicObjectsList.Get(i).Equals(default(NetworkGameObject))) 
                 {
-                    SendDataUDP.SendTransformUpdate(this, (int)ObjectType.spell, i, update.position, index);
+                    if (dynamicObjectsList.Get(i).GetPosition(out MovementUpdate update, out int index))
+                    {
+                        SendDataUDP.SendTransformUpdate(this, (int)ObjectType.spell, i, update.position, index);
+                    }
                 }
+
             }
         }
 

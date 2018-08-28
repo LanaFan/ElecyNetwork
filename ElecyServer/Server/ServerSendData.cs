@@ -404,7 +404,7 @@ namespace ElecyServer
         ///                     int hp;
         ///                     string nickname; (nickname of master-client)
         /// </summary>
-        public static void SendInstantiate(GameRoom room, int spellIndex, int dynamicIndex, int parentIndex, float[] pos, float[] rot, int hp, string nickname)
+        public static void SendInstantiate(BaseGameRoom room, int spellIndex, int dynamicIndex, int parentIndex, float[] pos, float[] rot, int hp, string nickname)
         {
             using (PacketBuffer buffer = new PacketBuffer())
             {
@@ -421,17 +421,17 @@ namespace ElecyServer
                 buffer.WriteFloat(rot[3]);
                 buffer.WriteInteger(hp);
                 buffer.WriteString(nickname);
-                //ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
+                ServerTCP.SendDataToRoomPlayers(room, buffer.ToArray());
             }
         }
 
-        public static void SendDestroy(GameRoom room, int spellIndex)
+        public static void SendDestroy(BaseGameRoom room, int spellIndex)
         {
             using (PacketBuffer buffer = new PacketBuffer()) 
             {
                 buffer.WriteInteger((int)ServerPackets.SDestroy);
                 buffer.WriteInteger(spellIndex);
-                //ServerTCP.SendDataToBothClients(room.player1, room.player2, buffer.ToArray());
+                ServerTCP.SendDataToRoomPlayers(room, buffer.ToArray());
             }
         }
 
