@@ -238,7 +238,14 @@ namespace ElecyServer
             {
                 if (roomPlayers[i].GetPosition(out MovementUpdate update, out int index))
                 {
-                    SendDataUDP.SendTransformUpdate(this, 1, i, update.position, index);
+                    SendDataUDP.SendTransformUpdate(this, (int)ObjectType.player, i, update.position, index);
+                }
+            }
+            for (int i = 0; i < dynamicObjectsList.Length; i++)
+            {
+                if (dynamicObjectsList.Get(i).GetPosition(out MovementUpdate update, out int index))
+                {
+                    SendDataUDP.SendTransformUpdate(this, (int)ObjectType.spell, i, update.position, index);
                 }
             }
         }
@@ -390,7 +397,7 @@ namespace ElecyServer
                     if (positionUpdate.TryGetValue(Index, out MovementUpdate stepBackBuffer))
                     {
                         _currentIndex = Index;
-                        //_currentPosition = stepBackBuffer.position;
+                        _currentPosition = stepBackBuffer.position;
                         positionUpdate.Clear();
                         positionUpdate.Add(1, buffer);
                         positionUpdate.Add(Index, stepBackBuffer);
@@ -399,7 +406,6 @@ namespace ElecyServer
                     {
                         Global.serverForm.Debug("There is no stepback point");
                     }
-
                 }
                 else
                 {

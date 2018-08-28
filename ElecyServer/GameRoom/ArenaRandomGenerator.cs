@@ -76,7 +76,7 @@ namespace ElecyServer
             int max = 0;
             switch (type)
             {
-                case ObjectType.unsigned:
+                case ObjectType.player:
                     break;
                 case ObjectType.tree:
                     if(big)
@@ -158,7 +158,7 @@ namespace ElecyServer
         {
             switch (type)
             {
-                case ObjectType.unsigned:
+                case ObjectType.player:
                     xFrom = posX - 10f;
                     zFrom = posZ - 10f;
                     xTo = posX + 10f;

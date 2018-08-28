@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using Bindings;
 
 namespace ElecyServer
@@ -17,6 +18,11 @@ namespace ElecyServer
         public bool isDestroyed;
         public int currHP;
 
+        public Dictionary<int, MovementUpdate> positionUpdate;
+        float[] _currentPosition;
+        int _currentIndex;
+        object expectant;
+
         public NetworkGameObject(int index, ObjectType type, BaseGameRoom room, int hp, float[] position = null, float[] rotation = null)
         {
             this.index = index;
@@ -28,6 +34,7 @@ namespace ElecyServer
             float[] pos = room.randomer.RandomPosition(type);
             float[] rot = room.randomer.RandomRotation();
             this.position = position ?? new float[] { pos[0], 0.5f, pos[1] };
+            _currentPosition = this.position;
 
             if (type == ObjectType.tree)
             {
@@ -36,6 +43,79 @@ namespace ElecyServer
             else
             {
                 this.rotation = rotation ?? new float[] { rot[0], rot[1], rot[2], 1 };
+            }
+            positionUpdate = new Dictionary<int, MovementUpdate>();
+            _currentIndex = 1;
+            expectant = new object();
+        }
+
+        public void SetPosition(float[] Position, int Index)
+        {
+            lock (expectant)
+            {
+                if (_currentIndex < Index)
+                {
+                    if (positionUpdate.Count > 20)
+                    {
+                        if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
+                        {
+                            positionUpdate.Clear();
+                            positionUpdate.Add(1, buffer);
+                        }
+                        else
+                            Global.serverForm.Debug("There is no start position in memory");
+                    }
+                    _currentIndex = Index;
+                    _currentPosition[0] = Position[0];
+                    _currentPosition[1] = Position[1];
+                    positionUpdate.Add(_currentIndex, new MovementUpdate(_currentPosition));
+                }
+                else
+                {
+                    positionUpdate.Add(Index, new MovementUpdate(Position));
+                }
+            }
+        }
+
+        public bool GetPosition(out MovementUpdate update, out int index)
+        {
+            lock (expectant)
+            {
+                index = _currentIndex;
+                if (positionUpdate.TryGetValue(_currentIndex, out update))
+                    if (!update.sent)
+                    {
+                        update.sent = true;
+                        return true;
+                    }
+                return false;
+            }
+        }
+
+        public void UdpateStepBack(int Index)
+        {
+            lock (expectant)
+            {
+                if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
+                {
+                    if (positionUpdate.TryGetValue(Index, out MovementUpdate stepBackBuffer))
+                    {
+                        _currentIndex = Index;
+                        _currentPosition = stepBackBuffer.position;
+                        positionUpdate.Clear();
+                        positionUpdate.Add(1, buffer);
+                        positionUpdate.Add(Index, stepBackBuffer);
+                    }
+                    else
+                    {
+                        Global.serverForm.Debug("There is no stepback point");
+                    }
+
+                }
+                else
+                {
+                    Global.serverForm.Debug("There is no start point");
+                }
             }
         }
 

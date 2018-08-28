@@ -50,12 +50,24 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
+            int index = buffer.ReadInteger();
+            if(index == 0)
+            {
             int UpdateIndex = buffer.ReadInteger();
             float[] pos = new float[2];
             pos[0] = buffer.ReadFloat();
             pos[1] = buffer.ReadFloat();
             player.room.roomPlayers[player.ID].SetPosition(pos, UpdateIndex);
             buffer.Dispose();
+            }
+            else
+            {
+                int UpdateIndex = buffer.ReadInteger();
+                float[] pos = new float[2];
+                pos[0] = buffer.ReadFloat();
+                pos[1] = buffer.ReadFloat();
+                player.room.dynamicObjectsList.Get(index).SetPosition(pos, UpdateIndex);
+            }
         }
 
         private static void HandleTransformStepback(GamePlayerUDP player, byte[] data)

@@ -51,6 +51,11 @@ namespace ElecyServer
             }
         }
 
+        public NetworkGameObject Get(int index)
+        {
+            return _list[index];
+        }
+
         #endregion
 
         #region Private Commands

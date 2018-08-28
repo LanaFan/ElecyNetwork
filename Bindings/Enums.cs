@@ -29,10 +29,10 @@
 
     public enum ObjectType
     {
-        unsigned = 0,
-        tree = 1,
-        rock = 2,
-        spell = 3,
+        player = 1,
+        tree = 2,
+        rock = 3,
+        spell = 4,
     }
 
     public enum RoomTypes
