@@ -17,15 +17,16 @@ namespace ElecyServer
             buffer.Dispose();
         }
 
-        public static void SendTransformUpdate(BaseGameRoom room, byte ObjectType, int ObjectIndex, float[] Position, int UpdateIndex)
+        public static void SendTransformUpdate(BaseGameRoom room, ObjectType type, int ObjectIndex, float[] Position, int UpdateIndex)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)UDPServerPackets.USTransformUpdate);
-            buffer.WriteByte(ObjectType);
+            buffer.WriteInteger((int)type);
             buffer.WriteInteger(ObjectIndex);
             buffer.WriteInteger(UpdateIndex);
             buffer.WriteFloat(Position[0]);
             buffer.WriteFloat(Position[1]);
+            buffer.WriteFloat(Position[2]);
             UDPConnector.SendToRoomPlayers(room, buffer.ToArray());
             buffer.Dispose();
         }

@@ -151,12 +151,12 @@ namespace ElecyServer
 
         public void SetGameArea(ClientTCP client)
         {
-            ServerSendData.SendMapData(_mapIndex, client);
+            SendDataTCP.SendMapData(_mapIndex, client);
         }
 
         public void SetPlayers(ClientTCP client)
         {
-            ServerSendData.SendPlayersSpawned(client, this);
+            SendDataTCP.SendPlayersSpawned(client, this);
         }
 
         public void SpawnRock(ClientTCP client, int rockCount, bool bigRock, bool mediumRock, bool smallRock)
@@ -169,7 +169,7 @@ namespace ElecyServer
                     ranges = staticObjectsList.Add(ObjectType.rock, this, rockCount, bigRock, mediumRock, smallRock);
                 }
             }
-            ServerSendData.SendRockSpawned(client, ranges);
+            SendDataTCP.SendRockSpawned(client, ranges);
         }
 
         public void SpawnTree(ClientTCP client, int treeCount, bool bigTree, bool mediumTree, bool smallTree)
@@ -182,7 +182,7 @@ namespace ElecyServer
                     ranges = staticObjectsList.Add(ObjectType.tree, this, treeCount, bigTree, mediumTree, smallTree);
                 }
             }
-            ServerSendData.SendTreeSpawned(client, ranges);
+            SendDataTCP.SendTreeSpawned(client, ranges);
         }
 
         public void LoadSpells(ClientTCP client)
@@ -194,7 +194,7 @@ namespace ElecyServer
                 spellBuilds[i] = Global.data.GetSkillBuildData(playersTCP[i].nickname, playersTCP[i].race);
                 totalNumber += spellBuilds[i].Length;
             }
-            ServerSendData.SendLoadSpells(client, spellBuilds, totalNumber);
+            SendDataTCP.SendLoadSpells(client, spellBuilds, totalNumber);
         }
 
         public void LoadComplite(ClientTCP client)
@@ -213,14 +213,14 @@ namespace ElecyServer
                         return;
                 }
                 Status = RoomState.Playing;
-                ServerSendData.SendRoomStart(this);
+                SendDataTCP.SendRoomStart(this);
                 StartUpdate();
             }
         }
 
         public void SetLoadProgress(ClientTCP client, float loadProgress)
         { 
-            ServerSendData.SendEnemyProgress(this, client, client.load = loadProgress);
+            SendDataTCP.SendEnemyProgress(this, client, client.load = loadProgress);
         }
 
         #endregion
@@ -238,20 +238,29 @@ namespace ElecyServer
             {
                 if (roomPlayers[i].GetPosition(out MovementUpdate update, out int index))
                 {
-                    SendDataUDP.SendTransformUpdate(this, (int)ObjectType.player, i, update.position, index);
+                    SendDataUDP.SendTransformUpdate(this, ObjectType.player, i, update.position, index);
                 }
             }
             for (int i = 0; i < dynamicObjectsList.Length; i++)
             {
-                if(!dynamicObjectsList.Get(i).Equals(default(NetworkGameObject))) 
+                if(dynamicObjectsList.Get(i) != null) 
                 {
                     if (dynamicObjectsList.Get(i).GetPosition(out MovementUpdate update, out int index))
                     {
-                        SendDataUDP.SendTransformUpdate(this, (int)ObjectType.spell, i, update.position, index);
+                        SendDataUDP.SendTransformUpdate(this, ObjectType.spell, i, update.position, index);
                     }
                 }
 
             }
+        }
+
+        protected void CloseUpdateTimer()
+        {
+            try
+            {
+                _updateTimer.Dispose();
+            }
+            catch { }
         }
 
         #endregion
@@ -260,23 +269,25 @@ namespace ElecyServer
 
         public void Surrended(ClientTCP client)
         {
+            CloseUpdateTimer();
             Status = RoomState.MatchEnded;
             foreach (ClientTCP player in playersTCP)
                 player.playerState = NetPlayerState.EndPlaying;
             _closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
-            ServerSendData.SendMatchEnded(client.nickname, this);
+            SendDataTCP.SendMatchEnded(client.nickname, this);
         }
 
         public void AbortGameSession(ClientTCP client)
         {
             if (Status != RoomState.MatchEnded)
             {
+                CloseUpdateTimer();
                 Status = RoomState.MatchEnded;
                 foreach (ClientTCP player in playersTCP)
                     player.playerState = NetPlayerState.EndPlaying;
                 _closeTimer = new Timer(EndGameSession, null, 300000, Timeout.Infinite);
                 DeletePlayer(client);
-                ServerSendData.SendMatchEnded(client.nickname, this);
+                SendDataTCP.SendMatchEnded(client.nickname, this);
             }
             else
             {
@@ -303,13 +314,14 @@ namespace ElecyServer
                 player.clientState = ClientTCPState.GameRoom;
                 player.playerState = NetPlayerState.Playing;
             }
-            ServerSendData.SendMatchFound(this);
+            SendDataTCP.SendMatchFound(this);
         }
 
         private void StopTimers()
         {
             if (_closeTimer != null)
                 _closeTimer.Dispose();
+            CloseUpdateTimer();
         }
 
         protected internal abstract void RoomType();
@@ -325,7 +337,7 @@ namespace ElecyServer
             {
                 if(playersTCP[i] != null)
                 {
-                    ServerSendData.SendRoomLogOut(playersTCP[i]);
+                    SendDataTCP.SendRoomLogOut(playersTCP[i]);
                     DeletePlayer(playersTCP[i]);
                 }
             }
@@ -344,8 +356,9 @@ namespace ElecyServer
 
         public RoomPlayer(float[] StartPosition)
         {
-            positionUpdate.Add(1, new MovementUpdate(StartPosition));
-            _currentPosition = StartPosition;
+            
+            positionUpdate.Add(1, new MovementUpdate(new float[] { StartPosition[0], 0.5f, StartPosition[1] }));
+            _currentPosition = new float[] { StartPosition[0], 0.5f, StartPosition[1] };
             expectant = new object();
         }
 
@@ -368,6 +381,7 @@ namespace ElecyServer
                     _currentIndex = Index;
                     _currentPosition[0] = Position[0];
                     _currentPosition[1] = Position[1];
+                    _currentPosition[2] = Position[2];
                     positionUpdate.Add(_currentIndex, new MovementUpdate(_currentPosition));
                 }
                 else

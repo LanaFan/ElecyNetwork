@@ -70,7 +70,7 @@ namespace ElecyServer
                 _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
                 ClientTCP client = new ClientTCP(socket, socket.RemoteEndPoint as IPEndPoint);
                 Global.clientList.Add(client);
-                ServerSendData.SendClientConnetionOK(client);
+                SendDataTCP.SendClientConnetionOK(client);
             }
         }
 
@@ -271,7 +271,7 @@ namespace ElecyServer
                             socket.BeginReceive(_buffer, 0, _buffer.Length, SocketFlags.None, new AsyncCallback(ReceiveCallback), null);
                         byte[] dataBuffer = new byte[received];
                         Array.Copy(_buffer, dataBuffer, received);
-                        ServerHandleData.HandleNetworkInformation(this, dataBuffer);
+                        HandleDataTCP.HandleNetworkInformation(this, dataBuffer);
                     }
                 }
                 catch (Exception ex)
@@ -294,7 +294,7 @@ namespace ElecyServer
             ranks = data[1];
             playerState = NetPlayerState.InMainLobby;
             clientState = ClientTCPState.MainLobby;
-            ServerSendData.SendLoginOk(nickname, data, this);
+            SendDataTCP.SendLoginOk(nickname, data, this);
         }
 
         public void EnterRoom(BaseGameRoom room, GamePlayerUDP playerUDP, int ID)
@@ -342,7 +342,7 @@ namespace ElecyServer
                         Global.serverForm.Debug(ex + "");
                     }
                     Global.clientList.Remove(this);
-                    ServerSendData.SendGlChatMsg("Server", $"Player { nickname } disconnected.");
+                    SendDataTCP.SendGlChatMsg("Server", $"Player { nickname } disconnected.");
                 }
                 else if (clientState == ClientTCPState.GameRoom)
                 {

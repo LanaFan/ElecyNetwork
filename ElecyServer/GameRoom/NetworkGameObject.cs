@@ -6,7 +6,7 @@ using Bindings;
 namespace ElecyServer
 {
 
-    public struct NetworkGameObject
+    public class NetworkGameObject
     {
         public readonly int index;
         public readonly int maxHP;
@@ -22,6 +22,11 @@ namespace ElecyServer
         float[] _currentPosition;
         int _currentIndex;
         object expectant;
+
+        public NetworkGameObject()
+        {
+
+        }
 
         public NetworkGameObject(int index, ObjectType type, BaseGameRoom room, int hp, float[] position = null, float[] rotation = null)
         {
@@ -45,6 +50,7 @@ namespace ElecyServer
                 this.rotation = rotation ?? new float[] { rot[0], rot[1], rot[2], 1 };
             }
             positionUpdate = new Dictionary<int, MovementUpdate>();
+            positionUpdate.Add(1, new MovementUpdate(new float[] { _currentPosition[0], _currentPosition[1], _currentPosition[2] }));
             _currentIndex = 1;
             expectant = new object();
         }
@@ -68,6 +74,7 @@ namespace ElecyServer
                     _currentIndex = Index;
                     _currentPosition[0] = Position[0];
                     _currentPosition[1] = Position[1];
+                    _currentPosition[2] = Position[2];
                     positionUpdate.Add(_currentIndex, new MovementUpdate(_currentPosition));
                 }
                 else

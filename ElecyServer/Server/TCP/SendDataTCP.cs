@@ -2,7 +2,7 @@
 
 namespace ElecyServer
 {
-    class ServerSendData
+    class SendDataTCP
     {
 
         #region Send to Client
@@ -404,7 +404,7 @@ namespace ElecyServer
         ///                     int hp;
         ///                     string nickname; (nickname of master-client)
         /// </summary>
-        public static void SendInstantiate(BaseGameRoom room, int spellIndex, int dynamicIndex, int parentIndex, float[] pos, float[] rot, int hp, string nickname)
+        public static void SendInstantiate(BaseGameRoom room, int spellIndex, int dynamicIndex, int parentIndex, float[] castPos, float[] targetPos, float[] rot, int hp, string nickname)
         {
             using (PacketBuffer buffer = new PacketBuffer())
             {
@@ -412,9 +412,12 @@ namespace ElecyServer
                 buffer.WriteInteger(spellIndex);
                 buffer.WriteInteger(dynamicIndex);
                 buffer.WriteInteger(parentIndex);
-                buffer.WriteFloat(pos[0]);
-                buffer.WriteFloat(pos[1]);
-                buffer.WriteFloat(pos[2]);
+                buffer.WriteFloat(castPos[0]);
+                buffer.WriteFloat(castPos[1]);
+                buffer.WriteFloat(castPos[2]);
+                buffer.WriteFloat(targetPos[0]);
+                buffer.WriteFloat(targetPos[1]);
+                buffer.WriteFloat(targetPos[2]);
                 buffer.WriteFloat(rot[0]);
                 buffer.WriteFloat(rot[1]);
                 buffer.WriteFloat(rot[2]);

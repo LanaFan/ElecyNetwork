@@ -18,7 +18,7 @@ namespace ElecyServer
         {
             try
             {
-                ServerHandleData.InitializeNetworkPackages();
+                HandleDataTCP.InitializeNetworkPackages();
                 Global.InitGlobals();
                 Global.serverForm.StatusIndicator(1);
             }

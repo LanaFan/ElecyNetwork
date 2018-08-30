@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using Bindings;
 
@@ -50,23 +51,40 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
-            int index = buffer.ReadInteger();
-            if(index == 0)
+            ObjectType type = (ObjectType)buffer.ReadInteger();
+            int index;
+            int UpdateIndex;
+            float[] pos = new float[3];
+            switch (type)
             {
-            int UpdateIndex = buffer.ReadInteger();
-            float[] pos = new float[2];
-            pos[0] = buffer.ReadFloat();
-            pos[1] = buffer.ReadFloat();
-            player.room.roomPlayers[player.ID].SetPosition(pos, UpdateIndex);
-            buffer.Dispose();
-            }
-            else
-            {
-                int UpdateIndex = buffer.ReadInteger();
-                float[] pos = new float[2];
-                pos[0] = buffer.ReadFloat();
-                pos[1] = buffer.ReadFloat();
-                player.room.dynamicObjectsList.Get(index).SetPosition(pos, UpdateIndex);
+                case ObjectType.player:
+                    index = buffer.ReadInteger();
+                    UpdateIndex = buffer.ReadInteger();
+                    pos[0] = buffer.ReadFloat();
+                    pos[1] = buffer.ReadFloat();
+                    pos[2] = buffer.ReadFloat();
+                    player.room.roomPlayers[player.ID].SetPosition(pos, UpdateIndex);
+                    break;
+                case ObjectType.spell:
+                    index = buffer.ReadInteger();
+                    UpdateIndex = buffer.ReadInteger();
+                    pos[0] = buffer.ReadFloat();
+                    pos[1] = buffer.ReadFloat();
+                    pos[2] = buffer.ReadFloat();
+                    try
+                    {
+                        player.room.dynamicObjectsList.Get(index).SetPosition(pos, UpdateIndex);
+                    }
+                    catch (NullReferenceException ex)
+                    {
+                        Global.serverForm.Debug("(MoveUpdateNullRef) spell's index: " + index);
+                    }
+                    catch (IndexOutOfRangeException ex)
+                    {
+                        Global.serverForm.Debug("(MoveUpdateOutOfRange) spell's index: " + index);
+                    }
+
+                    break;
             }
         }
 

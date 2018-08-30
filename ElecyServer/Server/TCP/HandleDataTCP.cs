@@ -3,7 +3,7 @@ using Bindings;
 
 namespace ElecyServer
 {
-    class ServerHandleData
+    class HandleDataTCP
     {
         private delegate void Packet_(ClientTCP client, byte[] data);
         private static Dictionary<int, Packet_> Packets;
@@ -78,17 +78,17 @@ namespace ElecyServer
             string nickname = buffer.ReadString();
             if (Global.data.LoginExist(username))
             {
-                ServerSendData.SendClientAlert(client, "Username already exist");
+                SendDataTCP.SendClientAlert(client, "Username already exist");
                 return;
             }
             if (Global.data.NicknameExist(nickname))
             {
-                ServerSendData.SendClientAlert(client, "Nickname already exist");
+                SendDataTCP.SendClientAlert(client, "Nickname already exist");
                 return;
             }
             Global.data.AddAccount(username, password, nickname);
             buffer.Dispose();
-            ServerSendData.SendRegisterOk(client);
+            SendDataTCP.SendRegisterOk(client);
         }
 
         /// <summary>
@@ -105,12 +105,12 @@ namespace ElecyServer
             string username = buffer.ReadString();
             if (!Global.data.LoginExist(username))
             {
-                ServerSendData.SendClientAlert(client, "Username does not exist.");
+                SendDataTCP.SendClientAlert(client, "Username does not exist.");
                 return;
             }
             if (!Global.data.PasswordIsOkay(username, buffer.ReadString()))
             {
-                ServerSendData.SendClientAlert(client, "Invalid password.");
+                SendDataTCP.SendClientAlert(client, "Invalid password.");
                 return;
             }
             client.LogIn(username);
@@ -127,7 +127,7 @@ namespace ElecyServer
         /// </summary>
         private static void HandlePlayerConnect(ClientTCP client, byte[] data)
         {
-            ServerSendData.SendPlayerConnectionOK(client);
+            SendDataTCP.SendPlayerConnectionOK(client);
         }
 
         /// <summary>
@@ -140,7 +140,7 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteBytes(data);
             buffer.ReadInteger();
-            ServerSendData.SendGlChatMsg(client.nickname, buffer.ReadString() /* message */);
+            SendDataTCP.SendGlChatMsg(client.nickname, buffer.ReadString() /* message */);
             buffer.Dispose();
         }
 
@@ -181,7 +181,7 @@ namespace ElecyServer
             string race = buffer.ReadString();
             buffer.Dispose();
             short[] skillBuild = Global.data.GetSkillBuildData(client.nickname, race);
-            ServerSendData.SendSkillBuild(client, skillBuild, race);
+            SendDataTCP.SendSkillBuild(client, skillBuild, race);
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace ElecyServer
             }
             buffer.Dispose();
             Global.data.SetSkillBuildData(client.nickname, race, spellBuild);
-            ServerSendData.SendBuildSaved(client);
+            SendDataTCP.SendBuildSaved(client);
         }
 
         private static void HandleTestRoom(ClientTCP client, byte[] data)
@@ -296,7 +296,7 @@ namespace ElecyServer
 
         private static void HandleRoomLeave(ClientTCP client, byte[] data)
         {
-            ServerSendData.SendRoomLogOut(client);
+            SendDataTCP.SendRoomLogOut(client);
             client.room.DeletePlayer(client);
         }
 
@@ -319,6 +319,11 @@ namespace ElecyServer
                                             client.room,
                                             buffer.ReadInteger(),
                                             buffer.ReadInteger(),
+                                            new float[] {
+                                                        buffer.ReadFloat(),
+                                                        buffer.ReadFloat(),
+                                                        buffer.ReadFloat()
+                                                        },
                                             new float[] {
                                                         buffer.ReadFloat(),
                                                         buffer.ReadFloat(),

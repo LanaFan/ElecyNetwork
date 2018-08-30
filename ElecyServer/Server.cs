@@ -293,7 +293,7 @@ namespace ElecyServer
             {
                 if (!String.IsNullOrEmpty(txtChat.Text))
                 {
-                    ServerSendData.SendGlChatMsg("Server", txtChat.Text);
+                    SendDataTCP.SendGlChatMsg("Server", txtChat.Text);
                     txtChat.Text = "";
                 }
             }
@@ -307,7 +307,7 @@ namespace ElecyServer
                 {
                     if (!String.IsNullOrEmpty(txtChat.Text))
                     {
-                        ServerSendData.SendGlChatMsg("Server", txtChat.Text);
+                        SendDataTCP.SendGlChatMsg("Server", txtChat.Text);
                         txtChat.Text = "";
                     }
                 }

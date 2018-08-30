@@ -29,10 +29,10 @@ namespace ElecyServer
 
         #region Commands
 
-        public void Add(BaseGameRoom room, int spellIndex, int parentIndex, float[] pos, float[] rot, int hp, string nickname)
+        public void Add(BaseGameRoom room, int spellIndex, int parentIndex, float[] spawnPos, float[] targetPos, float[] rot, int hp, string nickname)
         {
-            int index = Add(room, hp, pos, rot);
-            ServerSendData.SendInstantiate(room, spellIndex, index, parentIndex, pos, rot, hp, nickname);
+            int index = Add(room, hp, spawnPos, rot);
+            SendDataTCP.SendInstantiate(room, spellIndex, index, parentIndex, spawnPos, targetPos, rot, hp, nickname);
         }
 
         public void Destroy(int index)
@@ -41,10 +41,10 @@ namespace ElecyServer
             {
                 try
                 {
-                    if(!_list[index].Equals(default(NetworkGameObject)))
+                    if(_list[index] != null)
                     {
-                        _list[index] = new NetworkGameObject();
-                        ServerSendData.SendDestroy(_room, index);
+                        _list[index] = null;
+                        SendDataTCP.SendDestroy(_room, index);
                     }
                 }
                 catch(IndexOutOfRangeException) { }
@@ -67,7 +67,7 @@ namespace ElecyServer
                 int index = -1;
                 for (int i = 0; i < Length; i++)
                 {
-                    if (_list[i].Equals(default(NetworkGameObject)))
+                    if (_list[i] == null)
                     {
                         _list[i] = new NetworkGameObject(i, ObjectType.spell, room, hp, pos, rot);
                         index = i;

@@ -58,9 +58,9 @@
     <Compile Include="GameRoom\NetworkGameObject.cs" />
     <Compile Include="GameRoom\StaticObjectList.cs" />
     <Compile Include="GameRoom\TestRoom.cs" />
-    <Compile Include="GameRoom\UDP\HandleDataUDP.cs" />
-    <Compile Include="GameRoom\UDP\SendDataUDP.cs" />
-    <Compile Include="GameRoom\UDP\SystemUDP.cs" />
+    <Compile Include="Server\UDP\HandleDataUDP.cs" />
+    <Compile Include="Server\UDP\SendDataUDP.cs" />
+    <Compile Include="Server\UDP\SystemUDP.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="MySQL\Database.cs" />
     <Compile Include="GameRoom\GameRoom.cs" />
@@ -79,9 +79,9 @@
     <Compile Include="Server.Designer.cs">
       <DependentUpon>Server.cs</DependentUpon>
     </Compile>
-    <Compile Include="Server\ServerHandleData.cs" />
-    <Compile Include="Server\ServerSendData.cs" />
-    <Compile Include="Server\ServerTCP.cs" />
+    <Compile Include="Server\TCP\HandleDataTCP.cs" />
+    <Compile Include="Server\TCP\SendDataTCP.cs" />
+    <Compile Include="Server\TCP\ServerTCP.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bindings\Bindings.csproj">
@@ -101,5 +101,6 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
