@@ -46,6 +46,7 @@ namespace ElecyServer
                         _list[index] = null;
                         SendDataTCP.SendDestroy(_room, index);
                     }
+
                 }
                 catch(IndexOutOfRangeException) { }
             }

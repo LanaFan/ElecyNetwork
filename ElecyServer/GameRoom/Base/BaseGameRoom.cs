@@ -250,7 +250,6 @@ namespace ElecyServer
                         SendDataUDP.SendTransformUpdate(this, ObjectType.spell, i, update.position, index);
                     }
                 }
-
             }
         }
 

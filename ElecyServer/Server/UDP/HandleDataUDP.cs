@@ -75,13 +75,11 @@ namespace ElecyServer
                     {
                         player.room.dynamicObjectsList.Get(index).SetPosition(pos, UpdateIndex);
                     }
-                    catch (NullReferenceException ex)
+                    catch(Exception ex)
                     {
-                        Global.serverForm.Debug("(MoveUpdateNullRef) spell's index: " + index);
-                    }
-                    catch (IndexOutOfRangeException ex)
-                    {
-                        Global.serverForm.Debug("(MoveUpdateOutOfRange) spell's index: " + index);
+                        if (ex is NullReferenceException || ex is IndexOutOfRangeException)
+                            return;
+                        throw;
                     }
 
                     break;
