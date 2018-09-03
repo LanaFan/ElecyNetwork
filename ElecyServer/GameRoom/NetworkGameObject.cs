@@ -59,6 +59,8 @@ namespace ElecyServer
         {
             lock (expectant)
             {
+                if (positionUpdate.ContainsKey(Index))
+                    return;
                 if (_currentIndex < Index)
                 {
                     if (positionUpdate.Count > 20)

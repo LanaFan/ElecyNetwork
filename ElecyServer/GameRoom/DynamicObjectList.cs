@@ -41,12 +41,11 @@ namespace ElecyServer
             {
                 try
                 {
-                    if(_list[index] != null)
+                    if (_list[index] != null)
                     {
                         _list[index] = null;
-                        SendDataTCP.SendDestroy(_room, index);
                     }
-
+                    SendDataTCP.SendDestroy(_room, index);
                 }
                 catch(IndexOutOfRangeException) { }
             }

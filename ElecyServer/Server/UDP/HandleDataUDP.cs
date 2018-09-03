@@ -79,7 +79,7 @@ namespace ElecyServer
                     {
                         if (ex is NullReferenceException || ex is IndexOutOfRangeException)
                             return;
-                        throw;
+                        Global.serverForm.Debug(ex + "");
                     }
 
                     break;
