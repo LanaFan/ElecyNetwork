@@ -37,7 +37,6 @@ namespace ElecyServer
             if (!Closed)
             {
                 Closed = true;
-                Global.mysql.MySQLClose();
                 try
                 {
                     Global.ThreadsStop();

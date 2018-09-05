@@ -26,8 +26,6 @@ namespace ElecyServer
             {
                 Global.serverForm.StatusIndicator(1, ex);
             }
-            Global.mysql.MySQLInit();
-            Global.data.InitDatabase();
             ServerTCP.SetupServer();
         }
     }
