@@ -25,18 +25,18 @@ namespace ElecyServer
             }
         }
 
-        public static int NumberOfObjects(ObjectType type)
-        {
-            Random rnd = new Random();
-            switch (type)
-            {
-                case ObjectType.rock:
-                    return rnd.Next(15, 25);
-                case ObjectType.tree:
-                    return rnd.Next(15, 20);
-            }
-            return 0;
-        }
+        //public static int NumberOfObjects(ObjectType type)
+        //{
+        //    Random rnd = new Random();
+        //    switch (type)
+        //    {
+        //        case ObjectType.rock:
+        //            return rnd.Next(15, 25);
+        //        case ObjectType.tree:
+        //            return rnd.Next(15, 20);
+        //    }
+        //    return 0;
+        //}
 
         public float[] RandomPosition(ObjectType type)
         {
@@ -70,15 +70,13 @@ namespace ElecyServer
             return rot;
         }
 
-        public int RandomHP(ObjectType type, bool big, bool medium, bool small)
+        public int RandomHP(StaticTypes type, bool big, bool medium, bool small)
         {
             int min = 0;
             int max = 0;
             switch (type)
             {
-                case ObjectType.player:
-                    break;
-                case ObjectType.tree:
+                case StaticTypes.tree:
                     if(big)
                     {
                         max = Constants.bTreeHP;
@@ -97,7 +95,7 @@ namespace ElecyServer
                         min = Constants.sTreeHP - Constants.treeDiff;
                     }
                     break;
-                case ObjectType.rock:
+                case StaticTypes.rock:
                     if (big)
                     {
                         max = Constants.bRockHP;
@@ -164,17 +162,11 @@ namespace ElecyServer
                     xTo = posX + 10f;
                     zTo = posZ + 10f;
                     break;
-                case ObjectType.rock:
+                case ObjectType.staticObjects:
                     xFrom = posX - 5f;
                     zFrom = posZ - 5f;
                     xTo = posX + 5f;
                     zTo = posZ + 5f;
-                    break;
-                case ObjectType.tree:
-                    xFrom = posX - 7f;
-                    zFrom = posZ - 7f;
-                    xTo = posX + 7f;
-                    zTo = posZ + 7f;
                     break;
             }
         }

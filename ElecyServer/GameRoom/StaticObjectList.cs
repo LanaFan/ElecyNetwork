@@ -10,8 +10,8 @@ namespace ElecyServer
 
         #region Variables
 
-        private NetworkGameObject[] _list;
-        private Dictionary<ObjectType, int[]> _ranges;
+        private StaticObject[] _list;
+        private Dictionary<StaticTypes, int[]> _ranges;
 
         public int Length { get; private set; }
         public int Offset { get; private set; }
@@ -23,8 +23,8 @@ namespace ElecyServer
         public StaticObjectList()
         {
             Length = 0;
-            _list = new NetworkGameObject[Length];
-            _ranges = new Dictionary<ObjectType, int[]>();
+            _list = new StaticObject[Length];
+            _ranges = new Dictionary<StaticTypes, int[]>();
             Offset = 0;
         }
 
@@ -32,26 +32,31 @@ namespace ElecyServer
 
         #region Commands
 
-        public int[] Add(ObjectType type, BaseGameRoom room, int count, bool big, bool medium, bool small)
+        public int[] Add(StaticTypes staticType, ObjectType type, BaseGameRoom room, int count, bool big, bool medium, bool small)
         {
             int number = Offset +  count;
             int[] ranges = new int[] { Offset, number - 1 };
             ChangeLength(number);
-            _ranges.Add(type, ranges);
+            _ranges.Add(staticType, ranges);
             while(Offset < number)
             {
-                _list[Offset] = new NetworkGameObject(Offset, type, room, room.randomer.RandomHP(type, big, medium, small));
+                _list[Offset] = new StaticObject(Offset,
+                                                staticType,
+                                                type, 
+                                                room.randomer.RandomHP(staticType, big, medium, small),
+                                                room.randomer.RandomPosition(type),
+                                                room.randomer.RandomRotation());
                 Offset++;
             }
             return ranges;
         }
 
-        public NetworkGameObject Get(int index)
+        public StaticObject Get(int index)
         {
             return _list[index];
         }
 
-        public bool GetRange(ObjectType type, out int[] ranges)
+        public bool GetRange(StaticTypes type, out int[] ranges)
         {
             return _ranges.TryGetValue(type, out ranges);
         }
@@ -59,8 +64,8 @@ namespace ElecyServer
         public void Clear()
         {
             Length = 0;
-            _list = new NetworkGameObject[Length];
-            _ranges = new Dictionary<ObjectType, int[]>();
+            _list = new StaticObject[Length];
+            _ranges = new Dictionary<StaticTypes, int[]>();
             Offset = 0;
         }
 
@@ -83,9 +88,9 @@ namespace ElecyServer
             return (IEnumerator)GetEnumerator();
         }
 
-        public NetworkGameObjectEnum GetEnumerator()
+        public BaseRoomObjectEnum GetEnumerator()
         {
-            return new NetworkGameObjectEnum(_list);
+            return new BaseRoomObjectEnum(_list);
         }
 
         #endregion

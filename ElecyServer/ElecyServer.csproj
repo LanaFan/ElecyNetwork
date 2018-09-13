@@ -54,8 +54,12 @@
   <ItemGroup>
     <Compile Include="GameRoom\ArenaRandomGenerator.cs" />
     <Compile Include="GameRoom\Base\BaseGameRoom.cs" />
+    <Compile Include="GameRoom\Base\BaseRoomObject.cs" />
     <Compile Include="GameRoom\DynamicObjectList.cs" />
     <Compile Include="GameRoom\NetworkGameObject.cs" />
+    <Compile Include="GameRoom\RoomObjects\DynamicObject.cs" />
+    <Compile Include="GameRoom\RoomObjects\RoomPlayer.cs" />
+    <Compile Include="GameRoom\RoomObjects\StaticObject.cs" />
     <Compile Include="GameRoom\StaticObjectList.cs" />
     <Compile Include="GameRoom\TestRoom.cs" />
     <Compile Include="Server\UDP\HandleDataUDP.cs" />

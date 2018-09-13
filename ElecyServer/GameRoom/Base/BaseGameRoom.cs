@@ -112,7 +112,7 @@ namespace ElecyServer
                     {
                         playersTCP[i] = client;
                         client.EnterRoom(this, playersUDP[i] = new GamePlayerUDP(client.ip, i, this), i);
-                        roomPlayers[i] = new RoomPlayer(spawnTransforms[i][0]);
+                        roomPlayers[i] = new RoomPlayer(i, ObjectType.player, 1000, spawnTransforms[i][0], spawnTransforms[i][1]); // You can create it when player starts queue using params from database
                         if (PlayersCount == playersTCP.Count(c => c != null))
                             StartLoad();
                         return true;
@@ -164,9 +164,9 @@ namespace ElecyServer
             int[] ranges;
             lock(expectant)
             {
-                if(!staticObjectsList.GetRange(ObjectType.rock, out ranges))
+                if(!staticObjectsList.GetRange(StaticTypes.rock, out ranges))
                 {
-                    ranges = staticObjectsList.Add(ObjectType.rock, this, rockCount, bigRock, mediumRock, smallRock);
+                    ranges = staticObjectsList.Add(StaticTypes.rock, ObjectType.staticObjects, this, rockCount, bigRock, mediumRock, smallRock);
                 }
             }
             SendDataTCP.SendRockSpawned(client, ranges);
@@ -177,9 +177,9 @@ namespace ElecyServer
             int[] ranges;
             lock (expectant)
             {
-                if (!staticObjectsList.GetRange(ObjectType.tree, out ranges))
+                if (!staticObjectsList.GetRange(StaticTypes.tree, out ranges))
                 {
-                    ranges = staticObjectsList.Add(ObjectType.tree, this, treeCount, bigTree, mediumTree, smallTree);
+                    ranges = staticObjectsList.Add(StaticTypes.tree, ObjectType.staticObjects, this, treeCount, bigTree, mediumTree, smallTree);
                 }
             }
             SendDataTCP.SendTreeSpawned(client, ranges);
@@ -345,92 +345,96 @@ namespace ElecyServer
         #endregion
     }
 
-    public class RoomPlayer
-    {
-        float[] _currentPosition;
-        int _currentIndex = 1;
-        object expectant;
+    //public class RoomPlayer
+    //{
+    //    float[] _currentPosition;
+    //    int _currentIndex = 1;
+    //    object expectant;
 
-        protected Dictionary<int, MovementUpdate> positionUpdate = new Dictionary<int, MovementUpdate>();
+    //    protected Dictionary<int, MovementUpdate> positionUpdate = new Dictionary<int, MovementUpdate>();
 
-        public RoomPlayer(float[] StartPosition)
-        {
+    //    public RoomPlayer(float[] StartPosition)
+    //    {
             
-            positionUpdate.Add(1, new MovementUpdate(new float[] { StartPosition[0], 0.5f, StartPosition[1] }));
-            _currentPosition = new float[] { StartPosition[0], 0.5f, StartPosition[1] };
-            expectant = new object();
-        }
+    //        positionUpdate.Add(1, new MovementUpdate(new float[] { StartPosition[0], 0.5f, StartPosition[1] }));
+    //        _currentPosition = new float[] { StartPosition[0], 0.5f, StartPosition[1] };
+    //        expectant = new object();
+    //    }
 
-        public void SetPosition(float[] Position, int Index)
-        {
-            lock(expectant)
-            {
-                if (_currentIndex < Index)
-                {
-                    if (positionUpdate.Count > 20)
-                    {
-                        if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
-                        {
-                            positionUpdate.Clear();
-                            positionUpdate.Add(1, buffer);
-                        }
-                        else
-                            Global.serverForm.Debug("There is no start position in memory");
-                    }
-                    _currentIndex = Index;
-                    _currentPosition[0] = Position[0];
-                    _currentPosition[1] = Position[1];
-                    _currentPosition[2] = Position[2];
-                    positionUpdate.Add(_currentIndex, new MovementUpdate(_currentPosition));
-                }
-                else
-                {
-                    positionUpdate.Add(Index, new MovementUpdate(Position));
-                }
-            }
-        }
+    //    public RoomPlayer(int index, ObjectType type, int hp, float[] position, float[] rotation) : base(index, type, hp, position, rotation)
+    //    {
+    //    }
 
-        public bool GetPosition(out MovementUpdate update, out int index)
-        {
-            lock(expectant)
-            {
-                index = _currentIndex;
-                if (positionUpdate.TryGetValue(_currentIndex, out update))
-                    if (!update.sent)
-                    {
-                        update.sent = true;
-                        return true;
-                    }
-                return false;
-            }
-        }
+    //    public void SetPosition(float[] Position, int Index)
+    //    {
+    //        lock(expectant)
+    //        {
+    //            if (_currentIndex < Index)
+    //            {
+    //                if (positionUpdate.Count > 20)
+    //                {
+    //                    if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
+    //                    {
+    //                        positionUpdate.Clear();
+    //                        positionUpdate.Add(1, buffer);
+    //                    }
+    //                    else
+    //                        Global.serverForm.Debug("There is no start position in memory");
+    //                }
+    //                _currentIndex = Index;
+    //                _currentPosition[0] = Position[0];
+    //                _currentPosition[1] = Position[1];
+    //                _currentPosition[2] = Position[2];
+    //                positionUpdate.Add(_currentIndex, new MovementUpdate(_currentPosition));
+    //            }
+    //            else
+    //            {
+    //                positionUpdate.Add(Index, new MovementUpdate(Position));
+    //            }
+    //        }
+    //    }
 
-        public void UdpateStepBack(int Index)
-        {
-            lock(expectant)
-            {
-                if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
-                {
-                    if (positionUpdate.TryGetValue(Index, out MovementUpdate stepBackBuffer))
-                    {
-                        _currentIndex = Index;
-                        _currentPosition = stepBackBuffer.position;
-                        positionUpdate.Clear();
-                        positionUpdate.Add(1, buffer);
-                        positionUpdate.Add(Index, stepBackBuffer);
-                    }
-                    else
-                    {
-                        Global.serverForm.Debug("There is no stepback point");
-                    }
-                }
-                else
-                {
-                    Global.serverForm.Debug("There is no start point");
-                }
-            }
-        }
-    }
+    //    public bool GetPosition(out MovementUpdate update, out int index)
+    //    {
+    //        lock(expectant)
+    //        {
+    //            index = _currentIndex;
+    //            if (positionUpdate.TryGetValue(_currentIndex, out update))
+    //                if (!update.sent)
+    //                {
+    //                    update.sent = true;
+    //                    return true;
+    //                }
+    //            return false;
+    //        }
+    //    }
+
+    //    public void UdpateStepBack(int Index)
+    //    {
+    //        lock(expectant)
+    //        {
+    //            if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
+    //            {
+    //                if (positionUpdate.TryGetValue(Index, out MovementUpdate stepBackBuffer))
+    //                {
+    //                    _currentIndex = Index;
+    //                    _currentPosition = stepBackBuffer.position;
+    //                    positionUpdate.Clear();
+    //                    positionUpdate.Add(1, buffer);
+    //                    positionUpdate.Add(Index, stepBackBuffer);
+    //                }
+    //                else
+    //                {
+    //                    Global.serverForm.Debug("There is no stepback point");
+    //                }
+    //            }
+    //            else
+    //            {
+    //                Global.serverForm.Debug("There is no start point");
+    //            }
+    //        }
+    //    }
+    //}
 
     public struct MovementUpdate
     {

@@ -438,6 +438,18 @@ namespace ElecyServer
             }
         }
 
+        public static void SendDamage(ClientTCP client, ObjectType type, int index, int damage)
+        {
+            using (PacketBuffer buffer = new PacketBuffer())
+            {
+                buffer.WriteInteger((int)ServerPackets.SDamage);
+                buffer.WriteInteger((int)type);
+                buffer.WriteInteger(index);
+                buffer.WriteInteger(damage);
+                ServerTCP.SendDataToClient(client, buffer.ToArray());
+            }
+        }
+
         #endregion
 
     }

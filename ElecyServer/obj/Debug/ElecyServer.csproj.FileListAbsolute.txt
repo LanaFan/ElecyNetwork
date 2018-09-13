@@ -17,7 +17,6 @@ D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\ElecyServ
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\ElecyServer.pdb
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\Bindings.dll
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\Bindings.pdb
-D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csprojResolveAssemblyReference.cache
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csproj.CoreCompileInputs.cache
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.exe
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.pdb
@@ -32,3 +31,5 @@ D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csproj.GenerateResource.Cache
 D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\ElecyServer.exe.config
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\ElecyServer.exe.config
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csprojAssemblyReference.cache
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\obj\Debug\ElecyServer.csproj.CopyComplete

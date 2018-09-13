@@ -30,9 +30,14 @@
     public enum ObjectType
     {
         player = 1,
-        tree = 2,
-        rock = 3,
-        spell = 4,
+        staticObjects = 2,
+        spell = 3,
+    }
+
+    public enum StaticTypes
+    {
+        tree = 1,
+        rock = 2,
     }
 
     public enum RoomTypes

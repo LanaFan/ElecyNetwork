@@ -1,59 +1,41 @@
-﻿using System;
+﻿using Bindings;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using Bindings;
 
 namespace ElecyServer
 {
 
-    public class NetworkGameObject
+    public abstract class BaseRoomObject
     {
-        public readonly int index;
-        public readonly int maxHP;
-        public readonly BaseGameRoom room;
-        public readonly ObjectType type;
-
-        public float[] position;
-        public float[] rotation;
+        public int index;
+        public ObjectType type;
         public bool isDestroyed;
-        public int currHP;
 
         public Dictionary<int, MovementUpdate> positionUpdate;
-        float[] _currentPosition;
-        int _currentIndex;
-        object expectant;
+        public float[] curPosition;
+        public int curPosIndex;
 
-        public NetworkGameObject()
+        public int maxHp;
+        public int curHp;
+
+        protected object expectant;
+
+        public BaseRoomObject(int index, ObjectType type, int hp, float[] position, float[] rotation)
         {
+            this.index = index;
+            this.type = type;
+            isDestroyed = false;
+            curPosition = new float[] { position[0], 0.5f, position[1] };
+            curPosIndex = 1;
+            expectant = new object();
+
+            positionUpdate = new Dictionary<int, MovementUpdate>();
+            positionUpdate.Add(curPosIndex, new MovementUpdate(curPosition));
 
         }
 
-        //public NetworkGameObject(int index, ObjectType type, BaseGameRoom room, int hp, float[] position = null, float[] rotation = null)
-        //{
-        //    this.index = index;
-        //    this.type = type;
-        //    this.room = room;
-        //    maxHP = currHP = hp;
-        //    isDestroyed = false;
-
-        //    float[] pos = room.randomer.RandomPosition(type);
-        //    float[] rot = room.randomer.RandomRotation();
-        //    this.position = position ?? new float[] { pos[0], 0.5f, pos[1] };
-        //    _currentPosition = this.position;
-
-        //    if (type == ObjectType.tree)
-        //    {
-        //        this.rotation = rotation ?? new float[] { 0, rot[1], 0, 1 };
-        //    }
-        //    else
-        //    {
-        //        this.rotation = rotation ?? new float[] { rot[0], rot[1], rot[2], 1 };
-        //    }
-        //    positionUpdate = new Dictionary<int, MovementUpdate>();
-        //    positionUpdate.Add(1, new MovementUpdate(new float[] { _currentPosition[0], _currentPosition[1], _currentPosition[2] }));
-        //    _currentIndex = 1;
-        //    expectant = new object();
-        //}
+        #region Position update
 
         public void SetPosition(float[] Position, int Index)
         {
@@ -61,7 +43,7 @@ namespace ElecyServer
             {
                 if (positionUpdate.ContainsKey(Index))
                     return;
-                if (_currentIndex < Index)
+                if (curPosIndex < Index)
                 {
                     if (positionUpdate.Count > 20)
                     {
@@ -73,11 +55,11 @@ namespace ElecyServer
                         else
                             Global.serverForm.Debug("There is no start position in memory");
                     }
-                    _currentIndex = Index;
-                    _currentPosition[0] = Position[0];
-                    _currentPosition[1] = Position[1];
-                    _currentPosition[2] = Position[2];
-                    positionUpdate.Add(_currentIndex, new MovementUpdate(_currentPosition));
+                    curPosIndex = Index;
+                    curPosition[0] = Position[0];
+                    curPosition[1] = Position[1];
+                    curPosition[2] = Position[2];
+                    positionUpdate.Add(curPosIndex, new MovementUpdate(curPosition));
                 }
                 else
                 {
@@ -90,11 +72,11 @@ namespace ElecyServer
         {
             lock (expectant)
             {
-                index = _currentIndex;
-                if (positionUpdate.TryGetValue(_currentIndex, out update))
+                index = curPosIndex;
+                if (positionUpdate.TryGetValue(curPosIndex, out update))
                     if (!update.sent)
                     {
-                        update.sent = true;
+                        update.sent = true; // mb not change the value (check bro)
                         return true;
                     }
                 return false;
@@ -109,8 +91,8 @@ namespace ElecyServer
                 {
                     if (positionUpdate.TryGetValue(Index, out MovementUpdate stepBackBuffer))
                     {
-                        _currentIndex = Index;
-                        _currentPosition = stepBackBuffer.position;
+                        curPosIndex = Index;
+                        curPosition = stepBackBuffer.position;
                         positionUpdate.Clear();
                         positionUpdate.Add(1, buffer);
                         positionUpdate.Add(Index, stepBackBuffer);
@@ -119,7 +101,6 @@ namespace ElecyServer
                     {
                         Global.serverForm.Debug("There is no stepback point");
                     }
-
                 }
                 else
                 {
@@ -128,19 +109,27 @@ namespace ElecyServer
             }
         }
 
-        public (int, float[], float[]) GetInfo()
-        {
-            return (currHP, position, rotation);
-        }
+        #endregion
+
+        #region HP update
+
+        public abstract void UpdateHP();
+
+        public abstract void TakeDamage(int damage);
+
+        #endregion
+
     }
 
-    public class NetworkGameObjectEnum : IEnumerator
+    #region Enumerator
+
+    public class BaseRoomObjectEnum : IEnumerator
     {
-        private NetworkGameObject[] _objects;
+        private BaseRoomObject[] _objects;
 
         int position = -1;
 
-        public NetworkGameObjectEnum(NetworkGameObject[] list)
+        public BaseRoomObjectEnum(BaseRoomObject[] list)
         {
             _objects = list;
         }
@@ -164,7 +153,7 @@ namespace ElecyServer
             }
         }
 
-        public NetworkGameObject Current
+        public BaseRoomObject Current
         {
             get
             {
@@ -172,12 +161,14 @@ namespace ElecyServer
                 {
                     return _objects[position];
                 }
-                catch(IndexOutOfRangeException)
+                catch (IndexOutOfRangeException)
                 {
                     throw new InvalidOperationException();
                 }
             }
         }
     }
+
+    #endregion
 
 }

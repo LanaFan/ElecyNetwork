@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Bindings;
 
 namespace ElecyServer
@@ -33,7 +34,8 @@ namespace ElecyServer
                 {(int)RoomPackets.RSurrender, HandleSurrender },
                 {(int)RoomPackets.RRoomLeave, HandleRoomLeave },
                 {(int)RoomPackets.RInstantiate, HandleInstantiate },
-                {(int)RoomPackets.RDestroy, HandleDestroy }
+                {(int)RoomPackets.RDestroy, HandleDestroy },
+                {(int)RoomPackets.RDamage, HandleDamage }
             };
         }
 
@@ -348,6 +350,32 @@ namespace ElecyServer
                 buffer.WriteBytes(data);
                 buffer.ReadInteger();
                 client.room.dynamicObjectsList.Destroy(buffer.ReadInteger());
+            }
+        }
+
+
+        private static void HandleDamage(ClientTCP client, byte[] data)
+        {
+            using (PacketBuffer buffer = new PacketBuffer())
+            {
+                buffer.WriteBytes(data);
+                buffer.ReadInteger();
+                ObjectType type = (ObjectType)buffer.ReadInteger();
+                int index;
+                int damage;
+                switch (type)
+                {
+                    case ObjectType.player:
+                        index = buffer.ReadInteger();
+                        damage = buffer.ReadInteger();
+                        client.room.roomPlayers[index].TakeDamage(damage);
+                        break;
+                    case ObjectType.spell:
+                        index = buffer.ReadInteger();
+                        damage = buffer.ReadInteger();
+                        client.room.dynamicObjectsList[index].TakeDamage(damage);
+                        break;
+                }
             }
         }
 

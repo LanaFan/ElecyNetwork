@@ -9,7 +9,7 @@ namespace ElecyServer
 
         #region Variables
 
-        private NetworkGameObject[] _list;
+        private DynamicObject[] _list;
         private BaseGameRoom _room;
 
         public int Length { get; private set; }
@@ -21,7 +21,7 @@ namespace ElecyServer
         public DynamicObjectList(BaseGameRoom room)
         {
             Length = 10;
-            _list = new NetworkGameObject[Length];
+            _list = new DynamicObject[Length];
             _room = room;
         }
 
@@ -31,13 +31,22 @@ namespace ElecyServer
 
         public void Add(BaseGameRoom room, int spellIndex, int parentIndex, float[] spawnPos, float[] targetPos, float[] rot, int hp, string nickname)
         {
-            int index = Add(room, hp, spawnPos, rot);
+            int caster = -1;
+            for (int i = 0; i < room.PlayersCount; i++)
+            {
+                if (room.playersTCP[i].nickname.Equals(nickname))
+                {
+                    caster = i;
+                    break;
+                }
+            }
+            int index = Add(room, hp, spawnPos, rot, caster);
             SendDataTCP.SendInstantiate(room, spellIndex, index, parentIndex, spawnPos, targetPos, rot, hp, nickname);
         }
 
         public void Destroy(int index)
         {
-            lock(_list)
+            lock (_list)
             {
                 try
                 {
@@ -47,11 +56,11 @@ namespace ElecyServer
                     }
                     SendDataTCP.SendDestroy(_room, index);
                 }
-                catch(IndexOutOfRangeException) { }
+                catch (IndexOutOfRangeException) { }
             }
         }
 
-        public NetworkGameObject Get(int index)
+        public DynamicObject Get(int index)
         {
             return _list[index];
         }
@@ -60,7 +69,7 @@ namespace ElecyServer
 
         #region Private Commands
 
-        private int Add(BaseGameRoom room, int hp, float[] pos, float[] rot)
+        private int Add(BaseGameRoom room, int hp, float[] pos, float[] rot, int caster)
         {
             lock (_list)
             {
@@ -69,7 +78,7 @@ namespace ElecyServer
                 {
                     if (_list[i] == null)
                     {
-                        _list[i] = new NetworkGameObject(i, ObjectType.spell, room, hp, pos, rot);
+                        _list[i] = new DynamicObject(i, ObjectType.spell, hp, pos, rot, caster);
                         index = i;
                         break;
                     }
@@ -79,10 +88,15 @@ namespace ElecyServer
                     Length++;
                     Array.Resize(ref _list, Length);
                     index = Length - 1;
-                    _list[index] = new NetworkGameObject(index, ObjectType.spell, room, hp, pos, rot);
+                    _list[index] = new DynamicObject(index, ObjectType.spell, hp, pos, rot, caster);
                 }
                 return index;
             }
+        }
+
+        public DynamicObject this[int index]
+        {
+            get => _list[index];
         }
 
         #endregion
@@ -94,9 +108,9 @@ namespace ElecyServer
             return (IEnumerator)GetEnumerator();
         }
 
-        public NetworkGameObjectEnum GetEnumerator()
+        public BaseRoomObjectEnum GetEnumerator()
         {
-            return new NetworkGameObjectEnum(_list);
+            return new BaseRoomObjectEnum(_list);
         }
 
         #endregion
