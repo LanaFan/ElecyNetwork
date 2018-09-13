@@ -111,9 +111,8 @@ namespace ElecyServer
                     AccountParameters _newAccountParameters = new AccountParameters()
                     {
                         Id = _newAccount.Id,
-                        Levels = new int[5] { 0, 0, 0, 0, 0 },
-                        Ranks = new int[5] { 0, 0, 0, 0, 0 },
-                        Account = _newAccount
+                        Levels = new int[] { 0, 0, 0, 0, 0 },
+                        Ranks = new int[] { 0, 0, 0, 0, 0 }
                     };
                     db.AccountsParameters.Add(_newAccountParameters);
                     db.SaveChanges();
@@ -129,7 +128,6 @@ namespace ElecyServer
                     _newAccount = db.Accounts.Find(_newAccount.Id);
                     _newAccount.AccountParameters = _newAccountParameters;
                     _newAccount.AccountSkillBuilds = _newAccountSkillBuilds;
-                    db.Entry(_newAccount).State = EntityState.Modified;
                     db.SaveChanges();
                 }
             }
@@ -151,7 +149,6 @@ namespace ElecyServer
                         {
                             a.AccountParameters.Levels = levels;
                             a.AccountParameters.Ranks = ranks;
-                            db.Entry(a).State = EntityState.Modified;
                             db.SaveChanges();
                             return;
                         }
@@ -171,8 +168,8 @@ namespace ElecyServer
                     {
                         if (a.Nickname.Equals(nickname))
                         {
-                            data[0] = a.AccountParameters.Levels as int[];
-                            data[1] = a.AccountParameters.Ranks as int[];
+                            data[0] = a.AccountParameters.Levels.ToArray<int>();
+                            data[1] = a.AccountParameters.Ranks.ToArray<int>();
                             break;
                         }
                     }
@@ -185,73 +182,64 @@ namespace ElecyServer
 
         #region Maps info
 
-        public int[] GetMapScale(int mapIndex)
+        public void AddMap(int MapIndex, int mh, int mw, float[] fsp, float[] ssp, float[] fsr, float[] ssr)
+        {
+            lock (_mapsExpectant)
+            {
+                using(MapsContext db = new MapsContext())
+                {
+                    Map _m = new Map()
+                    {
+                        Id = MapIndex,
+                        MapHeight = mh,
+                        MapWidth = mw,
+                        SpawnPoints = new List<SpawnPoint>()
+                    };
+                    db.Maps.Add(_m);
+                    db.SaveChanges();
+                    SpawnPoint _newFirstSpawnPoint = new SpawnPoint()
+                    {
+                        PositionX = fsp[0],
+                        PositionY = fsp[1],
+                        RotationX = fsr[0],
+                        RotationY = fsr[1],
+                        RotationZ = fsr[2],
+                        RotationW = fsr[3],
+                        Map = _m
+                    };
+                    SpawnPoint _newSecondSpawnPoint = new SpawnPoint()
+                    {
+                        PositionX = ssp[0],
+                        PositionY = ssp[1],
+                        RotationX = ssr[0],
+                        RotationY = ssr[1],
+                        RotationZ = ssr[2],
+                        RotationW = ssr[3],
+                        Map = _m
+                    };
+                    _m.SpawnPoints = new List<SpawnPoint>() { _newFirstSpawnPoint, _newSecondSpawnPoint };
+                    db.SpawnPoints.AddRange(new List<SpawnPoint>() { _newFirstSpawnPoint, _newSecondSpawnPoint});
+                    db.SaveChanges();
+                }
+            }
+        }
+
+        public Map GetMap(int mapIndex)
         {
             lock(_mapsExpectant)
             {
                 int[] scale = new int[2];
                 using(MapsContext db = new MapsContext())
                 {
-                    Map m = db.Maps.Find(mapIndex);
-                    if(m != null)
+                    foreach (Map m in db.Maps.Include(m => m.SpawnPoints))
                     {
-                        scale[0] = m.MapHeight;
-                        scale[1] = m.MapWidth;
-                    }
-                    return scale;
-                }
-            }
-        }
-
-        public float[][] GetSpawnPos(int mapIndex)
-        {
-            lock(_mapsExpectant)
-            {
-                float[][] spawnPos = new float[2][];
-                float[] firstSpawnPos = new float[2];
-                float[] secondSpawnPos = new float[2];
-                using (MapsContext db = new MapsContext())
-                {
-                    Map m = db.Maps.Find(mapIndex);
-                    if (m != null)
-                    {
-                        firstSpawnPos[0] = m.FirstSpawnPointX;
-                        firstSpawnPos[1] = m.FirstSpawnPointZ;
-                        secondSpawnPos[0] = m.SecondSpawnPointX;
-                        secondSpawnPos[1] = m.SecondSpawnPointZ;
+                        if (m.Id.Equals(mapIndex))
+                        {
+                            return m;
+                        }
                     }
                 }
-                spawnPos[0] = firstSpawnPos;
-                spawnPos[1] = secondSpawnPos;
-                return spawnPos;
-            }
-        }
-
-        public float[][] GetSpawnRot(int mapIndex)
-        {
-            lock (_mapsExpectant)
-            {
-                float[][] spawnRot = new float[2][];
-                float[] firstSpawnRot = new float[4];
-                float[] secondSpawnRot = new float[4];
-                using (MapsContext db = new MapsContext())
-                {
-                    Map m = db.Maps.Find(mapIndex);
-                    if (m != null)
-                    {
-                        firstSpawnRot[0] = m.FirstSpawnRotationX;
-                        firstSpawnRot[1] = m.FirstSpawnRotationY;
-                        firstSpawnRot[2] = m.FirstSpawnRotationZ;
-                        firstSpawnRot[3] = m.FirstSpawnRotationW;
-                        secondSpawnRot[0] = m.SecondSpawnRotationX;
-                        secondSpawnRot[1] = m.SecondSpawnRotationY;
-                        secondSpawnRot[2] = m.SecondSpawnRotationZ;
-                        secondSpawnRot[3] = m.SecondSpawnRotationW;
-                    }
-                }
-                spawnRot[0] = firstSpawnRot;
-                spawnRot[1] = secondSpawnRot;
-                return spawnRot;
+                return null;
             }
         }
 
@@ -434,7 +422,14 @@ namespace ElecyServer
                 short[] skillsNumbers = new short[_spells.Length];
                 for (int i = 0; i < skillsNumbers.Length; i++)
                 {
+                    try
+                    {
                         skillsNumbers[i] = Convert.ToInt16(_spells[i].Substring(0, 4));
+                    }
+                    catch
+                    {
+                        skillsNumbers[i] = 0;
+                    }
                 }
                 return skillsNumbers;
             }

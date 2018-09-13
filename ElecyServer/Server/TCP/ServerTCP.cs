@@ -24,11 +24,11 @@ namespace ElecyServer
                 _serverSocket.Listen(Constants.SERVER_LISTEN);
                 _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
                 UDPConnector.WaitConnect();
-                Global.serverForm.StatusIndicator(4);
+                Global.serverForm.StatusIndicator(3);
             }
             catch (Exception ex)
             {
-                Global.serverForm.StatusIndicator(4, ex);
+                Global.serverForm.StatusIndicator(3, ex);
             }
         }
 
@@ -51,11 +51,11 @@ namespace ElecyServer
                 try
                 {
                     _serverSocket.Dispose();
-                    Global.serverForm.HidePtr(4);
+                    Global.serverForm.HidePtr(3);
                 }
                 catch(Exception ex)
                 {
-                    Global.serverForm.StatusIndicator(4, ex);
+                    Global.serverForm.StatusIndicator(3, ex);
                 }
 
             }

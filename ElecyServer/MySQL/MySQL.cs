@@ -22,5 +22,7 @@ namespace ElecyServer
         { }
 
         public DbSet<Map> Maps { get; set; }
+
+        public DbSet<SpawnPoint> SpawnPoints { get; set; }
     }
 }

@@ -23,9 +23,9 @@ namespace ElecyServer
 
         public RoomTypes roomType;
 
-        public float[][][] spawnTransforms { get; }
-
         public int PlayersCount { get; }
+
+        public Map map;
 
         #endregion
 
@@ -77,22 +77,11 @@ namespace ElecyServer
             _loadedTCP = new bool[playersCount];
             _loadedUDP = new bool[playersCount];
 
-            // Get Map Scale
-            int[] scale = Global.data.GetMapScale(_mapIndex);
-            _scaleX = scale[0] * 10f;
-            _scaleZ = scale[1] * 10f;
-
-            //Get Players Spawn Positions and Rotations
-            spawnTransforms = new float[playersCount][][];
-            float[][] spawnPos = Global.data.GetSpawnPos(_mapIndex);
-            float[][] spawnRot = Global.data.GetSpawnRot(_mapIndex);
-            for (int i = 0; i < playersCount; i++)
-            {
-                spawnTransforms[i] = new float[][] { spawnPos[i], spawnRot[i] };
-            }
+            // Get Map
+            map = Global.data.GetMap(_mapIndex);
 
             //Create randomizer
-            randomer = new ArenaRandomGenerator(_scaleX, _scaleZ, spawnPos);
+            randomer = new ArenaRandomGenerator(map);
 
             // Adds player to the room
             AddPlayer(client);
@@ -112,7 +101,6 @@ namespace ElecyServer
                     {
                         playersTCP[i] = client;
                         client.EnterRoom(this, playersUDP[i] = new GamePlayerUDP(client.ip, i, this), i);
-                        roomPlayers[i] = new RoomPlayer(spawnTransforms[i][0]);
                         if (PlayersCount == playersTCP.Count(c => c != null))
                             StartLoad();
                         return true;

@@ -25,7 +25,7 @@ namespace ElecyServer
 
         public static void ThreadsStop()
         {
-            dataTimerThread.Abort();
+            //dataTimerThread.Abort();
         }
 
         public static void InitGlobals()

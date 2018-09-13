@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
+using System.Linq;
 
 namespace ElecyServer
 {
@@ -10,21 +13,24 @@ namespace ElecyServer
         public int MapWidth { get; set; }
         public int MapHeight { get; set; }
 
-        public float FirstSpawnPointX { get; set; }
-        public float FirstSpawnPointZ { get; set; }
+        public ICollection<SpawnPoint> SpawnPoints { get; set; }
+    }
 
-        public float SecondSpawnPointX { get; set; }
-        public float SecondSpawnPointZ { get; set; }
+    public class SpawnPoint
+    {
+        public int Id { get; set; }
 
-        public float FirstSpawnRotationX { get; set; }
-        public float FirstSpawnRotationY { get; set; }
-        public float FirstSpawnRotationZ { get; set; }
-        public float FirstSpawnRotationW { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
 
-        public float SecondSpawnRotationX { get; set; }
-        public float SecondSpawnRotationY { get; set; }
-        public float SecondSpawnRotationZ { get; set; }
-        public float SecondSpawnRotationW { get; set; }
+        public float RotationX { get; set; }
+        public float RotationY { get; set; }
+        public float RotationZ { get; set; }
+        public float RotationW { get; set; }
+
+        public int? MapId { get; set; }
+
+        public Map Map { get; set; }
     }
 
     public class Account
@@ -45,9 +51,37 @@ namespace ElecyServer
         [ForeignKey("Account")]
         public int Id { get; set; }
 
-        public ICollection<int> Levels { get; set; }
+        public IEnumerable<int> Levels
+        {
+            get
+            {
+                var tab = LevelsString.Split(',');
+                return tab.Select(int.Parse).AsEnumerable();
+            }
+            set
+            {
+                LevelsString = string.Join(",", value);
+            }
+        }
 
-        public ICollection<int> Ranks { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string LevelsString { get; set; }
+
+        public IEnumerable<int> Ranks
+        {
+            get
+            {
+                var tab = RanksString.Split(',');
+                return tab.Select(int.Parse).AsEnumerable();
+            }
+            set
+            {
+                RanksString = string.Join(",", value);
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string RanksString { get; set; }
 
         public Account Account { get; set; }
     }
@@ -58,16 +92,86 @@ namespace ElecyServer
         [ForeignKey("Account")]
         public int Id { get; set; }
 
-        public ICollection<string> IgnisBuild { get; set; }
+        public IEnumerable<string> IgnisBuild
+        {
+            get
+            {
+                var tab = IgnisString.Split(',');
+                return tab.AsEnumerable();
+            }
+            set
+            {
+                IgnisString = string.Join(",", value);
+            }
+        }
 
-        public ICollection<string> TerraBuild { get; set; }
+        public IEnumerable<string> TerraBuild
+        {
+            get
+            {
+                var tab = TerraString.Split(',');
+                return tab.AsEnumerable();
+            }
+            set
+            {
+                TerraString = string.Join(",", value);
+            }
+        }
 
-        public ICollection<string> AquaBuild { get; set; }
+        public IEnumerable<string> AquaBuild
+        {
+            get
+            {
+                var tab = AquaString.Split(',');
+                return tab.AsEnumerable();
+            }
+            set
+            {
+                AquaString = string.Join(",", value);
+            }
+        }
 
-        public ICollection<string> CaeliBuild { get; set; }
+        public IEnumerable<string> CaeliBuild
+        {
+            get
+            {
+                var tab = CaeliString.Split(',');
+                return tab.AsEnumerable();
+            }
+            set
+            {
+                CaeliString = string.Join(",", value);
+            }
+        }
 
-        public ICollection<string> PrimusBuild { get; set; }
+        public IEnumerable<string> PrimusBuild
+        {
+            get
+            {
+                var tab = PrimusString.Split(',');
+                return tab.AsEnumerable();
+            }
+            set
+            {
+                PrimusString = string.Join(",", value);
+            }
+        }
 
         public Account Account { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string IgnisString { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string TerraString { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string AquaString { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string CaeliString { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string PrimusString { get; set; }
     }
 }

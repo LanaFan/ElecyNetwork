@@ -1,4 +1,5 @@
 ﻿using Bindings;
+using System.Linq;
 
 namespace ElecyServer
 {
@@ -215,12 +216,12 @@ namespace ElecyServer
             for(int i = 0; i < room.PlayersCount; i++)
             {
                 buffer.WriteString(room.playersTCP[i].nickname);
-                buffer.WriteFloat(room.spawnTransforms[i][0][0]);
-                buffer.WriteFloat(room.spawnTransforms[i][0][1]);
-                buffer.WriteFloat(room.spawnTransforms[i][1][0]);
-                buffer.WriteFloat(room.spawnTransforms[i][1][1]);
-                buffer.WriteFloat(room.spawnTransforms[i][1][2]);
-                buffer.WriteFloat(room.spawnTransforms[i][1][3]);
+                buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].PositionX);
+                buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].PositionY);
+                buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].RotationX);
+                buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].RotationY);
+                buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].RotationZ);
+                buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].RotationW);
             }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
             buffer.Dispose();
