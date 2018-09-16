@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity;
 using System.Linq;
 
 namespace ElecyServer
@@ -39,10 +38,28 @@ namespace ElecyServer
         public string Login { get; set; }
         public string Password { get; set; }
         public string Nickname { get; set; }
+        public string GuideKey { get; set; }
+
+        public IEnumerable<string> Friends
+        {
+            get
+            {
+                var tab = FriendsString.Split(',');
+                return tab.AsEnumerable();
+            }
+            set
+            {
+                FriendsString = string.Join(",", value);
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string FriendsString { get; set; }
 
         public AccountParameters AccountParameters { get; set; }
 
         public AccountSkillBuilds AccountSkillBuilds { get; set; }
+
     }
 
     public class AccountParameters
@@ -92,12 +109,12 @@ namespace ElecyServer
         [ForeignKey("Account")]
         public int Id { get; set; }
 
-        public IEnumerable<string> IgnisBuild
+        public IEnumerable<short> IgnisBuild
         {
             get
             {
                 var tab = IgnisString.Split(',');
-                return tab.AsEnumerable();
+                return tab.Select(short.Parse).AsEnumerable();
             }
             set
             {
@@ -105,12 +122,12 @@ namespace ElecyServer
             }
         }
 
-        public IEnumerable<string> TerraBuild
+        public IEnumerable<short> TerraBuild
         {
             get
             {
                 var tab = TerraString.Split(',');
-                return tab.AsEnumerable();
+                return tab.Select(short.Parse).AsEnumerable();
             }
             set
             {
@@ -118,12 +135,12 @@ namespace ElecyServer
             }
         }
 
-        public IEnumerable<string> AquaBuild
+        public IEnumerable<short> AquaBuild
         {
             get
             {
                 var tab = AquaString.Split(',');
-                return tab.AsEnumerable();
+                return tab.Select(short.Parse).AsEnumerable();
             }
             set
             {
@@ -131,12 +148,12 @@ namespace ElecyServer
             }
         }
 
-        public IEnumerable<string> CaeliBuild
+        public IEnumerable<short> CaeliBuild
         {
             get
             {
                 var tab = CaeliString.Split(',');
-                return tab.AsEnumerable();
+                return tab.Select(short.Parse).AsEnumerable();
             }
             set
             {
@@ -144,12 +161,12 @@ namespace ElecyServer
             }
         }
 
-        public IEnumerable<string> PrimusBuild
+        public IEnumerable<short> PrimusBuild
         {
             get
             {
                 var tab = PrimusString.Split(',');
-                return tab.AsEnumerable();
+                return tab.Select(short.Parse).AsEnumerable();
             }
             set
             {

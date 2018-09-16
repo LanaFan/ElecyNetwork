@@ -16,6 +16,13 @@ namespace ElecyServer
 
         #region Accounts
 
+        private string GetGuideKey(int lenght)
+        {
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345789";
+            return new string(Enumerable.Repeat(chars, lenght).Select(s=>s[random.Next(s.Length)]).ToArray());
+        }
+
         public bool LoginExist(string username)
         {
             lock(_accountsExpectant)
@@ -80,18 +87,18 @@ namespace ElecyServer
             }
         }
 
-        public string GetAccountNickname(string username)
+        public Account GetAccount(string username)
         {
             lock (_accountsExpectant)
             {
                 using (AccountsContext db = new AccountsContext())
                 {
                     var _accounts = db.Accounts;
-                    foreach (Account a in _accounts)
+                    foreach (Account a in _accounts.Include(a=>a.AccountParameters).Include(b=>b.AccountSkillBuilds))
                     {
                         if (a.Login.Equals(username))
                         {
-                            return a.Nickname;
+                            return a;
                         }
                     }
                 }
@@ -105,7 +112,7 @@ namespace ElecyServer
             {
                 using(AccountsContext db = new AccountsContext())
                 {
-                    Account _newAccount = new Account() { Login = username, Password = password, Nickname = nickname };
+                    Account _newAccount = new Account() { Login = username, Password = password, Nickname = nickname, GuideKey = GetGuideKey(5) };
                     db.Accounts.Add(_newAccount);
                     db.SaveChanges();
                     AccountParameters _newAccountParameters = new AccountParameters()
@@ -119,11 +126,11 @@ namespace ElecyServer
                     AccountSkillBuilds _newAccountSkillBuilds = new AccountSkillBuilds()
                     {
                         Id = _newAccount.Id,
-                        IgnisBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null },
-                        TerraBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null },
-                        AquaBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null },
-                        CaeliBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null },
-                        PrimusBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null }
+                        IgnisBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                        TerraBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                        AquaBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                        CaeliBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                        PrimusBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 }
                     };
                     _newAccount = db.Accounts.Find(_newAccount.Id);
                     _newAccount.AccountParameters = _newAccountParameters;
@@ -137,44 +144,20 @@ namespace ElecyServer
 
         #region Accounts Parameters
 
-        public void SetAccountData(string nickname, int[] levels, int[] ranks)
+        public void SaveAccount(Account account)
         {
             lock(_accountsExpectant)
             {
                 using(AccountsContext db = new AccountsContext())
                 {
-                    foreach (Account a in db.Accounts.Include(b => b.AccountParameters))
-                    {
-                        if(a.Nickname.Equals(nickname))
-                        {
-                            a.AccountParameters.Levels = levels;
-                            a.AccountParameters.Ranks = ranks;
-                            db.SaveChanges();
-                            return;
-                        }
-                    }
-                }
-            }
-        }
+                    db.Entry(account).State = EntityState.Modified;
 
-        public int[][] GetAccountData(string nickname)
-        {
-            lock (_accountsExpectant)
-            {
-                int[][] data = new int[2][];
-                using (AccountsContext db = new AccountsContext())
-                {
-                    foreach (Account a in db.Accounts.Include(b=>b.AccountParameters))
-                    {
-                        if (a.Nickname.Equals(nickname))
-                        {
-                            data[0] = a.AccountParameters.Levels.ToArray<int>();
-                            data[1] = a.AccountParameters.Ranks.ToArray<int>();
-                            break;
-                        }
-                    }
+                    db.Entry(account.AccountParameters).State = EntityState.Modified;
+
+                    db.Entry(account.AccountSkillBuilds).State = EntityState.Modified;
+
+                    db.SaveChanges();
                 }
-                return data;
             }
         }
 
@@ -247,193 +230,168 @@ namespace ElecyServer
 
         #region SkillBuilds
 
-        public void SetSkillBuildData(string nickname)
-        {
-            lock(_skillBuildsExpectant)
-            {
-                using (AccountsContext db = new AccountsContext())
-                {
-                    foreach(Account a in db.Accounts.Include(b=>b.AccountSkillBuilds))
-                    {
-                        if(a.Nickname.Equals(nickname))
-                        {
-                            a.AccountSkillBuilds.IgnisBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null };
-                            a.AccountSkillBuilds.AquaBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null };
-                            a.AccountSkillBuilds.TerraBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null };
-                            a.AccountSkillBuilds.CaeliBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null };
-                            a.AccountSkillBuilds.PrimusBuild = new string[9] { "0000000", null, null, null, null, null, null, null, null };
-                            db.Entry(a).State = EntityState.Modified;
-                            db.SaveChanges();
-                            return;
-                        }
-                    }
-                }
-            }
-        }
+        //public void SetSkillBuildData(string nickname, string raceName, string[] skillsIndexes)
+        //{
+        //    lock(_skillBuildsExpectant)
+        //    {
+        //        using(AccountsContext db = new AccountsContext())
+        //        {
+        //            switch (raceName)
+        //            {
+        //                case "Ignis":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.IgnisBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-        public void SetSkillBuildData(string nickname, string raceName, string[] skillsIndexes)
-        {
-            lock(_skillBuildsExpectant)
-            {
-                using(AccountsContext db = new AccountsContext())
-                {
-                    switch (raceName)
-                    {
-                        case "Ignis":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    a.AccountSkillBuilds.IgnisBuild = skillsIndexes;
-                                    db.Entry(a).State = EntityState.Modified;
-                                    db.SaveChanges();
-                                    break;
-                                }
-                            }
-                                    break;
+        //                case "Terra":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.TerraBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                        case "Terra":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    a.AccountSkillBuilds.TerraBuild = skillsIndexes;
-                                    db.Entry(a).State = EntityState.Modified;
-                                    db.SaveChanges();
-                                    break;
-                                }
-                            }
-                            break;
+        //                case "Caeli":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.CaeliBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                        case "Caeli":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    a.AccountSkillBuilds.CaeliBuild = skillsIndexes;
-                                    db.Entry(a).State = EntityState.Modified;
-                                    db.SaveChanges();
-                                    break;
-                                }
-                            }
-                            break;
+        //                case "Aqua":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.AquaBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                        case "Aqua":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    a.AccountSkillBuilds.AquaBuild = skillsIndexes;
-                                    db.Entry(a).State = EntityState.Modified;
-                                    db.SaveChanges();
-                                    break;
-                                }
-                            }
-                            break;
+        //                case "Primus":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.PrimusBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
+        //                default:
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //}
 
-                        case "Primus":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    a.AccountSkillBuilds.PrimusBuild = skillsIndexes;
-                                    db.Entry(a).State = EntityState.Modified;
-                                    db.SaveChanges();
-                                    break;
-                                }
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
+        //public short[] GetSkillBuildData(string nickname, string raceName)
+        //{
+        //    lock(_skillBuildsExpectant)
+        //    {
+        //        string[] _spells = new string[1];
+        //        using(AccountsContext db = new AccountsContext())
+        //        {
+        //            switch (raceName)
+        //            {
+        //                case "Ignis":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.IgnisBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-            }
-        }
+        //                case "Terra":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.TerraBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-        public short[] GetSkillBuildData(string nickname, string raceName)
-        {
-            lock(_skillBuildsExpectant)
-            {
-                string[] _spells = new string[1];
-                using(AccountsContext db = new AccountsContext())
-                {
-                    switch (raceName)
-                    {
-                        case "Ignis":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    _spells = a.AccountSkillBuilds.IgnisBuild as string[];
-                                    break;
-                                }
-                            }
-                            break;
+        //                case "Caeli":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.CaeliBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                        case "Terra":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    _spells = a.AccountSkillBuilds.TerraBuild as string[];
-                                    break;
-                                }
-                            }
-                            break;
+        //                case "Aqua":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.AquaBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                        case "Caeli":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    _spells = a.AccountSkillBuilds.CaeliBuild as string[];
-                                    break;
-                                }
-                            }
-                            break;
+        //                case "Primus":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.PrimusBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                        case "Aqua":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    _spells = a.AccountSkillBuilds.AquaBuild as string[];
-                                    break;
-                                }
-                            }
-                            break;
-
-                        case "Primus":
-                            foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
-                            {
-                                if (a.Nickname.Equals(nickname))
-                                {
-                                    _spells = a.AccountSkillBuilds.PrimusBuild as string[];
-                                    break;
-                                }
-                            }
-                            break;
-
-                        default:
-                            return null;
-                    }
-                }
-                short[] skillsNumbers = new short[_spells.Length];
-                for (int i = 0; i < skillsNumbers.Length; i++)
-                {
-                    try
-                    {
-                        skillsNumbers[i] = Convert.ToInt16(_spells[i].Substring(0, 4));
-                    }
-                    catch
-                    {
-                        skillsNumbers[i] = 0;
-                    }
-                }
-                return skillsNumbers;
-            }
-        }
+        //                default:
+        //                    return null;
+        //            }
+        //        }
+        //        short[] skillsNumbers = new short[_spells.Length];
+        //        for (int i = 0; i < skillsNumbers.Length; i++)
+        //        {
+        //            try
+        //            {
+        //                skillsNumbers[i] = Convert.ToInt16(_spells[i].Substring(0, 4));
+        //            }
+        //            catch
+        //            {
+        //                skillsNumbers[i] = 0;
+        //            }
+        //        }
+        //        return skillsNumbers;
+        //    }
+        //}
 
         #endregion
 

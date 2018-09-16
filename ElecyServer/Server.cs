@@ -291,7 +291,39 @@ namespace ElecyServer
         {
             if (!ServerTCP.Closed)
             {
-                if (!String.IsNullOrEmpty(txtChat.Text))
+                if (txtChat.Text.StartsWith("/"))
+                {
+                    string[] commands = txtChat.Text.Split(' ');
+                    switch (commands[0])
+                    {
+                        case "AddAccount":
+                            if (commands.Length == 3)
+                            {
+                                Global.data.AddAccount(commands[1], commands[2], commands[3]);
+                            }
+                            else
+                            {
+                                Global.serverForm.Debug("Invalid arguments in command: " + commands[0]);
+                            }
+                            break;
+
+                        case "AddMap":
+                            if (commands.Length == 16)
+                            {
+                                Global.data.AddMap(int.Parse(commands[1]), int.Parse(commands[2]), int.Parse(commands[3]), new float[] { float.Parse(commands[4]), float.Parse(commands[5]) }, new float[] { float.Parse(commands[6]), float.Parse(commands[7]) }, new float[] { float.Parse(commands[8]), float.Parse(commands[9]), float.Parse(commands[10]), float.Parse(commands[11]) }, new float[] { float.Parse(commands[12]), float.Parse(commands[13]), float.Parse(commands[14]), float.Parse(commands[15]) });
+                            }
+                            else
+                            {
+                                Global.serverForm.Debug("Invalid arguments in command: " + commands[0]);
+                            }
+                            break;
+
+                        default:
+                            Global.serverForm.Debug("Unknown command");
+                            break;
+                    }
+                }
+                else
                 {
                     SendDataTCP.SendGlChatMsg("Server", txtChat.Text);
                     txtChat.Text = "";
@@ -307,8 +339,43 @@ namespace ElecyServer
                 {
                     if (!String.IsNullOrEmpty(txtChat.Text))
                     {
-                        SendDataTCP.SendGlChatMsg("Server", txtChat.Text);
-                        txtChat.Text = "";
+                        if(txtChat.Text.StartsWith("/"))
+                        {
+                            string[] commands = txtChat.Text.Split(' ');
+                            switch(commands[0])
+                            {
+                                case "/AddAccount":
+                                    if(commands.Length == 4)
+                                    {
+                                        Global.data.AddAccount(commands[1], commands[2], commands[3]);
+                                    }
+                                    else
+                                    {
+                                        Global.serverForm.Debug("Invalid arguments in command: " + commands[0]);
+                                    }
+                                    break;
+
+                                case "/AddMap":
+                                    if (commands.Length == 16)
+                                    {
+                                        Global.data.AddMap(int.Parse(commands[1]), int.Parse(commands[2]), int.Parse(commands[3]), new float[] { float.Parse(commands[4]), float.Parse(commands[5]) }, new float[] { float.Parse(commands[6]), float.Parse(commands[7]) }, new float[] { float.Parse(commands[8]), float.Parse(commands[9]), float.Parse(commands[10]), float.Parse(commands[11]) }, new float[] { float.Parse(commands[12]), float.Parse(commands[13]), float.Parse(commands[14]), float.Parse(commands[15]) });
+                                    }
+                                    else
+                                    {
+                                        Global.serverForm.Debug("Invalid arguments in command: " + commands[0]);
+                                    }
+                                    break;
+
+                                default:
+                                    Global.serverForm.Debug("Unknown command");
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                           SendDataTCP.SendGlChatMsg("Server", txtChat.Text);
+                           txtChat.Text = "";
+                        }
                     }
                 }
             }

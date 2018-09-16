@@ -179,7 +179,7 @@ namespace ElecyServer
             int totalNumber = 0;
             for(int i = 0; i < PlayersCount; i++)
             {
-                spellBuilds[i] = Global.data.GetSkillBuildData(playersTCP[i].nickname, playersTCP[i].race);
+                spellBuilds[i] = client.accountData.AccountSkillBuilds.IgnisBuild.ToArray();
                 totalNumber += spellBuilds[i].Length;
             }
             SendDataTCP.SendLoadSpells(client, spellBuilds, totalNumber);

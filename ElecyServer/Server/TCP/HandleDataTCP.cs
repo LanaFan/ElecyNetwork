@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Bindings;
 
 namespace ElecyServer
@@ -156,6 +157,10 @@ namespace ElecyServer
             buffer.WriteBytes(data);
             buffer.ReadInteger();
             Queue.StartSearch(client, buffer.ReadInteger(), buffer.ReadString());
+            foreach(ClientTCP friend in client.friends)
+            {
+                //Send Status(Search);
+            }
             buffer.Dispose();
         }
 
@@ -166,6 +171,10 @@ namespace ElecyServer
         private static void HandleQueueStop(ClientTCP client, byte[] data)
         {
             Queue.StopSearch(client);
+            foreach (ClientTCP friend in client.friends)
+            {
+                //Send Status(InLobby);
+            }
         }
 
         /// <summary>
@@ -180,7 +189,7 @@ namespace ElecyServer
             buffer.ReadInteger();
             string race = buffer.ReadString();
             buffer.Dispose();
-            short[] skillBuild = Global.data.GetSkillBuildData(client.nickname, race);
+            short[] skillBuild = client.accountData.AccountSkillBuilds.IgnisBuild.ToArray();
             SendDataTCP.SendSkillBuild(client, skillBuild, race);
         }
 
@@ -214,7 +223,7 @@ namespace ElecyServer
                 spellBuild[i] = spellIndex + "" + spellType;
             }
             buffer.Dispose();
-            Global.data.SetSkillBuildData(client.nickname, race, spellBuild);
+            //Global.data.SetSkillBuildData(client.nickname, race, spellBuild);
             SendDataTCP.SendBuildSaved(client);
         }
 

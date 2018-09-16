@@ -53,21 +53,19 @@ namespace ElecyServer
         ///                     int[5] level;
         ///                     int[5] rank;
         /// </summary>
-        public static void SendLoginOk(string nickname, int[][]accountdata, ClientTCP client)
+        public static void SendLoginOk(string nickname, ClientTCP client)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
             buffer.WriteString(nickname);
-            buffer.WriteInteger(accountdata[0][0]);
-            buffer.WriteInteger(accountdata[0][1]);
-            buffer.WriteInteger(accountdata[0][2]);
-            buffer.WriteInteger(accountdata[0][3]);
-            buffer.WriteInteger(accountdata[0][4]);
-            buffer.WriteInteger(accountdata[1][0]);
-            buffer.WriteInteger(accountdata[1][1]);
-            buffer.WriteInteger(accountdata[1][2]);
-            buffer.WriteInteger(accountdata[1][3]);
-            buffer.WriteInteger(accountdata[1][4]);
+            for(int i = 0; i < client.accountData.AccountParameters.Levels.ToArray().Length; i++)
+            {
+                buffer.WriteInteger(client.accountData.AccountParameters.Levels.ToArray()[i]);
+            }
+            for (int i = 0; i < client.accountData.AccountParameters.Ranks.ToArray().Length; i++)
+            {
+                buffer.WriteInteger(client.accountData.AccountParameters.Ranks.ToArray()[i]);
+            }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
             buffer.Dispose();
         }
@@ -129,6 +127,13 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SMatchFound);
             buffer.WriteInteger((int)room.roomType);
+            foreach(ClientTCP player in room.playersTCP)
+            {
+                foreach (ClientTCP friend in player.friends)
+                {
+                    //Send Status(Search);
+                }
+            }
             ServerTCP.SendDataToRoomPlayers(room, buffer.ToArray());
             buffer.Dispose();
         }

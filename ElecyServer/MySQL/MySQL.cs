@@ -5,7 +5,7 @@ namespace ElecyServer
     public class AccountsContext : DbContext
     {
         public AccountsContext() 
-            : base ("ServerConnection")
+            : base ("DataConnection")
         { }
 
         public DbSet<Account> Accounts { get; set; }
@@ -18,11 +18,18 @@ namespace ElecyServer
     public class MapsContext : DbContext
     {
         public MapsContext()
-            : base ("ServerConnection")
+            : base ("MapsConnection")
         { }
 
         public DbSet<Map> Maps { get; set; }
 
         public DbSet<SpawnPoint> SpawnPoints { get; set; }
+    }
+
+    public class BlackListContext : DbContext
+    {
+        public BlackListContext() 
+            : base ("BlackListConnection")
+        { }
     }
 }
