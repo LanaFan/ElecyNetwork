@@ -58,6 +58,7 @@ namespace ElecyServer
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SLoginOK);
             buffer.WriteString(nickname);
+            buffer.WriteString(client.accountData.GuideKey);
             for(int i = 0; i < client.accountData.AccountParameters.Levels.ToArray().Length; i++)
             {
                 buffer.WriteInteger(client.accountData.AccountParameters.Levels.ToArray()[i]);
@@ -85,6 +86,51 @@ namespace ElecyServer
             buffer.WriteInteger((int)ServerPackets.SConnectionOK);
             buffer.WriteString("Hello sexy guy...We've been waiting for you =*");
             ServerTCP.SendDataToClient(player, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        public static void SendFriendsInfo(ClientTCP player)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SFriendsInfo);
+            buffer.WriteInteger(player.friends.Count);
+            foreach(ClientTCP friend in player.friends)
+            {
+                buffer.WriteString(friend.nickname);
+                buffer.WriteString(friend.accountData.GuideKey);
+                buffer.WriteInteger((int)friend.playerState);
+            }
+            ServerTCP.SendDataToClient(player, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        public static void SendFriendInfo(ClientTCP player, ClientTCP friend)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SFriendInfo);
+            buffer.WriteString(friend.nickname);
+            buffer.WriteString(friend.accountData.GuideKey);
+            buffer.WriteInteger((int)friend.playerState);
+            ServerTCP.SendDataToClient(player, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        public static void SendFriendChange(ClientTCP player, ClientTCP friend)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SFriendChange);
+            buffer.WriteString(player.accountData.GuideKey);
+            buffer.WriteInteger((int)player.playerState);
+            ServerTCP.SendDataToClient(friend, buffer.ToArray());
+            buffer.Dispose();
+        }
+
+        public static void SendFriendLeave(ClientTCP player, ClientTCP friend)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteInteger((int)ServerPackets.SFriendLeave);
+            buffer.WriteString(player.accountData.GuideKey);
+            ServerTCP.SendDataToClient(friend, buffer.ToArray());
             buffer.Dispose();
         }
 
@@ -131,7 +177,7 @@ namespace ElecyServer
             {
                 foreach (ClientTCP friend in player.friends)
                 {
-                    //Send Status(Search);
+                    SendDataTCP.SendFriendChange(player, friend);
                 }
             }
             ServerTCP.SendDataToRoomPlayers(room, buffer.ToArray());

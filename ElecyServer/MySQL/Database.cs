@@ -112,7 +112,7 @@ namespace ElecyServer
             {
                 using(AccountsContext db = new AccountsContext())
                 {
-                    Account _newAccount = new Account() { Login = username, Password = password, Nickname = nickname, GuideKey = GetGuideKey(5) };
+                    Account _newAccount = new Account() { Login = username, Password = password, Nickname = nickname, GuideKey = GetGuideKey(5), Friends = new string[0] };
                     db.Accounts.Add(_newAccount);
                     db.SaveChanges();
                     AccountParameters _newAccountParameters = new AccountParameters()

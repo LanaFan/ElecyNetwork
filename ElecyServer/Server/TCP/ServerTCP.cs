@@ -294,6 +294,7 @@ namespace ElecyServer
         public void LogIn(string username)
         {
             accountData = Global.data.GetAccount(username);
+            nickname = accountData.Nickname;
             playerState = NetPlayerState.InMainLobby;
             clientState = ClientTCPState.MainLobby;
             foreach(string guideKey in accountData.Friends.ToArray())
@@ -329,8 +330,16 @@ namespace ElecyServer
 
         public void AddFriend(string GuideKey)
         {
-            accountData.Friends.ToList().Add(GuideKey);
-            Global.data.SaveAccount(accountData);
+            foreach(ClientTCP player in Global.clientList)
+            {
+                if(player.accountData.GuideKey.Equals(GuideKey))
+                {
+                    accountData.Friends.ToList().Add(GuideKey);
+                    Global.data.SaveAccount(accountData);
+                    SendDataTCP.SendFriendInfo(this, player);
+                    break;
+                }
+            }
         }
 
         public void DeleteFriend(string GuideKey)
@@ -356,7 +365,7 @@ namespace ElecyServer
                     }
                     foreach(ClientTCP friend in friends)
                     {
-                        //Send Disconnect;
+                        SendDataTCP.SendFriendLeave(this, friend);
                         friend.friends.Remove(this);
                     }
                     Global.clientList.Remove(this);
@@ -374,7 +383,7 @@ namespace ElecyServer
                     }
                     foreach (ClientTCP friend in friends)
                     {
-                        //Send Disconnect;
+                        SendDataTCP.SendFriendLeave(this, friend);
                         friend.friends.Remove(this);
                     }
                     Global.clientList.Remove(this);
@@ -397,7 +406,7 @@ namespace ElecyServer
                     }
                     foreach (ClientTCP friend in friends)
                     {
-                        //Send Disconnect;
+                        SendDataTCP.SendFriendLeave(this, friend);
                         friend.friends.Remove(this);
                     }
                     Global.serverForm.Debug($"GamePlayer {nickname} lost connection");

@@ -24,6 +24,7 @@ namespace ElecyServer
                 {(int)NetPlayerPackets.PGetSkillsBuild, HandleGetSkillBuild },
                 {(int)NetPlayerPackets.PSaveSkillsBuild, HandleSaveSkillBuild },
                 {(int)NetPlayerPackets.PTestRoom, HandleTestRoom },
+                {(int)NetPlayerPackets.PAddFriend, HandleAddFriend },
 
                 {(int)RoomPackets.RConnectionComplite, HandleRoomConnect },
                 {(int)RoomPackets.RGetPlayers, HandlePlayerSpawn },
@@ -129,6 +130,7 @@ namespace ElecyServer
         private static void HandlePlayerConnect(ClientTCP client, byte[] data)
         {
             SendDataTCP.SendPlayerConnectionOK(client);
+            SendDataTCP.SendFriendsInfo(client);
         }
 
         /// <summary>
@@ -159,7 +161,7 @@ namespace ElecyServer
             Queue.StartSearch(client, buffer.ReadInteger(), buffer.ReadString());
             foreach(ClientTCP friend in client.friends)
             {
-                //Send Status(Search);
+                SendDataTCP.SendFriendChange(client, friend);
             }
             buffer.Dispose();
         }
@@ -173,7 +175,7 @@ namespace ElecyServer
             Queue.StopSearch(client);
             foreach (ClientTCP friend in client.friends)
             {
-                //Send Status(InLobby);
+                SendDataTCP.SendFriendChange(client, friend);
             }
         }
 
@@ -237,6 +239,16 @@ namespace ElecyServer
                 client.race = buffer.ReadString(); 
                 Global.roomsList.Add(new TestRoom(client, mapIndex));
             }
+        }
+
+        private static void HandleAddFriend(ClientTCP client, byte[] data)
+        {
+            PacketBuffer buffer = new PacketBuffer();
+            buffer.WriteBytes(data);
+            buffer.ReadInteger();
+            string guideTag = buffer.ReadString();
+            buffer.Dispose();
+            client.AddFriend(guideTag);
         }
 
         #endregion
