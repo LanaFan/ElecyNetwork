@@ -1,6 +1,5 @@
 ﻿namespace Bindings
 {
-
     #region ServerTCP
 
     public enum ServerPackets
@@ -26,6 +25,13 @@
         SInstantiate,
         SDestroy,
         SDamage,
+<<<<<<< HEAD
+=======
+        SFriendsInfo,
+        SFriendLeave,
+        SFriendInfo,
+        SFriendChange
+>>>>>>> DataBase_rework
     }
 
     #endregion
@@ -44,7 +50,9 @@
     public enum NetPlayerPackets
     {
         PConnectionComplite = ClientPackets.ClientPacketsNum,
+        PAddFriend,
         PGlChatMsg,
+        PPrivateMsg,
         PQueueStart,
         PQueueStop,
         PGetSkillsBuild,
@@ -87,5 +95,4 @@
     }
 
     #endregion
-
 }

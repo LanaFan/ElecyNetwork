@@ -2,212 +2,141 @@
 using System.Collections.Generic;
 using Bindings;
 using System.Threading;
+using System.Data.Entity;
+using System.Linq;
+
 
 namespace ElecyServer
 {
     class Database
     {
-        private static List<List<object>> Tables;
-        private static List<object> _accountsTable;
-        private static List<object> _skillBuildsTable;
-        private static List<object> _accountsParametersTable;
-        private static List<object> _mapsInfoTable;
-
-        public void InitDatabase()
-        {
-            _accountsTable = new List<object>();
-            _skillBuildsTable = new List<object>();
-            _accountsParametersTable = new List<object>();
-            _mapsInfoTable = new List<object>();
-            Tables = new List<List<object>> {
-                _accountsTable,
-                _skillBuildsTable,
-                _accountsParametersTable,
-                _mapsInfoTable,
-            };
-            Global.dataTimerThread = new Thread(Timer);
-            Global.dataTimerThread.Start();
-        }
-
-        private void Timer()
-        {
-            Timer t = new Timer(TimerCallback, null, 0, 1000);
-        }
-
-        private void TimerCallback(object o)
-        {
-            foreach(List<object> list in Tables)
-            {
-                CheckQueue(list);
-            }
-        }
-
-        private void CheckQueue(List<object> list)
-        {
-            if (list.Count != 0)
-            {
-                lock (list[0])
-                {
-                    Monitor.Pulse(list[0]);
-                }
-                list.RemoveAt(0);
-            }
-
-        }
+        private object _accountsExpectant = new object();
+        private object _mapsExpectant = new object();
+        private object _skillBuildsExpectant = new object();
 
         #region Accounts
 
+        private string GetGuideKey(int lenght)
+        {
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345789";
+            return new string(Enumerable.Repeat(chars, lenght).Select(s=>s[random.Next(s.Length)]).ToArray());
+        }
+
         public bool LoginExist(string username)
         {
-            try
+            lock(_accountsExpectant)
             {
-                var DB_RS = Global.mysql.DB_RS;
+                using(AccountsContext db = new AccountsContext())
                 {
-                    DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    if (DB_RS.EOF)
+                    var _accounts = db.Accounts;
+                    foreach(Account a in _accounts)
                     {
-                        DB_RS.Close();
-                        CheckQueue(_accountsTable);
-                        return false;
-                    }
-                    else
-                    {
-                        DB_RS.Close();
-                        CheckQueue(_accountsTable);
-                        return true;
+                        if(a.Login.Equals(username))
+                        {
+                            return true;
+                        }
                     }
                 }
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _accountsTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                return LoginExist(username);
+                return false;
             }
         }
 
         public bool NicknameExist(string nickname)
         {
-            try
+            lock (_accountsExpectant)
             {
-                var DB_RS = Global.mysql.DB_RS;
+                using (AccountsContext db = new AccountsContext())
                 {
-                    DB_RS.Open("SELECT * FROM accounts WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    if (DB_RS.EOF)
+                    var _accounts = db.Accounts;
+                    foreach (Account a in _accounts)
                     {
-                        DB_RS.Close();
-                        CheckQueue(_accountsTable);
-                        return false;
-                    }
-                    else
-                    {
-                        DB_RS.Close();
-                        CheckQueue(_accountsTable);
-                        return true;
+                        if (a.Nickname.Equals(nickname))
+                        {
+                            return true;
+                        }
                     }
                 }
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _accountsTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                return NicknameExist(nickname);
+                return false;
             }
         }
 
         public bool PasswordIsOkay(string username, string password)
         {
-            try
+            lock (_accountsExpectant)
             {
-                var DB_RS = Global.mysql.DB_RS;
+                using (AccountsContext db = new AccountsContext())
                 {
-                    DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    if (DB_RS.Fields["Password"].Value.ToString() == password)
+                    var _accounts = db.Accounts;
+                    foreach (Account a in _accounts)
                     {
-                        DB_RS.Close();
-                        CheckQueue(_accountsTable);
-                        return true;
-                    }
-                    else
-                    {
-                        DB_RS.Close();
-                        CheckQueue(_accountsTable);
-                        return false;
+                        if (a.Login.Equals(username))
+                        {
+                            if(a.Password.Equals(password))
+                            {
+                                return true;
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
                     }
                 }
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _accountsTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                return PasswordIsOkay(username, password);
+                return false;
             }
         }
 
-        public string GetAccountNickname(string username)
+        public Account GetAccount(string username)
         {
-            try
+            lock (_accountsExpectant)
             {
-                var DB_RS = Global.mysql.DB_RS;
+                using (AccountsContext db = new AccountsContext())
                 {
-                    DB_RS.Open("SELECT * FROM accounts WHERE Username='" + username + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    string nickname = DB_RS.Fields["Nickname"].Value.ToString();
-                    DB_RS.Close();
-                    CheckQueue(_accountsTable);
-                    return nickname;
+                    var _accounts = db.Accounts;
+                    foreach (Account a in _accounts.Include(a=>a.AccountParameters).Include(b=>b.AccountSkillBuilds))
+                    {
+                        if (a.Login.Equals(username))
+                        {
+                            return a;
+                        }
+                    }
                 }
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _accountsTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                return GetAccountNickname(username);
+                return null;
             }
         }
 
         public void AddAccount(string username, string password, string nickname)
         {
-            try
+            lock(_accountsExpectant)
             {
-                var DB_RS = Global.mysql.DB_RS;
+                using(AccountsContext db = new AccountsContext())
                 {
-                    DB_RS.Open("SELECT * FROM accounts WHERE 0=1", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    DB_RS.AddNew();
-                    DB_RS.Fields["Username"].Value = username;
-                    DB_RS.Fields["Password"].Value = password;
-                    DB_RS.Fields["Nickname"].Value = nickname;
-                    DB_RS.Update();
-                    DB_RS.Close();
-                    CheckQueue(_accountsTable);
+                    Account _newAccount = new Account() { Login = username, Password = password, Nickname = nickname, GuideKey = GetGuideKey(5), Friends = new string[0] };
+                    db.Accounts.Add(_newAccount);
+                    db.SaveChanges();
+                    AccountParameters _newAccountParameters = new AccountParameters()
+                    {
+                        Id = _newAccount.Id,
+                        Levels = new int[] { 0, 0, 0, 0, 0 },
+                        Ranks = new int[] { 0, 0, 0, 0, 0 }
+                    };
+                    db.AccountsParameters.Add(_newAccountParameters);
+                    db.SaveChanges();
+                    AccountSkillBuilds _newAccountSkillBuilds = new AccountSkillBuilds()
+                    {
+                        Id = _newAccount.Id,
+                        IgnisBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                        TerraBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                        AquaBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                        CaeliBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+                        PrimusBuild = new short[9] { 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+                    };
+                    _newAccount = db.Accounts.Find(_newAccount.Id);
+                    _newAccount.AccountParameters = _newAccountParameters;
+                    _newAccount.AccountSkillBuilds = _newAccountSkillBuilds;
+                    db.SaveChanges();
                 }
-                SetAccountData(nickname);
-                SetSkillBuildData(nickname);
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _accountsTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                AddAccount(username, password, nickname);
             }
         }
 
@@ -215,114 +144,20 @@ namespace ElecyServer
 
         #region Accounts Parameters
 
-        private void SetAccountData(string nickname)
+        public void SaveAccount(Account account)
         {
-            try
+            lock(_accountsExpectant)
             {
-                var DB_RS = Global.mysql.DB_RS;
+                using(AccountsContext db = new AccountsContext())
                 {
-                    DB_RS.Open("Select * FROM AccountsParameters WHERE 0=1", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    DB_RS.AddNew();
-                    DB_RS.Fields["Nickname"].Value = nickname;
-                    DB_RS.Fields["IgnisLevel"].Value = 1;
-                    DB_RS.Fields["TerraLevel"].Value = 1;
-                    DB_RS.Fields["CaeliLevel"].Value = 1;
-                    DB_RS.Fields["AquaLevel"].Value = 1;
-                    DB_RS.Fields["PrimusLevel"].Value = 1;
-                    DB_RS.Fields["IgnisRank"].Value = 0;
-                    DB_RS.Fields["TerraRank"].Value = 0;
-                    DB_RS.Fields["CaeliRank"].Value = 0;
-                    DB_RS.Fields["AquaRank"].Value = 0;
-                    DB_RS.Fields["PrimusRank"].Value = 0;
-                    DB_RS.Update();
-                    DB_RS.Close();
-                    CheckQueue(_accountsParametersTable);
-                }
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _accountsParametersTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                SetAccountData(nickname);
-            }
-        }
+                    db.Entry(account).State = EntityState.Modified;
 
-        public void SetAccountData(string nickname, int[] levels, int[] ranks)
-        {
-            try
-            {
-                var DB_RS = Global.mysql.DB_RS;
-                {
-                    DB_RS.Open("Select * FROM AccountsParameters WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    DB_RS.AddNew();
-                    DB_RS.Fields["IgnisLevel"].Value = levels[1];
-                    DB_RS.Fields["TerraLevel"].Value = levels[2];
-                    DB_RS.Fields["CaeliLevel"].Value = levels[3];
-                    DB_RS.Fields["AquaLevel"].Value = levels[4];
-                    DB_RS.Fields["PrimusLevel"].Value = levels[5];
-                    DB_RS.Fields["IgnisRank"].Value = ranks[1];
-                    DB_RS.Fields["TerraRank"].Value = ranks[2];
-                    DB_RS.Fields["CaeliRank"].Value = ranks[3];
-                    DB_RS.Fields["AquaRank"].Value = ranks[4];
-                    DB_RS.Fields["PrimusRank"].Value = ranks[5];
-                    DB_RS.Update();
-                    DB_RS.Close();
-                    CheckQueue(_accountsParametersTable);
-                }
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _accountsParametersTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                SetAccountData(nickname, levels, ranks);
-            }
-        }
+                    db.Entry(account.AccountParameters).State = EntityState.Modified;
 
-        public int[][] GetAccountData(string nickname)
-        {
-            try
-            {
-                int[][] data = new int[2][];
-                int[] levels = new int[Constants.RACES_NUMBER];
-                int[] ranks = new int[Constants.RACES_NUMBER];
-                var DB_RS = Global.mysql.DB_RS;
-                {
-                    DB_RS.Open("SELECT * FROM AccountsParameters WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    levels[0] = Convert.ToInt32(DB_RS.Fields["IgnisLevel"].Value);
-                    levels[1] = Convert.ToInt32(DB_RS.Fields["TerraLevel"].Value);
-                    levels[2] = Convert.ToInt32(DB_RS.Fields["CaeliLevel"].Value);
-                    levels[3] = Convert.ToInt32(DB_RS.Fields["AquaLevel"].Value);
-                    levels[4] = Convert.ToInt32(DB_RS.Fields["PrimusLevel"].Value);
-                    ranks[0] = Convert.ToInt32(DB_RS.Fields["IgnisRank"].Value);
-                    ranks[1] = Convert.ToInt32(DB_RS.Fields["TerraRank"].Value);
-                    ranks[2] = Convert.ToInt32(DB_RS.Fields["CaeliRank"].Value);
-                    ranks[3] = Convert.ToInt32(DB_RS.Fields["AquaRank"].Value);
-                    ranks[4] = Convert.ToInt32(DB_RS.Fields["PrimusRank"].Value);
-                    DB_RS.Close();
-                    CheckQueue(_accountsParametersTable);
-                }
-                data[0] = levels;
-                data[1] = ranks;
+                    db.Entry(account.AccountSkillBuilds).State = EntityState.Modified;
 
-                return data;
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _accountsParametersTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
+                    db.SaveChanges();
                 }
-                return GetAccountData(nickname);
             }
         }
 
@@ -330,100 +165,64 @@ namespace ElecyServer
 
         #region Maps info
 
-        public int[] GetMapScale(int mapIndex)
+        public void AddMap(int MapIndex, int mh, int mw, float[] fsp, float[] ssp, float[] fsr, float[] ssr)
         {
-            try
+            lock (_mapsExpectant)
+            {
+                using(MapsContext db = new MapsContext())
+                {
+                    Map _m = new Map()
+                    {
+                        Id = MapIndex,
+                        MapHeight = mh,
+                        MapWidth = mw,
+                        SpawnPoints = new List<SpawnPoint>()
+                    };
+                    db.Maps.Add(_m);
+                    db.SaveChanges();
+                    SpawnPoint _newFirstSpawnPoint = new SpawnPoint()
+                    {
+                        PositionX = fsp[0],
+                        PositionY = fsp[1],
+                        RotationX = fsr[0],
+                        RotationY = fsr[1],
+                        RotationZ = fsr[2],
+                        RotationW = fsr[3],
+                        Map = _m
+                    };
+                    SpawnPoint _newSecondSpawnPoint = new SpawnPoint()
+                    {
+                        PositionX = ssp[0],
+                        PositionY = ssp[1],
+                        RotationX = ssr[0],
+                        RotationY = ssr[1],
+                        RotationZ = ssr[2],
+                        RotationW = ssr[3],
+                        Map = _m
+                    };
+                    _m.SpawnPoints = new List<SpawnPoint>() { _newFirstSpawnPoint, _newSecondSpawnPoint };
+                    db.SpawnPoints.AddRange(new List<SpawnPoint>() { _newFirstSpawnPoint, _newSecondSpawnPoint});
+                    db.SaveChanges();
+                }
+            }
+        }
+
+        public Map GetMap(int mapIndex)
+        {
+            lock(_mapsExpectant)
             {
                 int[] scale = new int[2];
-                var DB_RS = Global.mysql.DB_RS;
+                using(MapsContext db = new MapsContext())
                 {
-                    DB_RS.Open("SELECT * FROM MapsInfo WHERE MapNumber ='" + mapIndex + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    scale[0] = Convert.ToInt32(DB_RS.Fields["MapLenght"].Value);
-                    scale[1] = Convert.ToInt32(DB_RS.Fields["MapWidth"].Value);
-                    DB_RS.Close();
-                    CheckQueue(_mapsInfoTable);
+                    foreach (Map m in db.Maps.Include(m => m.SpawnPoints))
+                    {
+                        if (m.Id.Equals(mapIndex))
+                        {
+                            return m;
+                        }
+                    }
                 }
-                return scale;
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _mapsInfoTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                return GetMapScale(mapIndex);
-            }
-        }
-
-        public float[][] GetSpawnPos(int mapIndex)
-        {
-            try
-            {
-                float[][] spawnPos = new float[2][];
-                float[] firstSpawnPos = new float[2];
-                float[] secondSpawnPos = new float[2];
-                var DB_RS = Global.mysql.DB_RS;
-                {
-                    DB_RS.Open("SELECT * FROM MapsInfo WHERE MapNumber ='" + mapIndex + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    firstSpawnPos[0] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointX"].Value);
-                    firstSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointZ"].Value);
-                    secondSpawnPos[0] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointX"].Value);
-                    secondSpawnPos[1] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointZ"].Value);
-                    DB_RS.Close();
-                    CheckQueue(_mapsInfoTable);
-                }
-                spawnPos[0] = firstSpawnPos;
-                spawnPos[1] = secondSpawnPos;
-                return spawnPos;
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _mapsInfoTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                return GetSpawnPos(mapIndex);
-            }
-        }
-
-        public float[][] GetSpawnRot(int mapIndex)
-        {
-            try
-            {
-                float[][] spawnRot = new float[2][];
-                float[] firstSpawnRot = new float[4];
-                float[] secondSpawnRot = new float[4];
-                var DB_RS = Global.mysql.DB_RS;
-                {
-                    DB_RS.Open("SELECT * FROM MapsInfo WHERE MapNumber ='" + mapIndex + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    firstSpawnRot[0] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointRotX"].Value);
-                    firstSpawnRot[1] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointRotY"].Value);
-                    firstSpawnRot[2] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointRotZ"].Value);
-                    firstSpawnRot[3] = Convert.ToSingle(DB_RS.Fields["FirstSpawnPointRotW"].Value);
-                    secondSpawnRot[0] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotX"].Value);
-                    secondSpawnRot[1] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotY"].Value);
-                    secondSpawnRot[2] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotZ"].Value);
-                    secondSpawnRot[3] = Convert.ToSingle(DB_RS.Fields["SecondSpawnPointRotW"].Value);
-                    DB_RS.Close();
-                    CheckQueue(_mapsInfoTable);
-                }
-                spawnRot[0] = firstSpawnRot;
-                spawnRot[1] = secondSpawnRot;
-                return spawnRot;
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _mapsInfoTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                return GetSpawnRot(mapIndex);
+                return null;
             }
         }
 
@@ -431,140 +230,168 @@ namespace ElecyServer
 
         #region SkillBuilds
 
-        public void SetSkillBuildData(string nickname)
-        {
-            try
-            {
-                var DB_RS = Global.mysql.DB_RS;
-                {
-                    DB_RS.Open("Select * FROM SkillBuilds WHERE 0=1", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    DB_RS.AddNew();
-                    DB_RS.Fields["Nickname"].Value = nickname;
-                    for (int i = 0; i < (int)Constants.SPELLCOUNT.Ignis; i++)
-                    {
-                        DB_RS.Fields[Constants.FIRST_RACE_NAME+ " " + i.ToString() + " Spell"].Value = "00000000";
-                    }
-                    DB_RS.Update();
-                    DB_RS.Close();
-                    CheckQueue(_skillBuildsTable);
-                }
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _skillBuildsTable.Add(o);
-                lock(o)
-                {
-                    Monitor.Wait(o);
-                }
-                SetSkillBuildData(nickname);
-            }
-        }
+        //public void SetSkillBuildData(string nickname, string raceName, string[] skillsIndexes)
+        //{
+        //    lock(_skillBuildsExpectant)
+        //    {
+        //        using(AccountsContext db = new AccountsContext())
+        //        {
+        //            switch (raceName)
+        //            {
+        //                case "Ignis":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.IgnisBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-        public void SetSkillBuildData(string nickname, string raceName, string[] skillsIndexes)
-        {
-            try
-            {
-                string tableName;
-                switch (raceName)
-                {
-                    case "Ignis":
-                        tableName = "SkillBuilds";
-                        break;
+        //                case "Terra":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.TerraBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                    case "Terra":
-                        tableName = "SkillBuilds";
-                        break;
+        //                case "Caeli":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.CaeliBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                    case "Caeli":
-                        tableName = "SkillBuilds";
-                        break;
+        //                case "Aqua":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.AquaBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                    case "Aqua":
-                        tableName = "SkillBuilds";
-                        break;
-                    default:
-                        tableName = "Poshel ti naxer!!!";
-                        break;
-                }
-                var DB_RS = Global.mysql.DB_RS;
-                {
-                    DB_RS.Open("Select * FROM "+ tableName +" WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    for (int i = 0; i < (int)Constants.SPELLCOUNT.Ignis; i++)
-                    {
-                        DB_RS.Fields[raceName + " " + i.ToString() + " Spell"].Value = skillsIndexes[i];
-                    }
-                    DB_RS.Update();
-                    DB_RS.Close();
-                    CheckQueue(_skillBuildsTable);
-                }
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _skillBuildsTable.Add(o);
-                lock (o)
-                {
-                    Monitor.Wait(o);
-                }
-                SetSkillBuildData(nickname, raceName, skillsIndexes);
-            }
-        }
+        //                case "Primus":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            a.AccountSkillBuilds.PrimusBuild = skillsIndexes;
+        //                            db.Entry(a).State = EntityState.Modified;
+        //                            db.SaveChanges();
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
+        //                default:
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //}
 
-        public short[] GetSkillBuildData(string nickname, string raceName)
-        {
-            try
-            {
-                int skillCount;
-                switch(raceName)
-                {
-                    case "Ignis":
-                        skillCount = (int)Constants.SPELLCOUNT.Ignis;
-                        break;
+        //public short[] GetSkillBuildData(string nickname, string raceName)
+        //{
+        //    lock(_skillBuildsExpectant)
+        //    {
+        //        string[] _spells = new string[1];
+        //        using(AccountsContext db = new AccountsContext())
+        //        {
+        //            switch (raceName)
+        //            {
+        //                case "Ignis":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.IgnisBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                    case "Terra":
-                        skillCount = (int)Constants.SPELLCOUNT.Terra;
-                        break;
+        //                case "Terra":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.TerraBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                    case "Caeli":
-                        skillCount = (int)Constants.SPELLCOUNT.Caeli;
-                        break;
+        //                case "Caeli":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.CaeliBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                    case "Aqua":
-                        skillCount = (int)Constants.SPELLCOUNT.Aqua;
-                        break;
+        //                case "Aqua":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.AquaBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
 
-                    default:
-                        skillCount = 0;
-                        break;
-                }
-                short[] skillsNumbers = new short[skillCount*2];
-                int index = 0;
-                var DB_RS = Global.mysql.DB_RS;
-                {
-                    DB_RS.Open("SELECT * FROM SkillBuilds WHERE Nickname='" + nickname + "'", Global.mysql.DB_CONN, ADODB.CursorTypeEnum.adOpenStatic, ADODB.LockTypeEnum.adLockOptimistic);
-                    for (int i = 0; i < skillCount; i++, index += 2)
-                    {
-                        string n = DB_RS.Fields[raceName + " " + i.ToString() + " Spell"].Value.ToString();
-                        skillsNumbers[index] = Convert.ToInt16(n.Substring(0, 4));
-                        skillsNumbers[index + 1] = Convert.ToInt16(n.Substring(4, 4));
-                    }
-                    DB_RS.Close();
-                    CheckQueue(_skillBuildsTable);
-                }
-                return skillsNumbers;
-            }
-            catch (System.Runtime.InteropServices.COMException)
-            {
-                object o = new object();
-                _skillBuildsTable.Add(o);
-                lock(o)
-                {
-                    Monitor.Wait(o);
-                }
-                return GetSkillBuildData(nickname, raceName);
-            }
-        }
+        //                case "Primus":
+        //                    foreach (Account a in db.Accounts.Include(a => a.AccountSkillBuilds))
+        //                    {
+        //                        if (a.Nickname.Equals(nickname))
+        //                        {
+        //                            _spells = a.AccountSkillBuilds.PrimusBuild as string[];
+        //                            break;
+        //                        }
+        //                    }
+        //                    break;
+
+        //                default:
+        //                    return null;
+        //            }
+        //        }
+        //        short[] skillsNumbers = new short[_spells.Length];
+        //        for (int i = 0; i < skillsNumbers.Length; i++)
+        //        {
+        //            try
+        //            {
+        //                skillsNumbers[i] = Convert.ToInt16(_spells[i].Substring(0, 4));
+        //            }
+        //            catch
+        //            {
+        //                skillsNumbers[i] = 0;
+        //            }
+        //        }
+        //        return skillsNumbers;
+        //    }
+        //}
 
         #endregion
 

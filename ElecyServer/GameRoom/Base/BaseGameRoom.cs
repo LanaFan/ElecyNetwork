@@ -23,9 +23,9 @@ namespace ElecyServer
 
         public RoomTypes roomType;
 
-        public float[][][] spawnTransforms { get; }
-
         public int PlayersCount { get; }
+
+        public Map map;
 
         #endregion
 
@@ -77,22 +77,11 @@ namespace ElecyServer
             _loadedTCP = new bool[playersCount];
             _loadedUDP = new bool[playersCount];
 
-            // Get Map Scale
-            int[] scale = Global.data.GetMapScale(_mapIndex);
-            _scaleX = scale[0] * 10f;
-            _scaleZ = scale[1] * 10f;
-
-            //Get Players Spawn Positions and Rotations
-            spawnTransforms = new float[playersCount][][];
-            float[][] spawnPos = Global.data.GetSpawnPos(_mapIndex);
-            float[][] spawnRot = Global.data.GetSpawnRot(_mapIndex);
-            for (int i = 0; i < playersCount; i++)
-            {
-                spawnTransforms[i] = new float[][] { spawnPos[i], spawnRot[i] };
-            }
+            // Get Map
+            map = Global.data.GetMap(_mapIndex);
 
             //Create randomizer
-            randomer = new ArenaRandomGenerator(_scaleX, _scaleZ, spawnPos);
+            randomer = new ArenaRandomGenerator(map);
 
             // Adds player to the room
             AddPlayer(client);
@@ -112,7 +101,10 @@ namespace ElecyServer
                     {
                         playersTCP[i] = client;
                         client.EnterRoom(this, playersUDP[i] = new GamePlayerUDP(client.ip, i, this), i);
+<<<<<<< HEAD
                         roomPlayers[i] = new RoomPlayer(i, ObjectType.player, 1000, spawnTransforms[i][0], spawnTransforms[i][1]); // You can create it when player starts queue using params from database
+=======
+>>>>>>> DataBase_rework
                         if (PlayersCount == playersTCP.Count(c => c != null))
                             StartLoad();
                         return true;
@@ -191,7 +183,7 @@ namespace ElecyServer
             int totalNumber = 0;
             for(int i = 0; i < PlayersCount; i++)
             {
-                spellBuilds[i] = Global.data.GetSkillBuildData(playersTCP[i].nickname, playersTCP[i].race);
+                spellBuilds[i] = client.accountData.AccountSkillBuilds.IgnisBuild.ToArray();
                 totalNumber += spellBuilds[i].Length;
             }
             SendDataTCP.SendLoadSpells(client, spellBuilds, totalNumber);

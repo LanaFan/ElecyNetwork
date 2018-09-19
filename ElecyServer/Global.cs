@@ -7,7 +7,6 @@ namespace ElecyServer
 {
     class Global
     {
-        public static MySQL mysql;
         public static Database data;
         public static GameRoom[] arena = new GameRoom[Constants.ARENA_SIZE];
         public static List<GamePlayerUDP> connectedPlayersUDP;
@@ -26,12 +25,11 @@ namespace ElecyServer
 
         public static void ThreadsStop()
         {
-            dataTimerThread.Abort();
+            //dataTimerThread.Abort();
         }
 
         public static void InitGlobals()
         {
-            mysql = new MySQL();
             data = new Database();
             clientList = new List<ClientTCP>();
             roomsList = new List<BaseGameRoom>();
@@ -42,7 +40,6 @@ namespace ElecyServer
 
         public static void FinalGlobals()
         {
-            mysql = null;
             data = null;
             foreach (ClientTCP client in clientList.ToArray())
             {

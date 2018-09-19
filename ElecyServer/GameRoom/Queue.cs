@@ -29,6 +29,7 @@ namespace ElecyServer
         {
             if(client.room != null)
                 client.room.DeletePlayer(client);
+            client.playerState = NetPlayerState.InMainLobby;
         }
 
     }

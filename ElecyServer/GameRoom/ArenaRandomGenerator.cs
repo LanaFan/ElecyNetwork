@@ -13,15 +13,15 @@ namespace ElecyServer
         private List<Space> spaces;
         private Random rnd;
 
-        public ArenaRandomGenerator(float scaleX, float scaleZ, float[][] positions)
+        public ArenaRandomGenerator(Map map)
         {
             rnd = new Random();
             spaces = new List<Space>();
-            SetXRange(scaleX);
-            SetZRange(scaleZ);
-            foreach(float[] pos in positions)
+            SetXRange(map.MapHeight * 10f);
+            SetZRange(map.MapWidth * 10f);
+            foreach(SpawnPoint pos in map.SpawnPoints)
             {
-                spaces.Add(new Space(pos[0], pos[1], 0));
+                spaces.Add(new Space(pos.PositionX, pos.PositionY, 0));
             }
         }
 

@@ -2,6 +2,8 @@
 using System.Net.Sockets;
 using System.Net;
 using Bindings;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ElecyServer
 {
@@ -24,11 +26,11 @@ namespace ElecyServer
                 _serverSocket.Listen(Constants.SERVER_LISTEN);
                 _serverSocket.BeginAccept(new AsyncCallback(AcceptCallback), null);
                 UDPConnector.WaitConnect();
-                Global.serverForm.StatusIndicator(4);
+                Global.serverForm.StatusIndicator(3);
             }
             catch (Exception ex)
             {
-                Global.serverForm.StatusIndicator(4, ex);
+                Global.serverForm.StatusIndicator(3, ex);
             }
         }
 
@@ -37,7 +39,6 @@ namespace ElecyServer
             if (!Closed)
             {
                 Closed = true;
-                Global.mysql.MySQLClose();
                 try
                 {
                     Global.ThreadsStop();
@@ -52,11 +53,11 @@ namespace ElecyServer
                 try
                 {
                     _serverSocket.Dispose();
-                    Global.serverForm.HidePtr(4);
+                    Global.serverForm.HidePtr(3);
                 }
                 catch(Exception ex)
                 {
-                    Global.serverForm.StatusIndicator(4, ex);
+                    Global.serverForm.StatusIndicator(3, ex);
                 }
 
             }
@@ -227,6 +228,10 @@ namespace ElecyServer
 
         private byte[] _buffer;
 
+        public Account accountData;
+
+        public List<ClientTCP> friends = new List<ClientTCP>();
+
         #endregion
 
         #region Constructor
@@ -288,13 +293,23 @@ namespace ElecyServer
 
         public void LogIn(string username)
         {
-            nickname = Global.data.GetAccountNickname(username);
-            int[][] data = Global.data.GetAccountData(nickname);
-            levels = data[0];
-            ranks = data[1];
+            accountData = Global.data.GetAccount(username);
+            nickname = accountData.Nickname;
             playerState = NetPlayerState.InMainLobby;
             clientState = ClientTCPState.MainLobby;
-            SendDataTCP.SendLoginOk(nickname, data, this);
+            foreach(string guideKey in accountData.Friends.ToArray())
+            {
+                foreach(ClientTCP friend in Global.clientList)
+                {
+                    if(friend.accountData.GuideKey.Equals(guideKey))
+                    {
+                        friends.Add(friend);
+                        break;
+                    }
+                }
+                break;
+            }
+            SendDataTCP.SendLoginOk(nickname, this);
         }
 
         public void EnterRoom(BaseGameRoom room, GamePlayerUDP playerUDP, int ID)
@@ -313,6 +328,26 @@ namespace ElecyServer
             room = null;
         }
 
+        public void AddFriend(string GuideKey)
+        {
+            foreach(ClientTCP player in Global.clientList)
+            {
+                if(player.accountData.GuideKey.Equals(GuideKey))
+                {
+                    accountData.Friends.ToList().Add(GuideKey);
+                    Global.data.SaveAccount(accountData);
+                    SendDataTCP.SendFriendInfo(this, player);
+                    break;
+                }
+            }
+        }
+
+        public void DeleteFriend(string GuideKey)
+        {
+            accountData.Friends.ToList().Remove(GuideKey);
+            Global.data.SaveAccount(accountData);
+        }
+
         public void Close()
         {
             if (clientState != ClientTCPState.Sleep)
@@ -328,6 +363,11 @@ namespace ElecyServer
                     {
                         Global.serverForm.Debug(ex + "");
                     }
+                    foreach(ClientTCP friend in friends)
+                    {
+                        SendDataTCP.SendFriendLeave(this, friend);
+                        friend.friends.Remove(this);
+                    }
                     Global.clientList.Remove(this);
                 }
                 else if (clientState == ClientTCPState.MainLobby)
@@ -340,6 +380,11 @@ namespace ElecyServer
                     catch (Exception ex)
                     {
                         Global.serverForm.Debug(ex + "");
+                    }
+                    foreach (ClientTCP friend in friends)
+                    {
+                        SendDataTCP.SendFriendLeave(this, friend);
+                        friend.friends.Remove(this);
                     }
                     Global.clientList.Remove(this);
                     SendDataTCP.SendGlChatMsg("Server", $"Player { nickname } disconnected.");
@@ -358,6 +403,11 @@ namespace ElecyServer
                     else if (playerState == NetPlayerState.EndPlaying)
                     {
                         room.DeletePlayer(this);
+                    }
+                    foreach (ClientTCP friend in friends)
+                    {
+                        SendDataTCP.SendFriendLeave(this, friend);
+                        friend.friends.Remove(this);
                     }
                     Global.serverForm.Debug($"GamePlayer {nickname} lost connection");
                     Global.clientList.Remove(this);

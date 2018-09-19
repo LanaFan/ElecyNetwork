@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace ElecyServer
 {
@@ -26,8 +27,6 @@ namespace ElecyServer
             {
                 Global.serverForm.StatusIndicator(1, ex);
             }
-            Global.mysql.MySQLInit();
-            Global.data.InitDatabase();
             ServerTCP.SetupServer();
         }
     }

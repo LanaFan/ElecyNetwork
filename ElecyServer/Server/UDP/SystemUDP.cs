@@ -21,11 +21,11 @@ namespace ElecyServer
                 buffer = new byte[Constants.UDP_BUFFER_SIZE];
                 receive = true;
                 connectUDP.BeginReceive(new AsyncCallback(ReceiveCallback), connectUDP);
-                Global.serverForm.StatusIndicator(3);
+                Global.serverForm.StatusIndicator(2);
             }
             catch (SocketException ex)
             {
-                Global.serverForm.StatusIndicator(3, ex);
+                Global.serverForm.StatusIndicator(2, ex);
             }
         }
 
@@ -85,11 +85,11 @@ namespace ElecyServer
             try
             {
                 connectUDP.Close();
-                Global.serverForm.HidePtr(3);
+                Global.serverForm.HidePtr(2);
             }
             catch (Exception ex)
             {
-                Global.serverForm.StatusIndicator(3, ex);
+                Global.serverForm.StatusIndicator(2, ex);
             }
         }
 
