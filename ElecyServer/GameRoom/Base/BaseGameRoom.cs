@@ -1,6 +1,6 @@
 ﻿using Bindings;
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Threading;
 
@@ -101,10 +101,21 @@ namespace ElecyServer
                     {
                         playersTCP[i] = client;
                         client.EnterRoom(this, playersUDP[i] = new GamePlayerUDP(client.ip, i, this), i);
-<<<<<<< HEAD
-                        roomPlayers[i] = new RoomPlayer(i, ObjectType.player, 1000, spawnTransforms[i][0], spawnTransforms[i][1]); // You can create it when player starts queue using params from database
-=======
->>>>>>> DataBase_rework
+                        roomPlayers[i] = new RoomPlayer(
+                                                        i,
+                                                        ObjectType.player,
+                                                        1000,
+                                                        new float[] {
+                                                            map.SpawnPoints.ToArray()[i].PositionX,
+                                                            map.SpawnPoints.ToArray()[i].PositionY,
+                                                            },
+                                                        new float[] {
+                                                            map.SpawnPoints.ToArray()[i].RotationX,
+                                                            map.SpawnPoints.ToArray()[i].RotationY,
+                                                            map.SpawnPoints.ToArray()[i].RotationZ,
+                                                            map.SpawnPoints.ToArray()[i].RotationW }
+                                                        ); // You can create it when player starts queue using params from database
+
                         if (PlayersCount == playersTCP.Count(c => c != null))
                             StartLoad();
                         return true;
@@ -180,13 +191,11 @@ namespace ElecyServer
         public void LoadSpells(ClientTCP client)
         {
             short[][] spellBuilds = new short[PlayersCount][];
-            int totalNumber = 0;
             for(int i = 0; i < PlayersCount; i++)
             {
-                spellBuilds[i] = client.accountData.AccountSkillBuilds.IgnisBuild.ToArray();
-                totalNumber += spellBuilds[i].Length;
+                spellBuilds[i] = playersTCP[i].accountData.AccountSkillBuilds.IgnisBuild.ToArray();
             }
-            SendDataTCP.SendLoadSpells(client, spellBuilds, totalNumber);
+            SendDataTCP.SendLoadSpells(client, spellBuilds);
         }
 
         public void LoadComplite(ClientTCP client)

@@ -40,3 +40,7 @@ D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\EntityFramework.xml
 D:\Games\Projects\Elecy\Elecy Server Project\ElecyNetwork\ElecyServer\bin\Debug\EntityFramework.SqlServer.xml
 >>>>>>> DataBase_rework
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\EntityFramework.dll
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\EntityFramework.SqlServer.dll
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\EntityFramework.xml
+D:\DataBase\ElecyServer\ElecyServer\ElecyNetwork\ElecyServer\bin\Debug\EntityFramework.SqlServer.xml

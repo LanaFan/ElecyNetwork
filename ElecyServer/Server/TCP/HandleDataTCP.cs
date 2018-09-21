@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-﻿using System;
 using System.Collections.Generic;
-=======
-﻿using System.Collections.Generic;
 using System.Linq;
->>>>>>> DataBase_rework
 using Bindings;
 
 namespace ElecyServer
@@ -343,28 +338,28 @@ namespace ElecyServer
                 buffer.WriteBytes(data);
                 buffer.ReadInteger();
                 client.room.dynamicObjectsList.Add(
-                                            client.room,
-                                            buffer.ReadInteger(),
-                                            buffer.ReadInteger(),
-                                            new float[] {
-                                                        buffer.ReadFloat(),
-                                                        buffer.ReadFloat(),
-                                                        buffer.ReadFloat()
-                                                        },
-                                            new float[] {
-                                                        buffer.ReadFloat(),
-                                                        buffer.ReadFloat(),
-                                                        buffer.ReadFloat()
-                                                        },
-                                            new float[] {
-                                                        buffer.ReadFloat(),
-                                                        buffer.ReadFloat(),
-                                                        buffer.ReadFloat(),
-                                                        buffer.ReadFloat()
-                                                        },
-                                            buffer.ReadInteger(),
-                                            client.nickname
-                                            );
+                                                    client.room,
+                                                    buffer.ReadInteger(),
+                                                    buffer.ReadInteger(),
+                                                    new float[] {
+                                                                buffer.ReadFloat(),
+                                                                buffer.ReadFloat(),
+                                                                buffer.ReadFloat()
+                                                                },
+                                                    new float[] {
+                                                                buffer.ReadFloat(),
+                                                                buffer.ReadFloat(),
+                                                                buffer.ReadFloat()
+                                                                },
+                                                    new float[] {
+                                                                buffer.ReadFloat(),
+                                                                buffer.ReadFloat(),
+                                                                buffer.ReadFloat(),
+                                                                buffer.ReadFloat()
+                                                                },
+                                                    buffer.ReadInteger(),
+                                                    client.nickname
+                                                  );
             }
         }
 

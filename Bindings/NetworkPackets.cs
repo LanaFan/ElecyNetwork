@@ -25,13 +25,10 @@
         SInstantiate,
         SDestroy,
         SDamage,
-<<<<<<< HEAD
-=======
         SFriendsInfo,
         SFriendLeave,
         SFriendInfo,
         SFriendChange
->>>>>>> DataBase_rework
     }
 
     #endregion

@@ -362,17 +362,18 @@ namespace ElecyServer
         ///                         int spellBuildLength
         ///                         short[spellBuildLength] spellBuild
         /// </summary>
-        public static void SendLoadSpells(ClientTCP client, short[][] spellBuilds, int totalNumberOfSpells) // Нужно согласовать как будет эта херь выглядеть (избавится от инта)
+        public static void SendLoadSpells(ClientTCP client, short[][] spellBuilds)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SSpellLoaded);
             buffer.WriteInteger(spellBuilds.Length);
-            buffer.WriteInteger(totalNumberOfSpells);
             foreach(short[] spellBuild in spellBuilds)
             {
+                buffer.WriteInteger(spellBuild.Length);
                 for(int i = 0; i < spellBuild.Length; i++)
                 {
                     buffer.WriteShort(spellBuild[i]);
+                    buffer.WriteShort(1);
                 }
             }
             ServerTCP.SendDataToClient(client, buffer.ToArray());
