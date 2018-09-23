@@ -439,13 +439,18 @@ namespace ElecyServer
 
     public struct MovementUpdate
     {
-        public float[] position { get; }
-        public bool sent { get; set; }
+        public readonly float[] position;
+        public bool sent;
 
         public MovementUpdate(float[] Position)
         {
             position = Position;
             sent = false;
+        }
+
+        public void Sent()
+        {
+            sent = true;
         }
     }
 

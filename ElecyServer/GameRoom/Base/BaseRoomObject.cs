@@ -76,7 +76,7 @@ namespace ElecyServer
                 if (positionUpdate.TryGetValue(curPosIndex, out update))
                     if (!update.sent)
                     {
-                        update.sent = true; // mb not change the value (check bro)
+                        update.Sent(); // mb not change the value (check bro)
                         return true;
                     }
                 return false;

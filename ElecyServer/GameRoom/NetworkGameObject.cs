@@ -94,7 +94,7 @@ namespace ElecyServer
                 if (positionUpdate.TryGetValue(_currentIndex, out update))
                     if (!update.sent)
                     {
-                        update.sent = true;
+                        update.Sent();
                         return true;
                     }
                 return false;
