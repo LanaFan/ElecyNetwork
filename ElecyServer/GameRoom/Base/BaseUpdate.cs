@@ -11,6 +11,8 @@ namespace ElecyServer
 
         public BaseUpdate(T value)
         {
+            _expectant = new object();
+            updateLibruary = new Dictionary<int, UpdateContainer<T>>();
             updateLibruary.Add(1, new UpdateContainer<T>(value));
             currentIndex = 1;
             currentValue = value;

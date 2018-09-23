@@ -40,16 +40,17 @@ namespace ElecyServer
 
         public float[] RandomPosition(ObjectType type)
         {
-            float[] pos = new float[2];
+            float[] pos = new float[3];
             bool randomed = true;
             do
             {
                 pos[0] = (float)(rnd.NextDouble() * (xRange[1] - xRange[0]) + xRange[0]);
-                pos[1] = (float)(rnd.NextDouble() * (zRange[1] - zRange[0]) + zRange[0]);
+                pos[1] = 0.5f;
+                pos[2] = (float)(rnd.NextDouble() * (zRange[1] - zRange[0]) + zRange[0]);
                 randomed = true;
                 for (int i = 0; i < spaces.Count(); i++)
                 {
-                    if ((pos[0] <= spaces.ElementAt(i).xTo && pos[0] >= spaces.ElementAt(i).xFrom) && (pos[1] <= spaces.ElementAt(i).zTo && pos[1] >= spaces.ElementAt(i).zFrom))
+                    if ((pos[0] <= spaces.ElementAt(i).xTo && pos[0] >= spaces.ElementAt(i).xFrom) && (pos[2] <= spaces.ElementAt(i).zTo && pos[2] >= spaces.ElementAt(i).zFrom))
                     {
                         randomed = false;
                         break;
@@ -57,7 +58,7 @@ namespace ElecyServer
                 }
             }
             while (!randomed);
-            spaces.Add(new Space(pos[0], pos[1], type));
+            spaces.Add(new Space(pos[0], pos[2], type));
             return pos;
         }
 
