@@ -21,13 +21,14 @@ namespace ElecyServer
 
         public static void HandleNetworkInformation(GamePlayerUDP player, byte[] data)
         {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteBytes(data);
-            int packetnum = buffer.ReadInteger();
-            buffer.Dispose();
-            if (Packets.TryGetValue(packetnum, out Packet_ Packet))
+            using (PacketBuffer buffer = new PacketBuffer())
             {
-                Packet.Invoke(player, data);
+                buffer.WriteBytes(data);
+                int packetnum = buffer.ReadInteger();
+                if (Packets.TryGetValue(packetnum, out Packet_ Packet))
+                {
+                    Packet.Invoke(player, data);
+                }
             }
         }
 
@@ -39,61 +40,83 @@ namespace ElecyServer
         /// </summary>
         private static void HandleConnectionComplite(GamePlayerUDP player, byte[] data)
         {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteBytes(data);
-            buffer.ReadInteger();
-            player.Connected();
-            buffer.Dispose();
+            using (PacketBuffer buffer = new PacketBuffer())
+            {
+                buffer.WriteBytes(data);
+                buffer.ReadInteger();
+                player.Connected();
+            }
         }
 
         private static void HandleTransformUpdate(GamePlayerUDP player, byte[] data)
         {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteBytes(data);
-            buffer.ReadInteger();
-            ObjectType type = (ObjectType)buffer.ReadInteger();
-            int index;
-            int UpdateIndex;
-            float[] pos = new float[3];
-            switch (type)
+            using (PacketBuffer buffer = new PacketBuffer())
             {
-                case ObjectType.player:
-                    index = buffer.ReadInteger();
-                    UpdateIndex = buffer.ReadInteger();
-                    pos[0] = buffer.ReadFloat();
-                    pos[1] = buffer.ReadFloat();
-                    pos[2] = buffer.ReadFloat();
-                    player.room.roomPlayers[player.ID].SetPosition(pos, UpdateIndex);
-                    break;
-                case ObjectType.spell:
-                    index = buffer.ReadInteger();
-                    UpdateIndex = buffer.ReadInteger();
-                    pos[0] = buffer.ReadFloat();
-                    pos[1] = buffer.ReadFloat();
-                    pos[2] = buffer.ReadFloat();
-                    try
-                    {
-                        player.room.dynamicObjectsList.Get(index).SetPosition(pos, UpdateIndex);
-                    }
-                    catch(Exception ex)
-                    {
-                        if (ex is NullReferenceException || ex is IndexOutOfRangeException)
-                            return;
-                        Global.serverForm.Debug(ex + "");
-                    }
+                buffer.WriteBytes(data);
+                buffer.ReadInteger();
+                ObjectType type = (ObjectType)buffer.ReadInteger();
+                int index;
+                int UpdateIndex;
+                float[] pos = new float[3];
+                switch (type)
+                {
+                    case ObjectType.player:
+                        index = buffer.ReadInteger();
+                        UpdateIndex = buffer.ReadInteger();
+                        pos[0] = buffer.ReadFloat();
+                        pos[1] = buffer.ReadFloat();
+                        pos[2] = buffer.ReadFloat();
+                        player.room.roomPlayers[player.ID].position.SetUpdate(pos, UpdateIndex);
+                        break;
 
-                    break;
+                    case ObjectType.spell:
+                        index = buffer.ReadInteger();
+                        UpdateIndex = buffer.ReadInteger();
+                        pos[0] = buffer.ReadFloat();
+                        pos[1] = buffer.ReadFloat();
+                        pos[2] = buffer.ReadFloat();
+                        try
+                        {
+                            player.room.dynamicObjectsList.Get(index).position.SetUpdate(pos, UpdateIndex);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ex is NullReferenceException || ex is IndexOutOfRangeException)
+                                return;
+                            Global.serverForm.Debug(ex + "");
+                        }
+                        break;
+
+                    case ObjectType.staticObjects:
+                        index = buffer.ReadInteger();
+                        UpdateIndex = buffer.ReadInteger();
+                        pos[0] = buffer.ReadFloat();
+                        pos[1] = buffer.ReadFloat();
+                        pos[2] = buffer.ReadFloat();
+                        try
+                        {
+                            player.room.staticObjectsList.Get(index).position.SetUpdate(pos, UpdateIndex);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ex is NullReferenceException || ex is IndexOutOfRangeException)
+                                return;
+                            Global.serverForm.Debug(ex + "");
+                        }
+                        break;
+                }
             }
         }
 
         private static void HandleTransformStepback(GamePlayerUDP player, byte[] data)
         {
-            PacketBuffer buffer = new PacketBuffer();
-            buffer.WriteBytes(data);
-            buffer.ReadInteger();
-            int StepBackIndex = buffer.ReadInteger();
-            player.room.roomPlayers[player.ID].UdpateStepBack(StepBackIndex);
-            buffer.Dispose();
+            using (PacketBuffer buffer = new PacketBuffer())
+            {
+                buffer.WriteBytes(data);
+                buffer.ReadInteger();
+                int StepBackIndex = buffer.ReadInteger();
+                player.room.roomPlayers[player.ID].position.UdpateStepBack(StepBackIndex);
+            }
         }
     }
 }

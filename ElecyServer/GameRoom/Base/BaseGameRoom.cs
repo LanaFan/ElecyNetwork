@@ -105,6 +105,7 @@ namespace ElecyServer
                                                         i,
                                                         ObjectType.player,
                                                         1000,
+                                                        1000,
                                                         new float[] {
                                                             map.SpawnPoints.ToArray()[i].PositionX,
                                                             map.SpawnPoints.ToArray()[i].PositionY,
@@ -237,18 +238,18 @@ namespace ElecyServer
         {
             for (int i = 0; i < roomPlayers.Length; i++)
             {
-                if (roomPlayers[i].GetPosition(out MovementUpdate update, out int index))
+                if (roomPlayers[i].position.GetPosition(out UpdateContainer<float[]> update, out int index))
                 {
-                    SendDataUDP.SendTransformUpdate(this, ObjectType.player, i, update.position, index);
+                    SendDataUDP.SendTransformUpdate(this, ObjectType.player, i, update.value, index);
                 }
             }
             for (int i = 0; i < dynamicObjectsList.Length; i++)
             {
                 if(dynamicObjectsList.Get(i) != null) 
                 {
-                    if (dynamicObjectsList.Get(i).GetPosition(out MovementUpdate update, out int index))
+                    if (dynamicObjectsList.Get(i).position.GetPosition(out UpdateContainer<float[]> update, out int index))
                     {
-                        SendDataUDP.SendTransformUpdate(this, ObjectType.spell, i, update.position, index);
+                        SendDataUDP.SendTransformUpdate(this, ObjectType.spell, i, update.value, index);
                     }
                 }
             }

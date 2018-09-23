@@ -298,7 +298,7 @@ namespace ElecyServer
             int start = ranges[0];
             int end = ranges[1];
             buffer.WriteInteger(end - start+1);
-            while(start <= end)
+            while (start <= end)
             {
                 var k = client.room.staticObjectsList.Get(start).GetInfo();
                 buffer.WriteInteger(start);

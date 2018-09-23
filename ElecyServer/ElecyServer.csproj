@@ -62,6 +62,7 @@
     <Compile Include="GameRoom\ArenaRandomGenerator.cs" />
     <Compile Include="GameRoom\Base\BaseGameRoom.cs" />
     <Compile Include="GameRoom\Base\BaseRoomObject.cs" />
+    <Compile Include="GameRoom\Base\BaseUpdate.cs" />
     <Compile Include="GameRoom\DynamicObjectList.cs" />
     <Compile Include="GameRoom\NetworkGameObject.cs" />
     <Compile Include="GameRoom\RoomObjects\DynamicObject.cs" />

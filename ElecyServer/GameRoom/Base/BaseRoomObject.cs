@@ -12,9 +12,9 @@ namespace ElecyServer
         public ObjectType type;
         public bool isDestroyed;
 
-        public Dictionary<int, MovementUpdate> positionUpdate;
-        public float[] curPosition;
-        public int curPosIndex;
+        public BaseUpdate<float[]> position;
+        public BaseUpdate<float[]> rotation;
+        public BaseUpdate<int> healthPoints;
 
         public int maxHp;
         public int curHp;
@@ -26,90 +26,11 @@ namespace ElecyServer
             this.index = index;
             this.type = type;
             isDestroyed = false;
-            curPosition = new float[] { position[0], 0.5f, position[1] };
-            curPosIndex = 1;
+            this.position = new BaseUpdate<float[]>(position);
+            this.rotation = new BaseUpdate<float[]>(rotation);
+            this.healthPoints = new BaseUpdate<int>(hp);
             expectant = new object();
-
-            positionUpdate = new Dictionary<int, MovementUpdate>();
-            positionUpdate.Add(curPosIndex, new MovementUpdate(curPosition));
-
         }
-
-        #region Position update
-
-        public void SetPosition(float[] Position, int Index)
-        {
-            lock (expectant)
-            {
-                if (positionUpdate.ContainsKey(Index))
-                    return;
-                if (curPosIndex < Index)
-                {
-                    if (positionUpdate.Count > 20)
-                    {
-                        if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
-                        {
-                            positionUpdate.Clear();
-                            positionUpdate.Add(1, buffer);
-                        }
-                        else
-                            Global.serverForm.Debug("There is no start position in memory");
-                    }
-                    curPosIndex = Index;
-                    curPosition[0] = Position[0];
-                    curPosition[1] = Position[1];
-                    curPosition[2] = Position[2];
-                    positionUpdate.Add(curPosIndex, new MovementUpdate(curPosition));
-                }
-                else
-                {
-                    positionUpdate.Add(Index, new MovementUpdate(Position));
-                }
-            }
-        }
-
-        public bool GetPosition(out MovementUpdate update, out int index)
-        {
-            lock (expectant)
-            {
-                index = curPosIndex;
-                if (positionUpdate.TryGetValue(curPosIndex, out update))
-                    if (!update.sent)
-                    {
-                        update.Sent(); // mb not change the value (check bro)
-                        return true;
-                    }
-                return false;
-            }
-        }
-
-        public void UdpateStepBack(int Index)
-        {
-            lock (expectant)
-            {
-                if (positionUpdate.TryGetValue(1, out MovementUpdate buffer))
-                {
-                    if (positionUpdate.TryGetValue(Index, out MovementUpdate stepBackBuffer))
-                    {
-                        curPosIndex = Index;
-                        curPosition = stepBackBuffer.position;
-                        positionUpdate.Clear();
-                        positionUpdate.Add(1, buffer);
-                        positionUpdate.Add(Index, stepBackBuffer);
-                    }
-                    else
-                    {
-                        Global.serverForm.Debug("There is no stepback point");
-                    }
-                }
-                else
-                {
-                    Global.serverForm.Debug("There is no start point");
-                }
-            }
-        }
-
-        #endregion
 
         #region HP update
 
@@ -118,7 +39,6 @@ namespace ElecyServer
         public abstract void TakeDamage(int damage);
 
         #endregion
-
     }
 
     #region Enumerator
