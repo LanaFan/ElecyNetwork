@@ -11,8 +11,6 @@ namespace ElecyServer
 
         public BaseUpdate(T value)
         {
-            _expectant = new object();
-            updateLibruary = new Dictionary<int, UpdateContainer<T>>();
             updateLibruary.Add(1, new UpdateContainer<T>(value));
             currentIndex = 1;
             currentValue = value;
@@ -47,7 +45,7 @@ namespace ElecyServer
             }
         }
 
-        public bool GetPosition(out UpdateContainer<T> update, out int index)
+        public bool GetValue(out UpdateContainer<T> update, out int index)
         {
             lock (_expectant)
             {

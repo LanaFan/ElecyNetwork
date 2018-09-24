@@ -21,7 +21,7 @@ namespace ElecyServer
 
         public (int, float[], float[]) GetInfo()
         {
-            this.position.GetPosition(out UpdateContainer<float[]> value, out int index);
+            this.position.GetValue(out UpdateContainer<float[]> value, out int index);
             return (currHP, value.value, rotation);
         }
 

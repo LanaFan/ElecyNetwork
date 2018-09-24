@@ -108,7 +108,6 @@ namespace ElecyServer
                                                         1000,
                                                         new float[] {
                                                             map.SpawnPoints.ToArray()[i].PositionX,
-                                                            0.5f,
                                                             map.SpawnPoints.ToArray()[i].PositionY,
                                                             },
                                                         new float[] {
@@ -239,18 +238,38 @@ namespace ElecyServer
         {
             for (int i = 0; i < roomPlayers.Length; i++)
             {
-                if (roomPlayers[i].position.GetPosition(out UpdateContainer<float[]> update, out int index))
+                if (roomPlayers[i].position.GetValue(out UpdateContainer<float[]> position, out int posIndex))
                 {
-                    SendDataUDP.SendTransformUpdate(this, ObjectType.player, i, update.value, index);
+                    SendDataUDP.SendPositonUpdate(this, ObjectType.player, i, position.value, posIndex);
+                }
+                if (roomPlayers[i].rotation.GetValue(out UpdateContainer<float[]> rotation, out int rotIndex))
+                {
+                    SendDataUDP.SendRotationUpdate(this, ObjectType.player, i, rotation.value, rotIndex);
+                }
+                if (roomPlayers[i].healthPoints.GetValue(out UpdateContainer<int> health, out int hpIndex))
+                {
+                    SendDataUDP.SendHealthUpdate(this, ObjectType.player, i, health.value, hpIndex);
+                }
+                if (roomPlayers[i].synergyPoints.GetValue(out UpdateContainer<int> synergy, out int snIndex))
+                {
+                    SendDataUDP.SendSynergyUpdate(this, ObjectType.player, i, synergy.value, snIndex);
                 }
             }
             for (int i = 0; i < dynamicObjectsList.Length; i++)
             {
                 if(dynamicObjectsList.Get(i) != null) 
                 {
-                    if (dynamicObjectsList.Get(i).position.GetPosition(out UpdateContainer<float[]> update, out int index))
+                    if (dynamicObjectsList.Get(i).position.GetValue(out UpdateContainer<float[]> position, out int posIndex))
                     {
-                        SendDataUDP.SendTransformUpdate(this, ObjectType.spell, i, update.value, index);
+                        SendDataUDP.SendPositonUpdate(this, ObjectType.player, i, position.value, posIndex);
+                    }
+                    if (dynamicObjectsList.Get(i).rotation.GetValue(out UpdateContainer<float[]> rotation, out int rotIndex))
+                    {
+                        SendDataUDP.SendRotationUpdate(this, ObjectType.player, i, rotation.value, rotIndex);
+                    }
+                    if (dynamicObjectsList.Get(i).healthPoints.GetValue(out UpdateContainer<int> health, out int hpIndex))
+                    {
+                        SendDataUDP.SendHealthUpdate(this, ObjectType.player, i, health.value, hpIndex);
                     }
                 }
             }

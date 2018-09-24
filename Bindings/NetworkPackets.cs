@@ -81,14 +81,23 @@
     public enum UDPRoomPackets
     {
         URConnectionComplite = 1,
-        URTransformUpdate,
-        URTransformStepback,
+        URPositionUpdate,
+        URPositionStepback,
+        URRotationUpdate,
+        URRotationStepback,
+        URHealthUpdate,
+        URHealthStepback,
+        URSynergyUpdate,
+        URSynergyStepback,
     }
 
     public enum UDPServerPackets
     {
         USConnectionOK = 1,
-        USTransformUpdate,
+        USPositionUpdate,
+        USRotationUpdate,
+        USHealthUpdate,
+        USSynergyUpdate
     }
 
     #endregion
