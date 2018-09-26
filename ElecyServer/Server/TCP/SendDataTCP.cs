@@ -481,11 +481,12 @@ namespace ElecyServer
             }
         }
 
-        public static void SendDestroy(BaseGameRoom room, int spellIndex)
+        public static void SendDestroy(BaseGameRoom room, int spellIndex, ObjectType type)
         {
             using (PacketBuffer buffer = new PacketBuffer()) 
             {
                 buffer.WriteInteger((int)ServerPackets.SDestroy);
+                buffer.WriteInteger((int)type);
                 buffer.WriteInteger(spellIndex);
                 ServerTCP.SendDataToRoomPlayers(room, buffer.ToArray());
             }

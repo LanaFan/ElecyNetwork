@@ -18,6 +18,11 @@ namespace ElecyServer
             this.synergyPoints = new BaseUpdate<int>(synergy);
         }
 
+        public override void Destroy(BaseGameRoom room)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void TakeDamage(int damage)
         {
             

@@ -17,6 +17,11 @@ namespace ElecyServer
             this.rotation = SetRotation(staticType, rotation);
         }
 
+        public override void Destroy(BaseGameRoom room)
+        {
+            throw new System.NotImplementedException();
+        }
+
         #endregion
 
         public (int, float[], float[]) GetInfo()

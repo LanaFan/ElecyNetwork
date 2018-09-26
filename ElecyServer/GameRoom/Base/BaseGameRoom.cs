@@ -260,17 +260,27 @@ namespace ElecyServer
             {
                 if(dynamicObjectsList.Get(i) != null) 
                 {
-                    if (dynamicObjectsList.Get(i).position.GetValue(out UpdateContainer<float[]> position, out int posIndex))
+                    try
                     {
-                        SendDataUDP.SendPositonUpdate(this, ObjectType.player, i, position.value, posIndex);
+                        if (dynamicObjectsList.Get(i).position.GetValue(out UpdateContainer<float[]> position, out int posIndex))
+                        {
+                            SendDataUDP.SendPositonUpdate(this, ObjectType.spell, i, position.value, posIndex);
+                        }
+                        if (dynamicObjectsList.Get(i).rotation.GetValue(out UpdateContainer<float[]> rotation, out int rotIndex))
+                        {
+                            SendDataUDP.SendRotationUpdate(this, ObjectType.spell, i, rotation.value, rotIndex);
+                        }
+                        if (dynamicObjectsList.Get(i).healthPoints.GetValue(out UpdateContainer<int> health, out int hpIndex))
+                        {
+                            SendDataUDP.SendHealthUpdate(this, ObjectType.spell, i, health.value, hpIndex);
+                        }
                     }
-                    if (dynamicObjectsList.Get(i).rotation.GetValue(out UpdateContainer<float[]> rotation, out int rotIndex))
+                    catch(Exception e)
                     {
-                        SendDataUDP.SendRotationUpdate(this, ObjectType.player, i, rotation.value, rotIndex);
-                    }
-                    if (dynamicObjectsList.Get(i).healthPoints.GetValue(out UpdateContainer<int> health, out int hpIndex))
-                    {
-                        SendDataUDP.SendHealthUpdate(this, ObjectType.player, i, health.value, hpIndex);
+                        if (e is IndexOutOfRangeException || e is NullReferenceException)
+                            Global.serverForm.Debug("Ex while spell tick");
+                        else
+                            throw e;
                     }
                 }
             }

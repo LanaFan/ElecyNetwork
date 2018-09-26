@@ -39,6 +39,9 @@ namespace ElecyServer
         public abstract void TakeDamage(int damage);
 
         #endregion
+
+        public abstract void Destroy(BaseGameRoom room);
+
     }
 
     #region Enumerator

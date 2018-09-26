@@ -369,7 +369,19 @@ namespace ElecyServer
             {
                 buffer.WriteBytes(data);
                 buffer.ReadInteger();
-                client.room.dynamicObjectsList.Destroy(buffer.ReadInteger());
+                ObjectType type = (ObjectType)buffer.ReadInteger();
+                switch(type)
+                {
+                    case ObjectType.player:
+                        client.room.roomPlayers[buffer.ReadInteger()].Destroy(client.room);
+                        break;
+                    case ObjectType.spell:
+                        client.room.dynamicObjectsList[buffer.ReadInteger()].Destroy(client.room);
+                        break;
+                    case ObjectType.staticObjects:
+                        client.room.staticObjectsList[buffer.ReadInteger()].Destroy(client.room);
+                        break;
+                }
             }
         }
 

@@ -69,6 +69,11 @@ namespace ElecyServer
             Offset = 0;
         }
 
+        public StaticObject this[int index]
+        {
+            get => _list[index];
+        }
+
         #endregion
 
         #region Private Commands

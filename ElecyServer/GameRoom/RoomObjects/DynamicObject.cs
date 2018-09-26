@@ -12,6 +12,12 @@ namespace ElecyServer
             this.caster = caster;
         }
 
+        public override void Destroy(BaseGameRoom room)
+        {
+            SendDataTCP.SendDestroy(room, index, type);
+            room.dynamicObjectsList.Destroy(index);
+        }
+
         public override void TakeDamage(int damage)
         {
             
