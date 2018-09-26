@@ -22,6 +22,17 @@ namespace ElecyServer
                 HandleDataTCP.InitializeNetworkPackages();
                 Global.InitGlobals();
                 Global.serverForm.StatusIndicator(1);
+                try
+                {
+                    Global.data.GetAccount("1");
+                    Global.data.GetMap(1);
+                    Global.serverForm.StatusIndicator(4);
+                }
+                catch (Exception ex)
+                {
+                    Global.serverForm.StatusIndicator(4, ex);
+                }
+
             }
             catch (Exception ex)
             {

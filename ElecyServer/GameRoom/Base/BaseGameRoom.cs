@@ -247,14 +247,14 @@ namespace ElecyServer
                 {
                     SendDataUDP.SendRotationUpdate(this, ObjectType.player, i, rotation.value, rotIndex);
                 }
-                if (roomPlayers[i].healthPoints.GetValue(out UpdateContainer<int> health, out int hpIndex))
-                {
-                    SendDataUDP.SendHealthUpdate(this, ObjectType.player, i, health.value, hpIndex);
-                }
-                if (roomPlayers[i].synergyPoints.GetValue(out UpdateContainer<int> synergy, out int snIndex))
-                {
-                    SendDataUDP.SendSynergyUpdate(this, ObjectType.player, i, synergy.value, snIndex);
-                }
+                //if (roomPlayers[i].healthPoints.GetValue(out UpdateContainer<int> health, out int hpIndex))
+                //{
+                //    SendDataUDP.SendHealthUpdate(this, ObjectType.player, i, health.value, hpIndex);
+                //}
+                //if (roomPlayers[i].synergyPoints.GetValue(out UpdateContainer<int> synergy, out int snIndex))
+                //{
+                //    SendDataUDP.SendSynergyUpdate(this, ObjectType.player, i, synergy.value, snIndex);
+                //}
             }
             for (int i = 0; i < dynamicObjectsList.Length; i++)
             {
@@ -270,10 +270,10 @@ namespace ElecyServer
                         {
                             SendDataUDP.SendRotationUpdate(this, ObjectType.spell, i, rotation.value, rotIndex);
                         }
-                        if (dynamicObjectsList.Get(i).healthPoints.GetValue(out UpdateContainer<int> health, out int hpIndex))
-                        {
-                            SendDataUDP.SendHealthUpdate(this, ObjectType.spell, i, health.value, hpIndex);
-                        }
+                        //if (dynamicObjectsList.Get(i).healthPoints.GetValue(out UpdateContainer<int> health, out int hpIndex))
+                        //{
+                        //    SendDataUDP.SendHealthUpdate(this, ObjectType.spell, i, health.value, hpIndex);
+                        //}
                     }
                     catch(Exception e)
                     {

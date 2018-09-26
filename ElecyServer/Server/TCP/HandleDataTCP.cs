@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bindings;
@@ -367,21 +368,30 @@ namespace ElecyServer
         {
             using (PacketBuffer buffer = new PacketBuffer())
             {
-                buffer.WriteBytes(data);
-                buffer.ReadInteger();
-                ObjectType type = (ObjectType)buffer.ReadInteger();
-                switch(type)
+                try
                 {
-                    case ObjectType.player:
-                        client.room.roomPlayers[buffer.ReadInteger()].Destroy(client.room);
-                        break;
-                    case ObjectType.spell:
-                        client.room.dynamicObjectsList[buffer.ReadInteger()].Destroy(client.room);
-                        break;
-                    case ObjectType.staticObjects:
-                        client.room.staticObjectsList[buffer.ReadInteger()].Destroy(client.room);
-                        break;
+                    buffer.WriteBytes(data);
+                    buffer.ReadInteger();
+                    ObjectType type = (ObjectType)buffer.ReadInteger();
+                    int index = buffer.ReadInteger();
+                    switch (type)
+                    {
+                        case ObjectType.player:
+                            client.room.roomPlayers[index].Destroy(client.room);
+                            break;
+                        case ObjectType.spell:
+                            client.room.dynamicObjectsList[index].Destroy(client.room);
+                            break;
+                        case ObjectType.staticObjects:
+                            client.room.staticObjectsList[index].Destroy(client.room);
+                            break;
+                    }
                 }
+                catch (Exception ex)
+                {
+
+                }
+
             }
         }
 
