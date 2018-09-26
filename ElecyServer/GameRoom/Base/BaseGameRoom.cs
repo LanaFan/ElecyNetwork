@@ -108,6 +108,7 @@ namespace ElecyServer
                                                         1000,
                                                         new float[] {
                                                             map.SpawnPoints.ToArray()[i].PositionX,
+                                                            0.5f,
                                                             map.SpawnPoints.ToArray()[i].PositionY,
                                                             },
                                                         new float[] {
