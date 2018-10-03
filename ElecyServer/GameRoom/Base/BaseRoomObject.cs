@@ -36,7 +36,7 @@ namespace ElecyServer
 
         public abstract void UpdateHP();
 
-        public abstract void TakeDamage(int damage);
+        public abstract void TakeDamage(ClientTCP Client, int index, int PhysicDamage, int IgnisDamage, int TerraDamage, int AquaDamage, int CaeliDamage, int PureDamage, bool Heal);
 
         #endregion
 

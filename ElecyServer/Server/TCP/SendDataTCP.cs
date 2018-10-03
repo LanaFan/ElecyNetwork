@@ -492,15 +492,21 @@ namespace ElecyServer
             }
         }
 
-        public static void SendDamage(ClientTCP client, ObjectType type, int index, int damage)
+        public static void SendDamage(ClientTCP client, int caster, ObjectType type, int index, int physicDamage, int ignisDamage, int terraDamage, int caeliDamage, int aquaDamage, int pureDamage, bool heal)
         {
             using (PacketBuffer buffer = new PacketBuffer())
             {
                 buffer.WriteInteger((int)ServerPackets.SDamage);
                 buffer.WriteInteger((int)type);
                 buffer.WriteInteger(index);
-                buffer.WriteInteger(damage);
-                ServerTCP.SendDataToClient(client, buffer.ToArray());
+                buffer.WriteInteger(physicDamage);
+                buffer.WriteInteger(ignisDamage);
+                buffer.WriteInteger(terraDamage);
+                buffer.WriteInteger(caeliDamage);
+                buffer.WriteInteger(aquaDamage);
+                buffer.WriteInteger(pureDamage);
+                buffer.WriteBoolean(heal);
+                ServerTCP.SendDataToClient(client.room.playersTCP[caster], buffer.ToArray());
             }
         }
 

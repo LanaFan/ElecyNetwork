@@ -30,7 +30,7 @@ namespace ElecyServer
             return (currHP, value.value, rotation);
         }
 
-        public override void TakeDamage(int damage)
+        public override void TakeDamage(ClientTCP Client, int index, int PhysicDamage, int IgnisDamage, int TerraDamage, int AquaDamage, int CaeliDamage, int PureDamage, bool Heal)
         {
             throw new System.NotImplementedException();
         }

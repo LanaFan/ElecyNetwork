@@ -23,9 +23,9 @@ namespace ElecyServer
             throw new NotImplementedException();
         }
 
-        public override void TakeDamage(int damage)
+        public override void TakeDamage(ClientTCP client, int index, int PhysicDamage, int IgnisDamage, int TerraDamage, int AquaDamage, int CaeliDamage, int PureDamage, bool Heal)
         {
-            
+            SendDataTCP.SendDamage(client, index, type, index, PhysicDamage, IgnisDamage, TerraDamage, CaeliDamage, AquaDamage, PureDamage, Heal);
         }
 
         public override void UpdateHP()

@@ -368,30 +368,23 @@ namespace ElecyServer
         {
             using (PacketBuffer buffer = new PacketBuffer())
             {
-                try
+                buffer.WriteBytes(data);
+                buffer.ReadInteger();
+                ObjectType type = (ObjectType)buffer.ReadInteger();
+                int index = buffer.ReadInteger();
+                switch (type)
                 {
-                    buffer.WriteBytes(data);
-                    buffer.ReadInteger();
-                    ObjectType type = (ObjectType)buffer.ReadInteger();
-                    int index = buffer.ReadInteger();
-                    switch (type)
-                    {
-                        case ObjectType.player:
-                            client.room.roomPlayers[index].Destroy(client.room);
-                            break;
-                        case ObjectType.spell:
+                    case ObjectType.player:
+                        client.room.roomPlayers[index].Destroy(client.room);
+                        break;
+                    case ObjectType.spell:
+                        if (client.room.dynamicObjectsList[index] != null) // Kostil
                             client.room.dynamicObjectsList[index].Destroy(client.room);
-                            break;
-                        case ObjectType.staticObjects:
-                            client.room.staticObjectsList[index].Destroy(client.room);
-                            break;
-                    }
+                        break;
+                    case ObjectType.staticObjects:
+                        client.room.staticObjectsList[index].Destroy(client.room);
+                        break;
                 }
-                catch (Exception ex)
-                {
-
-                }
-
             }
         }
 
@@ -403,19 +396,21 @@ namespace ElecyServer
                 buffer.WriteBytes(data);
                 buffer.ReadInteger();
                 ObjectType type = (ObjectType)buffer.ReadInteger();
-                int index;
-                int damage;
+                int _index = buffer.ReadInteger();
+                int _physicDamage = buffer.ReadInteger();
+                int _ignisDamage = buffer.ReadInteger();
+                int _terraDamage = buffer.ReadInteger();
+                int _aquaDamage = buffer.ReadInteger();
+                int _caeliDamage = buffer.ReadInteger();
+                int _pureDamage = buffer.ReadInteger();
+                bool _heal = buffer.ReadBool();
                 switch (type)
                 {
                     case ObjectType.player:
-                        index = buffer.ReadInteger();
-                        damage = buffer.ReadInteger();
-                        client.room.roomPlayers[index].TakeDamage(damage);
+                        client.room.roomPlayers[_index].TakeDamage(client, _index, _physicDamage, _ignisDamage, _terraDamage, _aquaDamage, _caeliDamage, _pureDamage, _heal);
                         break;
                     case ObjectType.spell:
-                        index = buffer.ReadInteger();
-                        damage = buffer.ReadInteger();
-                        client.room.dynamicObjectsList[index].TakeDamage(damage);
+                        client.room.dynamicObjectsList[_index].TakeDamage(client, _index, _physicDamage, _ignisDamage, _terraDamage, _aquaDamage, _caeliDamage, _pureDamage, _heal);
                         break;
                 }
             }
