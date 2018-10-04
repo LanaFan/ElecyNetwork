@@ -304,10 +304,11 @@ namespace ElecyServer
                     if(friend.accountData.GuideKey.Equals(guideKey))
                     {
                         friends.Add(friend);
+                        friend.friends.Add(this);
+                        SendDataTCP.SendFriendInfo(friend, this);
                         break;
                     }
                 }
-                break;
             }
             SendDataTCP.SendLoginOk(nickname, this);
         }
@@ -334,9 +335,15 @@ namespace ElecyServer
             {
                 if(player.accountData.GuideKey.Equals(GuideKey))
                 {
-                    accountData.Friends.ToList().Add(GuideKey);
-                    Global.data.SaveAccount(accountData);
-                    SendDataTCP.SendFriendInfo(this, player);
+                    List<string> Friends = accountData.Friends.ToList();
+                    if(!Friends.Contains(GuideKey))
+                    {
+                        Friends.Add(GuideKey);
+                        accountData.Friends = Friends.AsEnumerable();
+                        Global.data.SaveAccount(accountData);
+                        SendDataTCP.SendFriendInfo(this, player);
+                        break;
+                    }
                     break;
                 }
             }
@@ -344,7 +351,8 @@ namespace ElecyServer
 
         public void DeleteFriend(string GuideKey)
         {
-            accountData.Friends.ToList().Remove(GuideKey);
+            List<string> Friends = accountData.Friends.ToList();
+            Friends.Remove(GuideKey);
             Global.data.SaveAccount(accountData);
         }
 
