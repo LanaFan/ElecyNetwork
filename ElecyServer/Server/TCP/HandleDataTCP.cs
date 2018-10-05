@@ -412,6 +412,9 @@ namespace ElecyServer
                     case ObjectType.spell:
                         client.room.dynamicObjectsList[_index].TakeDamage(client, _index, _physicDamage, _ignisDamage, _terraDamage, _aquaDamage, _caeliDamage, _pureDamage, _heal);
                         break;
+                    case ObjectType.staticObjects:
+                        client.room.staticObjectsList[_index].TakeDamage(client, _index, _physicDamage, _ignisDamage, _terraDamage, _aquaDamage, _caeliDamage, _pureDamage, _heal);
+                        break;
                 }
             }
         }

@@ -284,6 +284,10 @@ namespace ElecyServer
                     }
                 }
             }
+            for(int i = 0; i < staticObjectsList.Length; i++)
+            {
+
+            }
         }
 
         protected void CloseUpdateTimer()

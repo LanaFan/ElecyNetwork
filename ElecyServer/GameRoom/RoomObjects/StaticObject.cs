@@ -5,14 +5,14 @@ namespace ElecyServer
     public class StaticObject : BaseRoomObject
     {
         int currHP;
-        float[] rotation;
+        int maxHP;
         StaticTypes staticType;
 
         #region Constructor
 
         public StaticObject(int index, StaticTypes staticType, ObjectType type, int hp, float[] position, float[] rotation) : base(index, type, hp, position, rotation)
         {
-            currHP = hp;
+            maxHP = currHP = hp;
             this.staticType = staticType;
             this.rotation = SetRotation(staticType, rotation);
         }
@@ -32,7 +32,16 @@ namespace ElecyServer
 
         public override void TakeDamage(ClientTCP Client, int index, int PhysicDamage, int IgnisDamage, int TerraDamage, int AquaDamage, int CaeliDamage, int PureDamage, bool Heal)
         {
-            throw new System.NotImplementedException();
+            if(Heal)
+            {
+                currHP += PhysicDamage + IgnisDamage + TerraDamage + CaeliDamage + AquaDamage + PureDamage;
+                if (currHP > maxHp)
+                    currHP = maxHp;
+            }
+            else
+            {
+                currHP -= PhysicDamage + IgnisDamage + TerraDamage + CaeliDamage + AquaDamage + PureDamage;
+            }
         }
 
         public override void UpdateHP()
