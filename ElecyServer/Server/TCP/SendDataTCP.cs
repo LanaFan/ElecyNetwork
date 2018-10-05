@@ -167,14 +167,18 @@ namespace ElecyServer
         ///             Buffer:
         ///                     int PacketNum;
         ///                     int sceneIndex;
+        ///                     int playersCount
+        ///                     string[playersCount] playersNicknames;
         /// </summary>
         public static void SendMatchFound(BaseGameRoom room)
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SMatchFound);
             buffer.WriteInteger((int)room.roomType);
+            buffer.WriteInteger(room.PlayersCount);
             foreach(ClientTCP player in room.playersTCP)
             {
+                buffer.WriteString(player.nickname);
                 foreach (ClientTCP friend in player.friends)
                 {
                     SendDataTCP.SendFriendChange(player, friend);
@@ -263,10 +267,8 @@ namespace ElecyServer
         {
             PacketBuffer buffer = new PacketBuffer();
             buffer.WriteInteger((int)ServerPackets.SPlayerSpawned);
-            buffer.WriteInteger(room.PlayersCount);
             for(int i = 0; i < room.PlayersCount; i++)
             {
-                buffer.WriteString(room.playersTCP[i].nickname);
                 buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].PositionX);
                 buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].PositionY);
                 buffer.WriteFloat(room.map.SpawnPoints.ToArray<SpawnPoint>()[i].RotationX);
